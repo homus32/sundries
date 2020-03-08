@@ -1,0 +1,69 @@
+@name ResetMap
+@persist Time:array Mode TimeToSec
+interval(1000)
+if(first()){
+    #include "lib/Hlib"
+    #cfg
+    Time = array(2,0)
+    #cfg
+    if(Time[2,number] >= 60){ error("TimeSec >= 60") }
+    TimeToSec = (Time:number(1)*60)+Time:number(2)
+    function array timerF(Time:number){
+        A = floor(Time/60)
+        B = mod(Time,60)
+        return array(A,B)
+    }
+    function advert1(Time:array){
+        foreach(I,E:entity = players()){
+            E:printColorF(array(vec(230,255,80),"Очистка карты будет через ",hsv2rgb(curtime()*100%360,1,1),Time:number(1)+" минут(ы/у) "+Time:number(2)+" секунд(ы/у)"))
+        }
+    }
+    function advert2(Time:array){
+        local Sec = Time:number(2)
+        foreach(I,E:entity = players()){
+            E:printColorF(array(hsv2rgb(curtime()*300%360,1,1),Sec+""))
+        }
+    }
+    advert1(Time)
+    if(Time[2,number] == 0 & Time[1,number] == 1){ Mode++ }
+    if(Time[2,number] <= 30 & Time[1,number] == 0){ Mode=2 }
+    if(Time[2,number] <= 10 & Time[1,number] == 0){ Mode=3 }
+}
+TimeToSec-=1
+switch(Mode){
+    case 0,
+        if(timerF(TimeToSec):number(2) == 30 & timerF(TimeToSec):number(1) != 0){
+            advert1(timerF(TimeToSec))
+        }elseif(timerF(TimeToSec):number(2) == 0 & timerF(TimeToSec):number(1) != 0){
+            advert1(timerF(TimeToSec))
+        }elseif(timerF(TimeToSec):number(1) == 0){
+            Mode++
+        }
+    break
+    
+    case 1,
+        if(timerF(TimeToSec):number(2) == 30){
+            advert1(timerF(TimeToSec))
+        }elseif(timerF(TimeToSec):number(2) == 20){
+            Mode++
+            advert1(timerF(TimeToSec))
+        }
+    break
+    
+    case 2,
+        if(timerF(TimeToSec):number(2) == 15){
+            advert1(timerF(TimeToSec))
+        }elseif(timerF(TimeToSec):number(2) == 10){
+            Mode++
+            advert2(timerF(TimeToSec))
+
+        }
+    break
+    
+    case 3,
+        if(timerF(TimeToSec):number(2) != 0){
+            advert2(timerF(TimeToSec))
+        }elseif(timerF(TimeToSec):number(2) == 0){
+            concmd("ulx resetmap")
+        }
+}

@@ -1,0 +1,71 @@
+@name Timer
+@outputs Timer:string
+interval(500)
+if(first()){    
+    #entity():createWire(entity():isWeldedTo(), Timer, "String")
+    print(time("hour"))
+
+function string wdayF(){
+    switch(time("wday")-1){
+    case 1, WDay = "Понедельник", break
+    case 2, WDay = "Вторник", break
+    case 3, WDay = "Среда", break
+    case 4, WDay = "Четверг", break
+    case 5, WDay = "Пятница", break
+    case 6, WDay = "Суббота", break
+    case 7, WDay = "Воскресенье", break
+}
+    return WDay
+}
+function string hoursF(){
+    Hours = (time("hour")+11):toString()
+    if(Hours:length() == 2){
+        if(Hours:toNumber() >= 24){
+            Hours = (Hours:toNumber()-24):toString()
+        }
+    }else{
+    Hours = "0"+Hours
+    }
+        
+    return  Hours
+}
+
+function string minF(){
+    if(time("min"):toString():length() == 2){
+        Min = time("min"):toString()
+    }else{
+            Min = "0"+time("min"):toString()
+        }
+    return Min
+}
+function string secF(){
+    if(time("sec"):toString():length() == 2){
+        Sec = time("sec"):toString()
+    }else{
+            Sec = "0"+time("sec"):toString()
+        }
+    return Sec
+}
+function string dayF(){
+    if(time("day"):toString():length() == 2){
+        Day = time("day"):toString()
+    }else{
+            Day = "0"+time("day"):toString()
+        }
+    return Day
+}
+function string monthF(){
+    if(time("month"):toString():length() == 2){
+        Month = time("month"):toString()
+    }else{
+            Month = "0"+time("month"):toString()
+        }
+    return Month
+}
+function string updater(){
+    }
+#Timer = hoursF()+":"+minF()+":"+secF()+" "+dayF()+"."+monthF()+"."+time("year")+" - "+wdayF()
+}
+
+
+

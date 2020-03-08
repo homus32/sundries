@@ -1,0 +1,576 @@
+@name Minecraft
+@model models/props_lab/huladoll.mdl
+@persist [Material Model Props Doors PPos PAng]:array Friends:array
+@persist Remove Repair Break Menu Yaw Mo Ma Re Gr Bl I N
+                                                                                                                                                                                                                                                                                 
+runOnTick(1)
+runOnChat(1)
+propSpawnEffect(0)
+
+O=owner()
+E=entity()
+
+if(dupefinished()){reset()}
+
+
+if(Mo==1|Mo==2|Mo==5){Scale=47.4}
+elseif(Mo==3){Scale=47.4/2}
+elseif(Mo==4){Scale=47.4/4}
+elseif(Mo==6){Scale=47,4*4}
+
+if(Mo==2){D=Scale/2}else{D=0}
+if(Mo==5){U=Scale*0.5,P=180}else{U=0,P=0}
+
+Down=D-U
+
+Use=O:keyUse()
+R=O:keyReload()
+Alt=O:keyWalk()
+At1=O:keyAttack1()
+At2=O:keyAttack2()
+Pos=round(O:aimPos()/Scale)*Scale-vec(0,0,Down)
+
+if(Mo==2|Mo==5){Ang=(round(O:eyeAngles()/90)*90):setPitch(0)+ang(P,180-P/2,P/2)}
+
+# List ==========================================
+
+if(first()){
+
+    Material[1,string]="models/props/CS_militia/roofbeams01"
+    Material[2,string]="phoenix_storms/wood"
+    Material[3,string]="phoenix_storms/stripes"
+    Material[4,string]="models/props_canal/metalwall005b"
+    Material[5,string]="models/props_combine/metal_combinebridge001"
+    Material[6,string]="models/props_wasteland/metal_tram001a"
+    Material[7,string]="phoenix_storms/checkers_map"
+    Material[8,string]="phoenix_storms/top"
+    Material[9,string]="models/props_pipes/GutterMetal01a"
+    Material[10,string]="models/gibs/metalgibs/metal_gibs"
+    Material[11,string]="models/props_c17/furniturefabric001a"
+    Material[12,string]="models/props_combine/health_charger_glass"
+    Material[13,string]="models/props_debris/concretewall019a"
+    Material[14,string]="models/props_c17/metalladder003"
+    Material[15,string]="models/props_c17/frostedglass_01a"
+    Material[16,string]="models/props/de_inferno/infflrd"
+    Material[17,string]="models/props/de_inferno/infflra"
+    Material[18,string]="brick/brick_model"
+    Material[19,string]="debug/env_cubemap_model"
+    Material[20,string]="models/XQM/CellShadedCamo_diffuse"
+    Material[21,string]="models/XQM/BoxFull_diffuse"
+    Material[22,string]="models/XQM/PoleX1_diffuse"
+    Material[23,string]="models/XQM/WoodPlankTexture"
+    Material[24,string]="models/combine_scanner/scanner_eye"
+    Material[25,string]="models/dav0r/hoverball"
+    Material[26,string]="models/effects/splode1_sheet"
+    Material[27,string]="models/props_c17/FurnitureFabric003a"
+    Material[28,string]="models/debug/debugwhite"
+    Material[29,string]="models/props_debris/building_template012d"
+    Material[30,string]="models/props_wasteland/wood_fence01a"
+    Material[31,string]="phoenix_storms/ps_grass"
+    Material[32,string]="sprops/trans/misc/tracks_wood"
+    Material[33,string]="sprops/trans/misc/ls_m2"
+    Material[34,string]="sprops/textures/sprops_wood4"
+    Material[35,string]="sprops/textures/sprops_wood3"
+    Material[36,string]="sprops/textures/sprops_metal6"
+    Material[37,string]="sprops/textures/sprops_cfiber2"
+    Material[38,string]="phoenix_storms/pack2/interior_top"
+    Material[39,string]="phoenix_storms/wood_dome"
+    Material[40,string]="phoenix_storms/trains/track_plateside"
+    Material[40,string]="models/props_lab/warp_sheet"
+    Material[41,string]="models/props_debris/concretefloor020a"
+    Material[42,string]="models/props_interiors/metalfence007a"
+    Material[43,string]="models/props_junk/ravenholmsign_sheet"
+    Material[44,string]="phoenix_storms/car_tire"
+    Material[45,string]="phoenix_storms/FuturisticTrackRamp_1-2"
+    Material[46,string]="models/weapons/w_smg1/smg_crosshair"
+    Material[47,string]="models/props_lab/generatorconsole_disp"
+    Material[48,string]="models/props_combine/combine_interface_disp"
+    Material[49,string]="models/props_combine/combine_intmonitor001_disp"
+    Material[50,string]="models/props_combine/combine_monitorbay_disp"
+    Material[51,string]="models/props_combine/masterinterface_alert"
+    Material[52,string]="models/props_lab/security_screens2"
+    Material[53,string]="models/props_lab/security_screens"
+    Material[54,string]="phoenix_storms/mat/mat_phx_carbonfiber"
+    Material[55,string]="models/props_pipes/pipemetal001a"
+    Material[56,string]="models/props_pipes/pipesystem01a_skin2"
+    Material[57,string]="models/props_vents/borealis_vent001b"
+    Material[58,string]="models/props_wasteland/concretewall064b"
+    Material[59,string]="models/props_wasteland/dirtwall001a"
+    Material[60,string]="models/shadertest/predator"
+    Material[61,string]="models/props_canal/canalmap_sheet"
+    Material[62,string]="models/props_canal/coastmap_sheet"
+    Material[63,string]="models/props_canal/metalcrate001d"
+    Material[64,string]="models/props/cs_office/screen"
+    Material[65,string]="models/props/de_nuke/nukecardboard"
+    Material[66,string]="models/props/de_inferno/tileroof01"
+    Material[67,string]="models/props_wasteland/rockcliff02b.mdl"
+    #[Material[68,string]=""
+    Material[69,string]=""
+    Material[70,string]=""
+    Material[71,string]=""
+    Material[72,string]=""]#
+    
+    Model[1,string]="models/hunter/blocks/cube1x1x1.mdl"
+    Model[2,string]="models/hunter/misc/stair1x1.mdl"
+    Model[3,string]="models/hunter/blocks/cube05x05x05.mdl"
+    Model[4,string]="models/hunter/blocks/cube025x025x025.mdl"
+    Model[5,string]="models/hunter/plates/plate1x2.mdl"
+    
+}
+
+C=Material:count()
+
+Ls=O:lastSaid():explode(" ")
+Clk=chatClk(O)
+    
+if(Ls:string(1)=="-цвет"&Clk){
+    
+    Re=Ls:string(2):toNumber()
+    Gr=Ls:string(3):toNumber()
+    Bl=Ls:string(4):toNumber()
+    
+    printColor(vec(Re,Gr,Bl),"[MC] New color! RGB - "+Re+","+Gr+","+Bl+" .")
+    hideChat(1)
+    
+}
+    
+Color=vec(Re,Gr,Bl)  
+
+if(Friends:count()==0){Friends:pushEntity(O)}
+
+if(Ls:string(1)=="-добывить"&Clk){
+    
+    String="[MC] Add "
+    
+    if(Ls:string(2)=="*"|Ls:string(2)=="всех"){
+        
+        Friends=array()
+        String=String+"всех"
+        
+        for(A=1,players():count()){
+            
+            Player=players()[A,entity]
+            Friends:pushEntity(Player)
+            
+        }
+        
+    }else{
+    
+        for(A=2,Ls:count()){
+            
+            TP=findPlayerByName(Ls:string(A))
+            if(TP:isPlayer()){
+                
+                for(B=1,Friends:count()){
+                    
+                    Friend=Friends[B,entity]
+                    if(TP==Friend){InList=1}
+                    
+                }
+                
+                if(!InList){
+                
+                    Friends:pushEntity(TP)
+                    if(A==Ls:count()){String=String+TP:name()}else{String=String+TP:name()+", "}
+                    
+                }else{
+                
+                    if(Ls:count()==2){String="[MC] Player "+TP:name()+" already in the friend list!"}
+                    elseif(A==Ls:count()){String=String+"<"+TP:name()+">"}
+                    else{String=String+"<"+TP:name()+">, "}
+                
+                }
+                
+                InList=0
+                
+            }else{
+            
+                for(P=1,players():count()){
+                    
+                    Player=players()[P,entity]
+                    if(Ls:string(A)==Player:steamID()){
+                        
+                        Friends:pushEntity(Player)
+                        if(A==Ls:count()){String=String+Player:name()}else{String=String+Player:name()+", "}
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    if(String=="[MC] Add "){String="[MC] Cant find player!"}
+    elseif(String:explode(" "):string(2)!="Player"){String=String+" to friend list."}
+    print(String)
+    hideChat(1)
+    
+}
+
+if(Ls:string(1)=="-удалить"&Clk){
+    
+    String="[MC] Delete "
+    
+    if(Ls:string(2)=="*"|Ls:string(2)=="всех"){
+        
+        Friends=array()
+        String=String+"всех"
+        Friends:pushEntity(O)
+        
+    }
+    
+    for(A=2,Ls:count()){
+        
+        TP=findPlayerByName(Ls:string(A))
+        
+        if(TP:isPlayer()){
+            
+            for(S=1,Friends:count()){
+                
+                Friend=Friends[S,entity]
+                if(TP==Friend){
+                    
+                    Friends:removeEntity(S)
+                    if(A==Ls:count()){String=String+TP:name()}else{String=String+TP:name()+", "}
+                    
+                }
+                
+            }
+            
+        }else{
+        
+            for(B=1,Friends:count()){
+                
+                Friend=Friends[B,entity]
+                if(Ls:string(A)==Friend:steamID()){
+                    
+                    Friends:removeEntity(B)
+                    if(A==Ls:count()){String=String+Friend:name()}else{String=String+Friend:name()+", "}
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    if(String=="[MC] Delete "){String="[MC] Cant find player!"}else{String=String+" from friend list."}
+    print(String)
+    hideChat(1)
+    
+}
+
+if(Ls:string(1)=="-list"&Clk){
+    
+    String="[MC] In Your buddie list are: "
+    
+    for(A=1,Friends:count()){
+        
+        Friend=Friends[A,entity]
+        
+        if(Friend){
+            
+            if(A==Friends:count()){String=String+Friend:name()+"."}else{String=String+Friend:name()+", "}
+            
+        }
+        
+    }
+    
+    print(String)
+    hideChat(1)
+    
+}
+
+# Holo ============================================
+
+if(Mo==0){Mo=1}
+if(Ma==0){Ma=1}
+
+if(first()){
+    
+    Re=255
+    Gr=255
+    Bl=255
+    
+    for(A=1,C){
+        
+        holoCreate(A)
+        holoMaterial(A,Material[A,string])
+        holoPos(A,O:pos()+vec(sin(360/C*A)*75,cos(360/C*A)*75,40))
+        holoAng(A,(O:pos()-holoEntity(A):pos()):toAngle():setPitch(90))
+        holoAlpha(A,0)
+        
+    }
+    for(A=1,Model:count()){
+        
+        if(A==2){HModel="right_prism"}else{HModel="cube"}
+        if(A==1|A==2){HScale=vec(2)}elseif
+        (A==3){HScale=vec(1)}elseif
+        (A==4){HScale=vec(0.5)}elseif
+        (A==5){HScale=vec(2,4,0.1)}elseif
+        (A==6){HScale=vec(4,4,2)}
+        
+        holoCreate(C+A)
+        holoModel(C+A,HModel)
+        holoScale(C+A,HScale)
+        holoPos(C+A,O:pos()+vec(sin(360/C*A)*85,cos(360/C*A)*85,40))
+        holoAng(C+A,ang(random(-180,180),random(-180,180),90))
+        holoAlpha(C+A,0)
+        
+    }
+    
+    holoCreate(C+Model:count()+1)
+    
+}
+
+# Material change
+
+if(Alt&!R){
+    
+    Menu=1
+    
+    timer("Clk",50)
+    if(clk("Clk")){
+        
+        P=360/Material:count()
+        Yaw=Material:count()-round((O:eyeAngles():yaw()+270)/P)
+        if(Yaw<=0){Yaw+=Material:count()} 
+       
+        for(A=1,C){
+            
+            if(Yaw==A){F=40/C}elseif(Yaw-1==A|Yaw+1==A){F=15/C}else{F=10/C}
+            holoPos(A,O:pos()+vec(sin(360/C*A)*75,cos(360/C*A)*75,45))
+            holoScale(A,vec(40/C,40/C,F))
+        
+        }
+        
+    }
+    
+}
+
+if(changed(Alt)&!Alt&!first()){Ma=Yaw}
+    
+# Model Change 
+
+if(R&!Alt){
+    
+    Menu=2
+    
+    timer("Clk",50)
+    if(clk("Clk")){
+    
+        P=360/Model:count()
+        Yaw=Model:count()-round((O:eyeAngles():yaw()+270)/P)
+        if(Yaw<=0){Yaw+=Model:count()}
+       
+        for(A=1,Model:count()){
+            
+            if(Yaw==A){holoAng(C+A,holoEntity(C+A):toWorld(ang(4,2,0)))}
+            holoPos(C+A,O:pos()+vec(sin(360/Model:count()*A)*75,cos(360/Model:count()*A)*75,45))
+
+        }
+        
+    }
+    
+}
+
+if(changed(R)&!R&!first()){Mo=Yaw}
+
+if(!R&!Alt){Menu=0}
+
+if(changed(Menu)){
+    
+    if(Menu==1){
+    
+        for(A=1,C){
+        
+            holoAlpha(A,255)
+            holoColor(A,Color)
+            
+        }
+        
+    }elseif(Menu==2){
+    
+        for(A=1,Model:count()){
+            
+            holoAlpha(C+A,255)
+            holoColor(C+A,Color)
+            holoMaterial(C+A,Material[Ma,string])
+            
+        }
+    
+    }elseif(!Menu){
+
+        for(A=1,C){ 
+            
+            holoAlpha(A,0)
+            
+        }
+
+        for(A=1,Model:count()){ 
+            
+            holoAlpha(C+A,0)
+            
+        }
+        
+    }
+    
+}
+
+Ty=O:weapon():type()
+CDis=O:aimPos():distance(O:pos()) 
+    
+if(Ty=="weapon_crowbar"|Ty=="weapon_fists"|Ty=="remotecontroller"){
+
+    if(changed(At2)&At2&&!Alt&!R&CDis<600){
+        
+        if(Doors:count()<80|Mo!=5){
+    
+            Prop=propSpawn(Model[Mo,string],Pos,Ang,1)
+            if(Prop){
+                
+                N+=1
+                Props[N,entity]=Prop
+                PPos[N,vector]=Prop:pos()
+                PAng[N,angle]=Prop:angles()
+                Prop:setMaterial(Material[Ma,string])
+                Prop:setColor(Color)
+                if(Mo==5){Doors:pushEntity(Prop)}
+                if(Ma==60){NC=1}else{NC=0}
+                Prop:setAlpha(255)
+                noCollideAll(Prop,NC)
+                O:soundPlay(1,800,"phx/hmetal"+round(random(1,3))+".wav")
+                
+            }
+            
+        }
+        
+    }
+
+    if(changed(At1)&At1){
+        
+        if(O:aimEntity():owner()==O){O:aimEntity():propDelete(),O:soundPlay(2,800,"phx/epicmetal_hard"+round(random(1,7))+".wav")}elseif(O:aimEntity():owner()){
+        print("[MC] Owner of this prop are "+O:aimEntity():owner():name()+", You cant delete it.")}
+        
+    }
+
+    if(!Alt&!R&CDis<600){
+        
+        Alp=100
+        
+    }else{Alp=0}
+    
+}
+
+if(Mo==2){HModel="right_prism",U=47.4/2}else{HModel="cube",U=0}
+if(Mo==1|Mo==2){HScale=vec(4)}elseif
+(Mo==3){HScale=vec(2)}elseif
+(Mo==4){HScale=vec(1)}elseif
+(Mo==5){HScale=vec(4,8,0.2)}
+
+holoModel(C+Model:count()+1,HModel)
+holoMaterial(C+Model:count()+1,Material[Ma,string])
+holoPos(C+Model:count()+1,Pos+vec(0,0,U))
+holoAng(C+Model:count()+1,Ang)
+holoColor(C+Model:count()+1,Color)
+holoAlpha(C+Model:count()+1,Alp)
+holoScale(C+Model:count()+1,HScale)
+
+if(Ls:string(1)=="-d"&Clk){Remove=1,print("[MC] Started deleting..."),hideChat(1)}
+if(Ls:string(1)=="-r"&Clk){Repair=1,print("[MC] Started repairing..."),hideChat(1)}
+if(Ls:string(1)=="-b"&Clk){Break=1,print("[MC] Started breaking..."),hideChat(1)}
+             
+if(changed(Remove)&Remove|changed(Repair)&Repair|changed(Break)&Break){I=Props:count()}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+if(Remove&!Repair&!Break){  
+    
+    if(changed(I)){Props[I,entity]:propDelete()}
+    if(I>0){I-=1}else{I=0,Remove=0,print("[MC] Remove done!")}
+    
+}
+
+if(Repair&!Remove&!Break){
+    
+    if(changed(I)){
+        
+        Props[I,entity]:propFreeze(1)
+        Props[I,entity]:setPos(PPos[I,vector])
+        Props[I,entity]:setAng(PAng[I,angle])
+        
+    }
+    
+    if(I>0){I-=1}else{I=0,Repair=0,print("[MC] Repair done!")}
+    
+}
+
+
+if(Break&!Remove&!Repair){
+    
+    if(changed(I)){
+        
+        local TempPos=Props[I,entity]:pos()
+        Props[I,entity]:propFreeze(0)
+        Props[I,entity]:setPos(TempPos)
+        
+    }
+    
+    if(I>0){I-=1}else{I=0,Break=0,print("[MC] Break done!")}
+    
+}
+
+if(Repair+Remove+Break>1){print("[MC] Error!"),Repair=0,Remove=0,Break=0,I=0}
+
+timer("doors",100)
+if(clk("doors")){
+    
+    for(A=1,Doors:count()){
+        
+        Door=Doors[A,entity]
+            
+        for(A=1,Friends:count()){
+            
+            Friend=Friends[A,entity]
+            if(Door:pos():distance(Friend:pos())<80){Open=1}
+            
+        }
+        
+        if(Open){
+               
+            local TempPos=Door:pos() 
+            Door:setAlpha(50)
+            Door:propNotSolid(1)
+            noCollideAll(Door,1)
+            Door:setPos(TempPos)
+                
+        }else{
+        
+            local TempPos=Door:pos()
+            Door:setAlpha(255)
+            Door:propNotSolid(0)
+            noCollideAll(Door,0)
+            Door:setPos(TempPos)
+                
+        }
+        
+        Open=0
+ 
+    }
+    
+}
+
+if(changed(Remove)&!Remove&!first()){
+    
+    Props=array()
+    PPos=array()
+    PAng=array()
+    Doors=array()
+    N=0
+     
+}   
+    
+setName("[MC] Made by TheDen246 :o")  
+#co

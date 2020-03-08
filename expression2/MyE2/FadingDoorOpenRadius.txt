@@ -1,0 +1,84 @@
+@name FadingDoorOpenRadius
+@persist White:array Doors:array Radius DR Standart O:entity
+@inputs Door:entity Setting 
+interval(100)
+
+if(first()){
+runOnLast(1)
+runOnChat(1)
+Radius = 50
+Standart = 50
+O = owner()
+
+function number entity:in_array(Array_lib:array){
+foreach(K_lib,S_lib:entity = Array_lib){
+if(S_lib == This){
+return 1}}
+return 0}
+
+White = array(
+owner(),
+findPlayerBySteamID(""), 
+findPlayerBySteamID(""), 
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID(""),
+findPlayerBySteamID("")
+
+
+)
+}
+
+foreach(K,W:wirelink = Doors){
+Return = 0
+
+foreach(K,E:entity = players()){
+if(W:entity():pos():distance(E:pos()) <= 50){
+Return = E:in_array(White) ? 0 :1}}
+
+#foreach(K,E:entity = White){
+#if(W:entity():pos():distance(E:pos()) <= Radius){
+#Return = 1}}
+
+W["Fade",number] = Return
+
+
+}
+
+if(inputClkName() == "Door" && !!Door){
+Doors:pushWirelink(Door:wirelink())
+entity():deleteWire("Door")}
+
+if(Setting && owner():keyReload() && changed(owner():aimEntity())){
+Doors:pushWirelink(owner():aimEntity():wirelink())}
+
+if(last()){
+foreach(K,W:wirelink = Doors){
+W["Fade",number] = 0}
+}
+
+if(chatClk(O)){
+    LS = O:lastSaid()
+if (LS == "!!dr") {
+    DR += 1
+    if(DR >= 2){
+        DR = 0
+}
+    if(DR == 1){
+hideChat(1)
+print("Door locked")
+Radius = 0
+    }else{
+hideChat(1)
+print("Door unlocked")
+Radius = Standart
+}}}
+

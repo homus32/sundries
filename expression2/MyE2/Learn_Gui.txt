@@ -1,0 +1,10 @@
+@name Learn Gui
+@persist 
+
+if(first()){
+    runOnGUI(1)
+    runOnKeys(owner(),1,array("mouse_left","mouse_right"))
+    guiWindow(1,vec2(500),vec2(400,400))
+    Cof = OwnerSizeScreen/EntitySizeScreen
+    Pos = vec2(512,256)*Cof  
+}

@@ -1,0 +1,47 @@
+@name Turret holo
+@inputs W:wirelink
+@persist E:entity I
+interval(100)
+if(first()){
+    E = entity()
+    holoCreate(1) #Base 1   
+    holoModel(1,"models/props_c17/oildrum001.mdl")
+    holoScale(1,vec(1,1,0.4))
+    holoParent(1,E)
+    holoPos(1,E:toWorld(vec(0,0,5)))
+    holoSkin(1,2)
+
+    holoCreate(2) #Base 2
+    holoModel(2,"models/Mechanics/robotics/stand.mdl")
+    holoScale(2,vec(0.23,0.23,0.23))
+    holoParent(2,E)
+    holoColor(2,vec(0,0,0))
+    holoPos(2,E:toWorld(vec(0,0,5)))
+
+    holoCreate(3) #Stick
+    holoModel(3,"models/props_docks/dock01_pole01a_128.mdl")
+    holoScale(3,vec(0.23,0.23,0.23))
+    holoParent(3,E)
+    holoPos(3,E:toWorld(vec(0,0,20)))
+
+    holoCreate(4) #Gun
+    holoModel(4,"models/weapons/w_rif_ak47.mdl")
+    holoParent(4,E)
+    holoPos(4,E:toWorld(vec(5,0,30)))
+}
+if(W:entity():isValid()){
+findInSphere(entity():pos(),300)
+findIncludeClass("player")
+W:entity():setPos(holoEntity(4):pos())
+
+if(findToArray():count()>0){
+    T = findClosest(entity():pos())
+    holoAng(4,(holoEntity(4):pos()-T:pos()):toAngle()+ang(0,180,0))
+    W:entity():setAng((holoEntity(4):pos()-T:pos()):toAngle()+ang(0,180,0))
+    W["Fire",number] = 1
+}else{
+    holoAng(4,ang())
+    W["Fire",number] = 0
+}
+}
+

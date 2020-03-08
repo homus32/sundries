@@ -1,0 +1,111 @@
+@name HUD E2 Monitor
+@persist [E O]:entity N
+@inputs EGP:wirelink
+
+#findByClass("gmod_wire_expression2")
+#findByClass("prop_*")
+#findByClass("prop_vehicle_*")
+#findExcludePlayerProps(owner())
+#findByClass("*")
+
+if(first()|changed(EGP:entity()))
+{
+    findByClass("gmod_wire_expression2")
+    #runOnTick(1)
+    interval(100)
+    E=entity()
+    O=owner()
+    #E:setAlpha(0)
+    EGP:egpClear()
+    
+    I=200
+    EGP:egpRoundedBox(I,vec2(256,40),vec2(512,80)) 
+    EGP:egpColor(I,vec(20,20,20)) 
+    I++
+    EGP:egpRoundedBox(I,vec2(256,260),vec2(512,430)) 
+    EGP:egpColor(I,vec(0,0,0)) 
+    I++
+    EGP:egpRoundedBox(I,vec2(256,260),vec2(500,400)) 
+    EGP:egpColor(I,vec(0,0,0)) 
+    I++
+    EGP:egpText(I,"E2",vec2(100,10))
+    EGP:egpFont(I,"coolvetica",25)
+    EGP:egpColor(I,vec(255,255,0))
+    I++ 
+    EGP:egpText(I,"Player",vec2(15,65))
+    EGP:egpFont(I,"coolvetica",25)
+    EGP:egpColor(I,vec(200,200,0))
+    EGP:egpAlpha(I,255) 
+    I++        
+    EGP:egpText(I,"OPS",vec2(230,65))
+    EGP:egpFont(I,"coolvetica",25)
+    EGP:egpColor(I,vec(255,255,0))
+    EGP:egpAlpha(I,255) 
+    I++
+    EGP:egpText(I,"E2",vec2(290,65))
+    EGP:egpFont(I,"coolvetica",25)
+    EGP:egpColor(I,vec(255,255,0))
+    EGP:egpAlpha(I,255)
+    I++
+    EGP:egpText(I,"",vec2(100,480))
+    EGP:egpFont(I,"coolvetica",25)
+    EGP:egpColor(I,vec(255,255,255))
+    
+    timer("reset",2000)
+}
+
+for(I=1,findCount())
+{
+    E2=findResult(I)
+    
+    #E2:tele(E:pos()+vec(0,0,I*80+20))
+    #E2:setAng(ang(vec(0,0,0)))
+    #E2:remove()
+    
+    if(E2:type()=="gmod_wire_expression2")
+    {
+        EGP:egpText(I,I+" "+E2:owner():name(),vec2(15,70+30*I))
+        EGP:egpFont(I,"coolvetica",25)
+        EGP:egpColor(I,vec(255,255,255))
+        EGP:egpAlpha(I,255) 
+        
+        EGP:egpText(I+30,E2:ops():toString(),vec2(230,70+30*I))
+        EGP:egpFont(I+30,"coolvetica",25)
+        EGP:egpColor(I+30,vec(255,255,255))
+        EGP:egpAlpha(I+30,255) 
+
+        EGP:egpText(I+60,E2:getName(),vec2(290,70+30*I))
+        EGP:egpFont(I+60,"coolvetica",25)
+        EGP:egpAlpha(I+60,255) 
+        EGP:egpColor(I+60,vec(255,255,255))
+    }
+    
+    if(E2:type()=="prop_vehicle_jeep"){
+        EGP:egpText(I,I+" "+E2:owner():name(),vec2(15,70+30*I))
+        EGP:egpFont(I,"coolvetica",25)
+        EGP:egpColor(I,vec(0,200,0))
+        EGP:egpAlpha(I,255) 
+        
+        EGP:egpText(I+60,E2:model(),vec2(290,70+30*I))
+        EGP:egpFont(I+60,"coolvetica",25)
+        EGP:egpAlpha(I+60,255) 
+        EGP:egpColor(I+60,vec(200,0,0))
+    }
+    
+    if(E2:type()=="prop_*"){
+        EGP:egpText(I,I+" "+E2:owner():name(),vec2(15,70+30*I))
+        EGP:egpFont(I,"coolvetica",25)
+        EGP:egpColor(I,vec(0,200,0))
+        EGP:egpAlpha(I,255) 
+        
+        EGP:egpText(I+60,E2:model(),vec2(290,70+30*I))
+        EGP:egpFont(I+60,"coolvetica",25)
+        EGP:egpAlpha(I+60,255) 
+        EGP:egpColor(I+60,vec(200,0,0))
+    }
+}
+
+if(clk("reset"))
+{
+    reset()
+}

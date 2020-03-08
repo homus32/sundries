@@ -1,0 +1,9 @@
+@name 1 lam cpu
+@persist S:string
+interval(1)
+if(first()){S = "1"}
+S = S+S 
+printColor(S)
+
+
+

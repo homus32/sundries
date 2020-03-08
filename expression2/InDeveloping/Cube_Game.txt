@@ -1,0 +1,109 @@
+@name Cube Game :)
+@persist [Ent Var]:table [ Size X Y ]:array [ Mode Interval ]:number
+interval(Interval)
+
+switch(Mode){
+    case 0,
+        Mode++
+        Interval = 1
+        propSpawnUndo(0)
+        runOnChat(1)
+        #noDuplications()
+        
+        Size = array(5,5)
+        Var["X",number] = 94
+        Var["Y",number] = 94
+        
+    case 1,
+    
+    switch(Var["PropMode",number]){
+        case 0,
+            Var["PropMode",number] = Var["PropMode",number]+1
+            Ent:pushArray(array())
+            
+            for(I=1,Size:number(2)){
+                Var["Amp",number]=!Var["Amp",number]
+                for(I=0,Size:number(1)-1){
+                    if(Var["Amp",number]){
+                        X:pushNumber(I*Var["X",number])
+                    }else{
+                        X:pushNumber((Var["X",number]*(Size:number(1)-1))-Var["X",number]*I)
+                    }
+                }
+            }
+                
+            for(I=0,Size:number(2)-1){
+                local YCount = Var["Y",number]*I
+                for(I=1,Size:number(1)){
+                     Y:pushNumber(YCount)
+                }
+            }
+        
+        case 1,
+        
+        while(Var["PropC",number] < Size:number(1)*Size:number(2) & propCanCreate()){
+            Var["PropC",number] = Var["PropC",number]+1
+            local N = Var["PropC",number]
+            local Amp = N%2
+            P = propSpawn("models/hunter/blocks/cube2x2x1.mdl",entity():pos()+vec(X[N,number],Y[N,number],100),ang(),1)
+            P["HP",number] = 100
+            Ent[1,array]:pushEntity(P)
+            if(Amp){ P:setColor(vec(0,255,0)) }
+            P:parentTo(entity())
+            P:setMaterial("phoenix_storms/ps_grass")
+            if(!(N < Size:number(1)*Size:number(2))){
+                Interval = 1000
+                Var["PropMode",number] = Var["PropMode",number]+1
+                Mode++
+                
+                foreach(I,E:entity = Ent[1,array]){
+                    runOnDamage(1,E)
+                }
+                break 
+            }
+        }
+        break
+    }
+ ################################################################################################################################
+    break
+    
+    case 2,
+    
+    break
+}
+
+#[
+
+    
+        local Count = Ent[1,array]:count()
+        local Num = randint(1,Count)
+        local Prop = Ent[1,array][Num,entity]
+        local DmgEnt = damageEntClk()
+        DmgEnt["HP",number] = DmgEnt["HP",number]-DmgEnt:getDamage()
+        DmgEnt:setColor(vec(255,(DmgEnt["HP",number]*255)/100,(DmgEnt["HP",number]*255)/100))
+        
+        if((DmgEnt["HP",number]*255)/100 < 1 & DmgEnt["R",number] == 0){
+            DmgEnt:deparent()
+            DmgEnt:propFreeze(0)
+            noCollideAll(DmgEnt,1)
+            DmgEnt:setVel(vec(0,0,500))
+            DmgEnt:remove(3)
+            DmgEnt["R",number] = 1
+            foreach(I,E:entity = Ent[1,array]){
+                if(E == DmgEnt){
+                    Ent[1,array]:removeEntity(I)
+                    break
+                }
+            }
+        }
+
+        if(clk("interval")){
+            Prop:deparent()
+            Prop:propFreeze(0)
+            noCollideAll(Prop,1)
+            Prop:setVel(vec(0,0,500))
+            Prop:remove(3)
+            Ent[1,array]:removeEntity(Num)
+        }
+        
+]#

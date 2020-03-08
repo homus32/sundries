@@ -1,0 +1,29 @@
+@name Vector Color
+@persist E:entity
+@model models/hunter/plates/plate1x1.mdl
+interval(100)
+if(first()){
+    entity():setAlpha(0)
+    for(I=1,255){
+    local X = mod(abs(holoEntity(I):pos():x()),255)
+    local Y = mod(abs(holoEntity(I):pos():y()),255)
+    local Z = mod(abs(holoEntity(I):pos():z()),255)
+    local RGB = X+Y+Z
+    holoCreate(I)
+    holoPos(I,entity():pos()+vec(0,0,I*10))
+    holoDisableShading(1,1)
+    holoMaterial(I,"models/debug/debugwhite")
+    holoModel(I,"models/hunter/plates/plate1x1.mdl")
+    holoEntity(I):setColor(vec(X,Y,Z))
+    holoEntity(I):setColor(hsv2rgb(RGB,1,1))
+    holoParent(I,entity())
+}
+}
+for(I=1,255){
+    local X = mod(abs(holoEntity(I):pos():x()),255)
+    local Y = mod(abs(holoEntity(I):pos():y()),255)
+    local Z = mod(abs(holoEntity(I):pos():z()),255)
+    local RGB = X+Y+Z
+    holoEntity(I):setColor(vec(X,Y,Z))
+    #holoEntity(I):setColor(hsv2rgb(RGB,1,1))
+}

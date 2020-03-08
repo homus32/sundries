@@ -1,0 +1,37 @@
+@name Spawnpoint ne moy
+@persist H Spawn:entity
+interval(0)
+if(first()){
+propSpawnUndo(0)
+Spawn=seatSpawn("models/expression 2/cpu_processor_nano.mdl",1)
+Spawn:propNotSolid(1)
+Spawn:propDraw(0)
+entity():propMakePersistent(1)
+H=1
+holoCreate(1)
+holoAlpha(1,0)
+holoParent(1,entity())
+holoCreate(38)
+holoModel(38,"models/holograms/hq_cylinder.mdl")
+holoMaterial(38,"models/props_combine/combine_barricade_tall02b")
+holoScale(38,vec(6,6,0.2))
+holoParent(38,entity())
+holoCreate(39)
+holoModel(39,"models/holograms/hq_cylinder.mdl")
+holoMaterial(39,"models/props_combine/combine_barricade_tall02b")
+holoScale(39,vec(6,6,0.2))
+holoPos(39,entity():toWorld(vec(0,0,115)))
+holoParent(39,entity())
+for(G=2,37){
+holoCreate(G)
+holoScale(G,vec(0.2))
+holoPos(G,entity():toWorld(vec(sin((G-1)*10)*30,cos((G-1)*10)*30,3*G)))
+holoEntity(G):setTrails(10,10,5,"trails/smoke",hsv2rgb((G-1)*10,1,1),255)
+holoParent(G,holoEntity(1))
+holoAlpha(G,0)
+}
+}
+H++
+holoAng(1,ang(0,H%360,0))
+if(changed(owner():isAlive())&owner():isAlive()&!first()){Spawn:use()}
+if(Spawn:driver():isPlayer()){Spawn:ejectPod()}

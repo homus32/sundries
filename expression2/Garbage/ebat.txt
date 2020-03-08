@@ -1,0 +1,50 @@
+@name ebat
+@persist W:wirelink Size:array X Y Amp XA:array YA:array N
+interval(1)
+if(first()){
+    W = entity():isWeldedTo():wirelink()
+    W:egpClear()
+    
+    Size = array(26,26)
+    
+    X = 10
+    Y = 10
+    
+    for(I=1,Size:number(2)){
+        Amp=!Amp
+        for(I=0,Size:number(1)-1){
+            if(Amp){
+                XA:pushNumber(I*X)
+            }else{
+                XA:pushNumber((X*(Size:number(1)-1))-X*I)
+            }
+        }
+    }
+        
+    for(I=0,Size:number(2)-1){
+        local YCount = Y*I
+        for(I=1,Size:number(1)){
+             YA:pushNumber(YCount)
+        }
+    }
+    
+    function egpVecColor(Index:number,First:number,Last:number){
+        local X = mod(abs(W:egpPos(Index):x()),Last)
+        local Y = mod(abs(W:egpPos(Index):y()*randint(1,2)),Last)
+        local Z = mod((X/Y)*randint(0,1000),Last)
+        #Z = Z/Z
+        if(X <= First){ X = First }
+        if(Y <= First){ Y = First }
+        if(Z <= First){ Z = First }
+        if(Last > 255){ error("Last > 255") }
+        if(First < 0){ error("First < 0") }
+        W:egpColor(Index,vec(X,Y,Z))
+    }
+    
+}
+N++
+W:egpBox(N,vec2(XA[N,number],YA[N,number]),vec2(10,10))
+egpVecColor(N,0,255)
+if(!(N < Size:number(1)*Size:number(2))){ 
+    entity():remove()
+}

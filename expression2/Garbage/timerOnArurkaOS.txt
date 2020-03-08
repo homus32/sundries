@@ -1,0 +1,95 @@
+@name timerOnArurkaOS
+
+if(first()){
+    #noDuplications()
+
+    if(0){
+    #include "lib/arturOSLib_v2.0"
+    EGP = wirelink()
+    Data = table()
+    GetCode = ""
+    CurretVersion = ""}
+    
+    addLink(array("box",0,vec2(50,100),vec2(50),vec(255),"gui/gmod_logo"),"timer") #link in desktop
+    
+    function void open_timer(){
+        local ID = windowCreate()                           #new window
+        local LData = Data["DataWindows",table][ID,table]   #local window data
+        
+        objectCreate(ID,array("rbox",1,vec2(0,25),vec2(80,60),vec(40),5,"",2))
+        objectCreate(ID,array("box",2,vec2(256,166),vec2(80,20),vec(70)))
+        objectCreate(ID,array("box",3,vec2(30,0),vec2(15,15),vec(255),"gui/close_32",2))
+        LData["numberBlat",number] = objectCreate(ID,array("text",4,"топ таймер",vec2(0,10),vec(255),14,1,2))
+        objectCreate(ID,array("text",6,"turn on",vec2(0,33),vec(255),14,1,2))
+        objectCreate(ID,array("box",5,vec2(0,40),vec2(70,20),vec(70),"",2))
+        
+        addTrigger(ID,array(1,"OSAPI:focus"))
+        addTrigger(ID,array(2,"OSAPI:move"))
+        addTrigger(ID,array(3,"OSAPI:close"))
+        addTrigger(ID,array(5,"TIMER:start"))
+        
+        setFocus(ID)
+        egpRender()
+    }
+
+}
+
+###########---_CastomTrigger_---###########
+local ARG = clkName():explode(":")
+local CLK = ARG:string(1)
+local Residue = ARG:concat(":",2)
+
+if(CLK == "trigger"){
+    local API = Residue:matchFirst("([^:]*):")
+    local Func = Residue:matchFirst(":([^:]*)")
+    local Arg = Residue:matchFirst("[^:]*:[^:]*:([^:]*)"):explode("|")
+    
+    if(API == "TIMER"){
+        switch(Func){
+            case "start",
+                timer("timerTick|"+Arg[1,string],100)
+            break
+        }
+    }
+}
+
+###################---LoopTimer---###################
+local ARG = clkName():explode("|")
+local WindowsID = ARG:string(2):toNumber()
+local CLK = ARG:string(1)
+
+if(CLK == "timerTick"){
+    timer(clkName(),100)
+    
+    local LData = Data["DataWindows",table][WindowsID,table]
+    local Tick = LData["tick",number]
+    
+    if(!LData:count()){
+        stoptimer(clkName())
+        exit()
+    }
+    
+    LData["tick",number] = Tick+1
+    
+    EGP:egpSetText(LData["numberBlat",number],Tick/10+"")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

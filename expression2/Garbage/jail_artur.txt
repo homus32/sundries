@@ -1,0 +1,127 @@
+@name jail_artur
+@inputs 
+@outputs 
+@persist Spawn [P1 P2 P3 P4 P5 P6 P7 P8 E]:entity [Pos1 Pos2 Pos3]:vector
+@trigger 
+if(first()){
+#noDuplications()
+
+hint("by Artur200320081",1)
+hint("V 1.0",1)
+hint("jail",1)
+
+propSpawnUndo(0)
+
+E = owner()
+timer("spawn",1)
+}
+
+if(clk("spawn")){
+timer("spawn",250)
+if(propCanCreate()){
+if(Spawn == 1){P1=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(52,-1,46),ang(0,0,0),1)}
+if(Spawn == 2){P2=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(-51,-1,46),ang(0,0,0),1)}
+if(Spawn == 3){P3=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(-20,-32,46),ang(0,90,0),1)}
+if(Spawn == 4){P4=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(-20,29,46),ang(0,90,0),1)}
+if(Spawn == 5){P5=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(21,-32,46),ang(0,90,0),1)}
+if(Spawn == 6){P6=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(21,29,46),ang(0,90,0),1)}
+if(Spawn == 7){P7=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(0,-1,97),ang(90,0,0),1)}
+if(Spawn == 8){P8=propSpawn("models/props_building_details/storefront_template001a_bars.mdl",entity():pos()+vec(0,-1,-5),ang(90,0,0),1)
+stoptimer("spawn")
+runOnChat(1)
+P1:parentTo(P2)
+P2:parentTo(P3)
+P3:parentTo(P4)
+P4:parentTo(P5)
+P5:parentTo(P6)
+P6:parentTo(P7)
+P7:parentTo(P8)
+runOnChat(1)
+}
+Spawn++}}
+
+
+if(clk("pos")){
+timer("pos",500)
+if(!inrange(E:pos(),Pos2,Pos1)){
+E:setPos(Pos3)
+}
+}
+
+A = hookArgs()
+if(hookClk() && A[1,entity] == E){
+if(A[2,entity]:isValid()){
+A[2,entity]:propDelete()}else{
+A[3,entity]:propDelete()}
+}
+if(chatClk(owner())){
+LS = owner():lastSaid():explode(" ")
+Count = LS:count()
+if(LS[1,string] == "/jail"){
+E = findPlayerByName(LS:concat(2,Count-1))
+P8:setPos(E:pos()-vec(0,0,10))
+Pos1 = E:pos()+vec(90,70,100)
+Pos2 = E:pos()-vec(90,70,100)
+Pos3 = E:pos()
+timer("pos",100)
+if(LS[Count,string]:toNumber() != 0){
+timer("unjail",LS[Count,string]:toNumber()*1000)}
+E:printColor(vec(30),"[",vec(255,0,0),"jail",vec(30),"] ",vec(50,200,255),"You ",vec(255,255,0),"jailed for:",vec(100,100,255),LS[Count,string],vec(255,255,0)," sec")
+runOnHook("PlayerSpawnedVehicle",1)
+runOnHook("PlayerSpawnedSENT",1)
+runOnHook("PlayerSpawnedNPC",1)
+runOnHook("PlayerSpawnedProp",1)
+runOnHook("PlayerSpawnedEffect",1)
+runOnHook("PlayerSpawnedRagdoll",1)
+runOnHook("PlayerSpawnedSWEP",1)
+}
+if(LS[1,string] == "/jailtp"){
+E = findPlayerByName(LS:concat(2,Count-1))
+E:setPos(owner():aimPos())
+P8:setPos(E:pos()-vec(0,0,10))
+Pos1 = E:pos()+vec(90,70,100)
+Pos2 = E:pos()-vec(90,70,100)
+Pos3 = E:pos()
+timer("pos",100)
+if(LS[Count,string]:toNumber() != 0){
+timer("unjail",LS[Count,string]:toNumber()*1000)}
+E:printColor(vec(30),"[",vec(255,0,0),"jail",vec(30),"] ",vec(50,200,255),"You ",vec(255,255,0),"jailed for:",vec(100,100,255),LS[Count,string],vec(255,255,0)," sec")
+runOnHook("PlayerSpawnedVehicle",1)
+runOnHook("PlayerSpawnedSENT",1)
+runOnHook("PlayerSpawnedNPC",1)
+runOnHook("PlayerSpawnedProp",1)
+runOnHook("PlayerSpawnedEffect",1)
+runOnHook("PlayerSpawnedRagdoll",1)
+runOnHook("PlayerSpawnedSWEP",1)
+}
+if(LS[1,string] == "/unjail"){
+E = noentity()
+Pos3 = vec(0)
+P8:setPos(entity():pos()-vec(0,0,10))
+Pos1 = vec()
+Pos2 = vec()
+stoptimer("pos")
+runOnHook("PlayerSpawnedVehicle",0)
+runOnHook("PlayerSpawnedSENT",0)
+runOnHook("PlayerSpawnedNPC",0)
+runOnHook("PlayerSpawnedProp",0)
+runOnHook("PlayerSpawnedEffect",0)
+runOnHook("PlayerSpawnedRagdoll",0)
+runOnHook("PlayerSpawnedSWEP",0)
+}
+}
+if(clk("unjail")){
+E = noentity()
+Pos3 = vec(0)
+P8:setPos(entity():pos()-vec(0,0,10))
+Pos1 = vec()
+Pos2 = vec()
+stoptimer("pos")
+runOnHook("PlayerSpawnedVehicle",0)
+runOnHook("PlayerSpawnedSENT",0)
+runOnHook("PlayerSpawnedNPC",0)
+runOnHook("PlayerSpawnedProp",0)
+runOnHook("PlayerSpawnedEffect",0)
+runOnHook("PlayerSpawnedRagdoll",0)
+runOnHook("PlayerSpawnedSWEP",0)
+}

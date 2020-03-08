@@ -1,0 +1,15 @@
+@persist O:entity Mode 
+interval(150)
+if(first()){
+    noDuplications()
+    Mode = 2
+    if(Mode <= 1){ O = owner() }
+    if(Mode == 2){ O = findPlayerByName("Boo") }
+    if(Mode >= 3){ O = findPlayerBySteamID("") }
+}
+if(O:health() <= 150){
+    O:setHealth(owner():health()+3.5)
+}
+if(O:armor() <= 255){
+    O:setArmor(owner():armor()+4.5)
+}

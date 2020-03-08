@@ -1,0 +1,28 @@
+@name epilepsion
+@persist I RGB:vector
+interval(1)
+I+=30
+
+if(first()){
+    holoCreate(1)
+    holoCreate(2)
+    holoColor(1,vec4(255,0,0,150))
+    holoColor(2,vec4(255,0,0,150))
+    holoDisableShading(1,1)
+    holoDisableShading(2,1)
+    holoPos(1,owner():pos()+vec(0,0,10))
+    holoPos(2,owner():pos()+vec(0,0,10))
+    holoParent(1,owner())
+    holoParent(2,owner())
+    
+}
+holoScale(1,vec(99))
+
+holoScale(2,vec(-99))
+
+holoAng(1,ang(I))
+holoAng(2,ang(I))
+
+RGB = hsv2rgb((I%360)*100,1,1)
+holoColor(1,RGB)
+holoColor(2,RGB*20)

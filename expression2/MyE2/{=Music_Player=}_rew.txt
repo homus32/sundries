@@ -1,0 +1,168 @@
+@name {=Music Player=}_rew
+@persist [E O H]:entity [HSV]:vector [Mode LS ]:string [PP NoSolid Job Particle ANG AANG]:number
+@model models/holograms/hq_cylinder.mdl
+interval(50)
+#[ Update ]#
+HSV = hsv2rgb(curtime()*20%360,1,1)
+ANG = ANG+1
+AANG = AANG-1
+holoAng(7,entity():toWorld(ang(0,ANG,0)))
+holoAng(8,entity():toWorld(ang(0,AANG,0)))
+holoAng(4,entity():toWorld(ang(0,ANG,90)))
+holoAng(1,entity():toWorld(ang(0,ANG,0)))
+
+#[ First ]#
+if(first()){
+    runOnChat(1)
+    soundURLPurge()
+    O = owner()
+    E = entity()
+    Mode = "SoudNameURLload"
+    Particle = 0
+    E:setTrails(10, 0, 1, "trails/physbeam",vec(255),255)
+    E:setdLight(E:pos(),vec(255),2,255,0)
+    E:dLightReParent(E) 
+    noCollideAll(entity(),1)
+    setName("{=Плеер=}")
+    
+#[ Creat  Holograms Entitys ]#    
+E:setAlpha(0)
+H = holoCreate(0,E:pos(),vec(0.8,0.8,0.6),ang(),HSV,"models/sprops/misc/fittings/cred_12_6_tall.mdl")
+holoMaterial(0,"phoenix_storms/Fender_white")
+holoCreate(1,H:toWorld(+vec(0,0,-4.1)),vec(0.9,0.9,0.7),E:angles(),vec(40),"models/sprops/mechanics/sgears/spur_24t_s.mdl")
+holoCreate(2,H:toWorld(vec(0,0,3.6)),vec(0.7,0.7,0.015),E:angles(),vec(140),"hq_cylinder")
+holoMaterial(2,"sprops/textures/gear_metal")
+holoCreate(3,H:toWorld(vec(0,0,3.7)),vec(0.4,0.4,0.020),ang(),vec(255),"hq_cylinder")
+holoCreate(4,E:toWorld(vec(0,0,4)),vec(0.2,0.015,0.2)*2.8,ang(0,185,-90),vec(223,182,212),"models/sprops/misc/alphanum/alphanum_star_4.mdl")
+holoCreate(5,H:toWorld(vec(0,0,1.4)),vec(0.7),ang(0,-135,180),HSV,"models/sprops/misc/fittings/cred_12_6_short.mdl")
+holoMaterial(5,"phoenix_storms/Fender_white")
+holoCreate(6,H:toWorld(vec()),vec(0.77,0.77,0.6),ang(),vec(255),"hq_cylinder")
+holoMaterial(6,"phoenix_storms/glass")
+holoCreate(7,H:toWorld(vec(0,0,1.5)),vec(1.02,1.02,0.3),ang(),vec(150),"models/sprops/mechanics/sgears/spur_16t_s.mdl")
+holoCreate(8,H:toWorld(vec(0,0,3.5)),vec(0.9,0.9,0.12),ang(),vec(140), "models/sprops/mechanics/misc/ratchet_15t_s.mdl")
+
+#ifdef entity():soundFFT()
+for(I=9,44){
+holoCreate(I,H:pos()+vec(sin(360*I/36)*36/8,cos(360*I/36)*36/8,3.6),vec(0.065,0.01,0.1))   
+holoAng(I, ang(0,  180 - 360 * I / 36, 0))
+holoColor(I,vec(20))
+holoParent(I,H)
+holoAlpha(I,0)
+}
+#endif
+for(P=0,8){
+holoParent(P,E)
+holoShadow(P,1)
+}}
+
+#[Entity applyForce()]#
+if( !E:isFrozen()){
+entity():applyForce(O:pos()/2 - E:pos()/2 + vec(0,0,100))}
+
+#[SoundFFT]#
+if(E:soundFFT(Mode):count()>0){
+for(I = 9, 44){
+holoScale(I,vec(0.065,0.01,E:soundFFT(Mode)[I, number]/0.1%0.9 ))
+holoColor(I,hsv2rgb(360/40*I,1,1))
+holoAlpha(I,255)
+if(!PP){
+if(E:soundFFT(Mode)[I,number] == 0){timer("1",20500 )}else{stoptimer("1")}}else{stoptimer("1")}
+}}
+
+#[Particle and Light]#
+if(Job){
+holoColor(0,HSV)
+holoColor(5,HSV)
+E:dLightColor(HSV)
+if(Particle){                           
+particleGravity(vec())
+particleBounce(1)
+particle(3,2,4,"sprites/glow04_noz",randvec(0,255),E:pos(),randvec(-1,1)*150)
+}}elseif(!Job){
+soundURLPurge()
+setName("{=Плеер=}")
+holoColor(0,vec())
+holoColor(5,vec())
+E:dLightColor(vec())
+for(I = 9,44){holoAlpha(I,0)}
+}
+
+#[ URL ]#
+if (chatClk(O)) {
+    local LS = O:lastSaid()
+    if (LS:left(4) == "url#") {
+        hideChat(1)
+        soundURLPurge()
+        URL = LS:sub(5,LS:length())
+        setName("{=Плеер=}"+"\n"+"Режым URL")                                   
+        printColor(vec(255,255,0),"Поиск URL:  ",vec(0,0,255),LS:sub(5,LS:length()) )      
+        soundURLload("hax",URL,1,0,E)
+        Mode = "hax"
+        soundURLparent(Mode,O)
+        Job = 1
+}}
+
+#[ NewGrounds Search ]#
+if (chatClk(O)) {
+    local LS = O:lastSaid()
+    if (LS:left(3) == "ng#") {
+        hideChat(1)
+        soundURLPurge()
+        URL = LS:sub(4,LS:length())  
+        setName("{=Плеер=}"+"\n"+"Сейчас играет: "+"\n"+"https://www.newgrounds.com/audio/listen/"+URL+"\n"+"С сайта NewGrounds.com")                                
+        printColor(vec(255,255,0),"Поиск на сайте newgrounds: ",vec(0,255,0),LS:sub(4,LS:length()))
+        soundURLload("kekz","https://www.newgrounds.com/audio/download/"+URL,1,0,E)
+        Mode = "kekz"
+        soundURLparent(Mode,O)
+        Job = 1    
+}}
+
+#[Pause/Play]#
+if(Job){
+if (chatClk(O)) {
+    local LS = O:lastSaid()
+    if(LS == "!pp"){
+        PP = !PP
+        hideChat(1)
+        if(PP){   soundURLpause(Mode) printColor(vec(255,255,0),"Пауза...")}
+        else{     soundURLplay(Mode) printColor(vec(255,255,0),"Пуск...")}
+}}}
+
+#[StopAllSounds]#
+if(Job){
+if (LS == "!sp") {
+hideChat(1)
+for(I = 9,44){holoAlpha(I+4,0)}
+soundURLPurge()
+setName("{=Плеер=}")
+printColor(vec(0,255,0)," Все остановлено...")
+Job = 0
+}}
+
+#[Volume]#
+if(chatClk(O)){
+    local LS = O:lastSaid()
+    if(LS:left(4) == "!vol"){
+        hideChat(1)
+        Vol = LS:sub(6,LS:length()):toNumber()
+        printColor(vec(225,225,0),"Громкость: ",vec(255,0,0),Vol)
+        Vol = Vol/100
+        soundURLvolume(Mode,Vol)
+}}
+
+#[E:propNotSolid()]#
+if(chatClk(O)){
+    LS = O:lastSaid()
+    if(LS == "!prop") {
+        hideChat(1)
+        NoSolid = !NoSolid
+        E:propNotSolid(NoSolid)
+        print("[b]PropNotSolid Mode: "+( NoSolid ? "" : "de" )+"activated!![/b]")
+
+
+}}
+
+#[Auto Stop]#
+if(clk("1")){
+    Job = 0
+}

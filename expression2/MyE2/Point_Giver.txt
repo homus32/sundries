@@ -1,0 +1,16 @@
+@name Point Giver
+@persist I Max C1
+interval(500)
+if(first()){
+    #include "lib/hlib"
+    Max = 1
+}
+C = players():count()+1
+if(I == C-1){ C1++ }
+if(C1 == Max){ entity():remove() }
+I = I == C-1 ? (I+2)%C : (I+1)%C
+Ent = players()[I,entity]
+Count = randint(300,1000)
+
+printColorF(array(teamColor(Ent:team()),Ent:name(),vec(255)," получил ",vec(140,255,90),Count:toString(),vec(255)," поинтов")) 
+Ent:psGive(Count)

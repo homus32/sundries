@@ -1,0 +1,16 @@
+@name Mine for  Bime
+@persist [ MinePos ]:array RG:ranger I
+interval(1)
+if(first()){
+    runOnKeys(owner(),1,array("h"))
+}
+
+if(changed(owner():keyPressed("h"))&owner():keyPressed("h") & owner():weapon():type() == "weapon_stunstick"){
+    hint("You create mine",1)
+    MinePos:pushVector(owner():aimPos()) 
+}
+
+if(MinePos:count() >= 1){
+    C = MinePos:count()+1
+    I = I == C-1 ? (I+2)%C : (I+1)%C
+}

@@ -1,0 +1,100 @@
+@name gui_zone_choose 
+
+if(first()){
+    function vector2 entity:getScrSize(){
+        local CastomSize = This["ScrSize",vector2]
+        local RealSize = egpScrSize(This)
+        
+        if(RealSize == vec2(-1)){
+            return CastomSize
+        }
+        return RealSize
+    }
+    
+    function void entity:zonePanel(Type:string){
+        local Pos = This:getScrSize()/2
+        local Type = Type:lower()
+        
+        switch(Type){
+            case "start",
+                local XSize = 360
+                local Tab = "                                    "
+                local Description = "Описание: Не дает игрокам пользоватся привилегиями чипа."
+                    guiWindow(This,11,Pos-vec2(145,67.5),vec2(290+XSize,150))
+                
+                guiSetValue(11,"Create Box / Remove Box")
+                guiResizeEnable(11,0)
+                guiMaximizeEnable(11,0)
+                guiMinimizeEnable(11,0)
+                
+                guiPanel(This,11.001,vec2(5),vec2(140+XSize/2,50))
+                guiParent(This,11.001,11)
+                
+                guiPanel(This,11.002,vec2(5*67,5),vec2(130+XSize/2,50))
+                guiParent(This,11.002,11)
+                
+                guiButton(This,11.003,vec2(10),vec2(130+XSize/2,40))
+                guiSetValue(This,11.003,"privet")
+                guiParent(This,11.003,11)
+                
+                guiButton(This,11.004,vec2(160+XSize/2,10),vec2(120+XSize/2,40))
+                guiSetValue(This,11.004,"privet2")
+                guiParent(This,11.004,11)
+                
+                guiRichText(This,11.005,vec2(10,60),vec2(200,70))
+                guiInsertText(This,11.005,"Max possible box:  X = 4800\n"+Tab+"Y = 4800\n"+Tab+"Z = 4800")
+                guiParent(This,11.005,11)     
+                           
+                guiRichText(This,11.006,vec2(100*3.4,60),vec2(300,80))
+                guiInsertText(This,11.006,Description)
+                guiParent(This,11.006,11)
+                
+            break
+        }
+    }
+    
+    owner():zonePanel("start")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

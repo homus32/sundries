@@ -1,0 +1,45 @@
+@name Owner RECORD Pos
+@persist R:array Ow:entity Turn Play
+if(first()){
+    Ow = owner()
+    runOnKeys(Ow,1,array("r","p"))
+}
+
+if(changed(Ow:keyPressed("r"))&Ow:keyPressed("r")){
+    Turn=!Turn
+    if(Turn){
+        if(Play){ Ow:print("Stop Play") stoptimer("play") Play = 0 }
+        Ow:print("Record")
+        R:clear()
+        timer("record",1)
+    }else{
+        Ow:print("Stop Record")
+    }
+
+}
+if(changed(Ow:keyPressed("p"))&Ow:keyPressed("p")){
+    Play=!Play
+    if(Play){
+        if(Turn){ stoptimer("record") Ow:print("Stop Record") Turn = 0 }
+        Ow:print("Play")
+        timer("play",1)
+    }else{
+        Ow:print("Pause")
+    }
+}
+
+if(clk("record")){
+    timer("record",1)
+    if(!Turn){ stoptimer("record") }
+    #R:unshiftVector(Ow:pos())
+    R:pushVector(Ow:pos())
+}
+
+if(clk("play")){
+    timer("play",1)
+    if(!Play){ stoptimer("play") }
+    Ow:setPos(R:vector(1))
+    R:removeVector(1)
+    if(R:count() == 0 & Play){ R:clear() stoptimer("play") Play = 0 Ow:print("Stop") }
+}
+

@@ -1,0 +1,7 @@
+@name RankTable
+@persist T:table T2:table
+
+for(I=21,39){
+    T[I:teamName()+" - "+I,vector] = teamColor(I)
+}
+printTable(T)

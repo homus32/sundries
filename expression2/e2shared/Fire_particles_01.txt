@@ -1,0 +1,478 @@
+@name Fire_particles_01
+@persist [FireParticles]:table
+
+
+
+if(changed(0)) {
+    
+    timer("create", 1)
+    FireParticles["part/need", number] = 60
+    FireParticles["prats/dropTime", number] = 3
+    FireParticles["dubugMode", number] = 0
+    
+    FireParticles["wait"    , array]
+    FireParticles["fly"     , array]
+    FireParticles["drop"    , array]
+    FireParticles["noEntity", array]
+    #221 #fly
+    #[
+    function number partSize(Part_i:number, SizeN:number) {
+        SizeN = clamp(SizeN,1,15)
+        local Size = "3 6 9 12 18 24 30 36 42 48 60 72 84 96 108 120 132 144":explode(" ")[SizeN, string]:toNumber()
+        
+        local Model = "models/sprops/geometry/sphere_" + Size + ".mdl"
+        holoModel(Part_i, Model)
+        FireParticles[Part_i + "/size", number] = Size
+        FireParticles[Part_i + "/sizeN", number] = SizeN
+        
+        return Size
+    }
+    ]#
+    
+    function number toFly(Pos:vector, Vel:vector) {
+        local Part_i = 0
+        local FirePart = 0
+        
+        if(FireParticles["wait", array]:count()) {
+            
+            while(FireParticles["wait", array]:count()) {
+                Part_i = FireParticles["wait", array][1, number]
+                local Holo = holoEntity(Part_i)
+                
+                if(!Holo) {Holo = holoCreate(Part_i, vec(), vec(1), ang(), vec(), "cube")}
+                
+                if(Holo) {
+                    
+                    FirePart = Part_i
+                    holoPos(Part_i, Pos)
+                    Holo:extinguish()
+                    Holo:ignite(50000)
+                    holoModel(Part_i, "cube") #partSize(Part_i, SizeN)
+                    
+                    FireParticles["wait", array]:remove(1)
+                    FireParticles[Part_i + "/pos", vector] = Pos
+                    FireParticles[Part_i + "/vel", vector] = Vel * 52.5
+                    FireParticles[Part_i + "/startFlyTime", number] = curtime()
+                    FireParticles[Part_i + "/dropTime", number] = FireParticles["prats/dropTime", number]
+                    FireParticles["fly", array] = FireParticles["fly", array]:add(array(Part_i))
+                    break
+                }
+                else {
+                    FireParticles["wait", array]:remove(1)
+                    FireParticles["noEntity", array] = FireParticles["noEntity", array]:add(array(Part_i))
+                }
+            }
+        }
+        
+        #if(!FirePart) {print("fireError: waitParts = 0")}
+        return FirePart
+    }
+    
+    
+    function number ranger:toDrop() {
+        local Ranger = This
+    }
+    
+    function number entity:toDrop() {
+        
+    }
+    
+    
+}
+
+
+if(clk("create")) {
+        timer("create", 100)
+    
+    local Need = FireParticles["part/need", number]
+    local Real = FireParticles["part/real", number]
+    if(Need > Real) {
+        while(holoCanCreate() & (Need > Real)) {
+            Real++
+            Part_i = Real + 1975445
+            local Holo = holoCreate(Part_i, vec(), vec(0.8), ang(), vec(255), "cube")
+            if(Holo) {
+                
+                FireParticles[Part_i + "/pos"     , vector] = vec()
+                FireParticles[Part_i + "/vel"     , vector] = vec()
+                FireParticles[Part_i + "/dropTime", number] = FireParticles["prats/dropTime", number]
+                FireParticles["wait", array] = FireParticles["wait", array]:add(array(Part_i))
+            }
+        }
+        FireParticles["part/real", number] = Real
+    }
+    else {
+        stoptimer("create")
+        timer("fly", 1)
+        timer("drop", 1)
+        if(entity():getName() == "Fire_particles_01") {
+            
+            timer("isNoInclude", 1)
+            print("created " + Real + "/" + Need + " fireParts")
+            
+            FireParticles["dubugMode", number] = 1
+            FireParticles["rangerFilter", array] = FireParticles["rangerFilter", array]:add(array(owner()))
+        }
+    }
+}
+
+
+
+
+
+if(clk("isNoInclude")) {
+        timer("isNoInclude", 50)
+    
+    local O = owner()
+    local E = entity()
+    local KeyFire = O:keyPressed("t")
+    local Fire = KeyFire
+    
+    local Mode = 1
+    if(Mode == 1) {
+        if(KeyFire) {
+            local Pos = O:shootPos() + O:eye() * 30
+            local Vel = O:eye():rotate(ang(randvec(-2,2))) * 40
+            
+            toFly(Pos, Vel)
+        }
+    }
+    elseif(Mode == 2) {
+        if(KeyFire) {
+            local Pos = E:toWorld(vec(5,0,0))
+            local Vel = E:forward():rotate(ang(randvec(-5,5))) * 30
+            
+            toFly(Pos, Vel)
+        }
+    }
+    elseif(Mode == 3) {
+        if(changed(KeyFire) & KeyFire) {
+            for(C = 1, 30) {
+                local RandVec = randvec(-10,10)
+                local Pos = E:toWorld(RandVec)
+                local Vel = vec() + RandVec:normalized() * 10
+                
+                toFly(Pos, Vel)
+            }
+        E:effectSpawn("explosion",E:pos(),1)
+        }
+    }
+    elseif(Mode == 4) {
+        if(KeyFire) {
+            local Dir = ang(0,random(-180,180),0):forward()
+            local Pos = E:pos() + Dir*5
+            local Vel = Dir*randint(0.5,1) + vec(0,0,2)
+            
+            toFly(Pos, Vel)
+        }
+    }
+    
+    
+    local Wait     = FireParticles["wait", array]:count()
+    local Fly      = FireParticles["fly", array]:count()
+    local Drop     = FireParticles["drop", array]:count()
+    local NoEntity = FireParticles["noEntity", array]:count()
+    local OPS = ops()
+    setName("Fire particles" + "\nOPS: " + OPS + "\nWait: " + Wait + "\nFly: " + Fly + "\nDrop: " + Drop + "\nNoEntity: " + NoEntity + "\nno include mode")
+}
+
+
+
+
+
+if(clk("fly")) {
+        timer("fly", (FireParticles["fly", array]:count() ? 75 : 500))
+    
+    if(changed(0)) {
+        FireParticles["fly/lastCurtime", number] = curtime()
+        
+        function number cos([V1 V2]:vector) {
+            V1 = V1:normalized()
+            V2 = V2:normalized()
+            return V1[1] * V2[1] + V1[2] * V2[2] + V1[3] * V2[3]
+        }
+        
+        rangerPersist(1)
+        rangerHitWater(1)
+        rangerFilter(FireParticles["rangerFilter", array])
+    }
+    
+    local LastCurtime = FireParticles["fly/lastCurtime", number]
+    local Curtime = curtime()
+    FireParticles["fly/lastCurtime", number] = Curtime
+    local Interval = Curtime - LastCurtime
+    
+    
+    
+
+#
+
+    local Clear = array()
+    foreach(C, Part_i:number = FireParticles["fly", array]) {
+    
+        local Holo = holoEntity(Part_i)
+        local Pos = FireParticles[Part_i + "/pos", vector]
+        local Vel = FireParticles[Part_i + "/vel", vector]
+        local Length = Vel:length()
+        
+        
+        Vel = Vel - (Vel * clamp(Length / 1000,0,0.9) ^ 2 + vec(0,0,600)) * Interval
+        local Length = Vel:length()
+        local R = rangerOffset(Length * Interval, Pos, Vel)
+        Pos = R:pos()
+        if(R:hit()) {
+            local Norm = R:hitNormal()
+            local Cos = cos(Norm,Vel)
+            local Victim_e = R:entity()
+            
+            Vel = -Vel:rotateAroundAxis(Norm,180) * 0.5 * Cos
+            
+            local Drop = 0
+            if(Victim_e) {
+                if(Victim_e:isPlayer() | Victim_e:isNPC()) {
+                    if(Victim_e:attachmentPos("chest") != vec()) {
+                        holoParentAttachment(Part_i, Victim_e, "chest")
+                        Pos = rangerOffsetHull(Victim_e:attachmentPos("chest"), Pos,vec(),vec(5)):pos()
+                    }
+                    elseif(Victim_e:boxCenterW()) {
+                        holoParent(Part_i, Victim_e)
+                        Pos = rangerOffsetHull(Victim_e:boxCenterW(), Pos,vec(),vec(5)):pos()
+                    }
+                    FireParticles[Part_i + "/victimMode", string] = "npcOrPlayer"
+                }
+                else {
+                    holoParent(Part_i, Victim_e)
+                    
+                    local IsExplosive = 0
+                    if(Victim_e:health()) {
+                        local Victim_m = Victim_e:model()
+                        IsExplosive = Victim_m:find("explosive") | Victim_m:find("gas") | Victim_m:find("propan") | Victim_m:find("propan")
+                        #[
+                            models/props_c17/oildrum001_explosive.mdl
+                            models/props_junk/gascan001a.mdl
+                            models/props_junk/propane_tank001a.mdl
+                            
+                            models/props_phx/amraam.mdl
+                            models/props_phx/ball.mdl
+                            models/props_phx/mk-82.mdl
+                            models/props_phx/torpedo.mdl
+                        ]#
+                    }
+                    
+                    FireParticles[Part_i + "/victimMode", string] = (IsExplosive ? "inExplosive" : "physics") 
+                }
+                Drop = 1
+                FireParticles[Part_i + "/victim_e", entity] = Victim_e
+            }
+            else {
+                if((acos(Norm[3]) <= 70) | (randint(10) == 1)) {
+                    Drop = 1
+                }
+            }
+            if(Drop) {
+                
+                #R:drawPaint("dark")
+                
+                #holoModel(Part_i, "models/hunter/blocks/cube05x05x05.mdl")
+                
+                Holo:effectSpawn("MuzzleEffect", Pos, vec(), Norm:toAngle(), 3)
+                
+                local Sound_n = "down" + Part_i
+                Holo:soundPlay(Sound_n, 10, "ambient/levels/canals/toxic_slime_sizzle" + randint(3,4) + ".wav") soundVolume(Sound_n, 0.7) soundPitch(Sound_n, randint(80,120))
+                
+                
+                FireParticles["drop", array] = FireParticles["drop", array]:add(array(Part_i))
+                FireParticles[Part_i + "/time", number] = Curtime + FireParticles[Part_i + "/dropTime", number]
+                Clear = array(C):add(Clear)
+            }
+        }
+        
+        
+        FireParticles[Part_i + "/pos", vector] = Pos
+        FireParticles[Part_i + "/vel", vector] = Vel
+        holoPos(Part_i, Pos)
+    }
+    foreach(C, I:number = Clear) {
+        FireParticles["fly", array]:remove(I)
+    }
+
+}
+
+
+
+if(clk("drop")) {
+        timer("drop", (FireParticles["drop", array]:count() ? 250 : 500))
+    
+    local Curtime = curtime()
+    
+    local Clear = array()
+    foreach(C, Part_i:number = FireParticles["drop", array]) {
+        local Time = FireParticles[Part_i + "/time", number]
+        local VictimMode = FireParticles[Part_i + "/victimMode", string]
+        local Part_e = holoEntity(Part_i)
+        
+        
+        if(!Part_e) {
+            if(holoCanCreate()) {
+                Part_e = holoCreate(Part_i, FireParticles[Part_i + "/pos", vector], vec(), ang(), vec(), "cube")
+                Part_e:ignite(9999)
+                
+                if(VictimMode) {
+                    if(VictimMode == "inExplosive") {
+                        FireParticles[Part_i + "/vel", vector] = FireParticles[Part_i + "/vel", vector] + (randvec(-1,1) * 15 + vec(0,0,10)) * 52.5
+                    }
+                    else {
+                        FireParticles[Part_i + "/vel", vector] = FireParticles[Part_i + "/vel", vector] + (randvec(-1,1) * 2 + vec(0,0,1)) * 52.5
+                    }
+                }
+                else {
+                    FireParticles[Part_i + "/vel", vector] = (randvec(-1,1) * 2 + vec(0,0,2)) * 52.5
+                }
+                FireParticles["fly", array] = FireParticles["fly", array]:add(array(Part_i))
+                holoModel(Part_i, "cube")
+            }
+            else {
+                FireParticles["noEntity", array] = FireParticles["noEntity", array]:add(array(Part_i))
+                print("lost the hologram" + Part_i + ". Losted" + FireParticles["noEntity", array]:count())
+            }
+            
+            Clear = array(C):add(Clear)
+            FireParticles[Part_i + "/victimMode", string] = ""
+        }
+        else {
+            if(Time <= Curtime) {
+                Clear = array(C):add(Clear)
+                Part_e:extinguish()
+                holoUnparent(Part_i)
+                FireParticles["wait", array] = FireParticles["wait", array]:add(array(Part_i))
+            }
+            elseif(VictimMode) {
+                local Victim_e = FireParticles[Part_i + "/victim_e", entity]
+                
+                FireParticles[Part_i + "/pos", vector] = Part_e:pos()
+                FireParticles[Part_i + "/vel", vector] = Victim_e:vel()
+                
+                if(VictimMode == "npcOrPlayer") {
+                    if(!Victim_e:isAlive()) {
+                        Clear = array(C):add(Clear)
+                        holoUnparent(Part_i)
+                        FireParticles[Part_i + "/vel", vector] = FireParticles[Part_i + "/vel", vector] + randvec(-1,1) * 52.5 * 2
+                        FireParticles[Part_i + "/victimMode", string] = ""
+                        FireParticles["fly", array] = FireParticles["fly", array]:add(array(Part_i))
+                        holoModel(Part_i, "cube")
+                    }
+                }
+            }
+        }
+    }
+    foreach(C, I:number = Clear) {
+        FireParticles["drop", array]:remove(I)
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#[
+
+
+
+
+#[[
+
+    local Clear = array()
+    foreach(C, Part:number = FireParticles["fly", array]) {
+        local Holo = holoEntity(Part)
+        local Pos = FireParticles[Part + "/pos", vector]
+        local Vel = FireParticles[Part + "/vel", vector]
+        local Length = Vel:length()
+        
+        local DD = ((FireParticles[Part + "/fireTime", number] - Curtime) >= 0 ? 0.05 : 1)
+        
+        Vel = Vel - (Vel * clamp(Length / 1000,0,0.9) ^ 2 + vec(0,0,600)) * Interval * DD
+        local Length = Vel:length()
+        rangerHitWater(1)
+        local R = rangerOffset(Length * Interval * DD, Pos, Vel)
+        Pos = R:pos()
+        if(R:hit()) {
+            local Norm = R:hitNormal()
+            local Cos = cos(Norm,Vel)
+            local Victim_e = R:entity()
+            
+            Vel = -Vel:rotateAroundAxis(Norm,180) * 0.5 * Cos
+            
+            local Drop = 0
+            if(Victim_e) {
+                if(Victim_e:isPlayer() | Victim_e:isNPC()) {
+                    if(Victim_e:attachmentPos("chest") != vec()) {
+                        holoParentAttachment(Part, Victim_e, "chest")
+                        Pos = rangerOffsetHull(Victim_e:attachmentPos("chest"), Pos,vec(),vec(5)):pos()
+                    }
+                    elseif(Victim_e:boxCenterW()) {
+                        holoParent(Part, Victim_e)
+                        Pos = rangerOffsetHull(Victim_e:boxCenterW(), Pos,vec(),vec(5)):pos()
+                    }
+                }
+                else {
+                    holoParent(Part, Victim_e)
+                }
+                Drop = 1
+            }
+            else {
+                if((acos(Norm[3]) <= 70) | (randint(10) == 1)) {
+                    Drop = 1
+                }
+            }
+            if(Drop) {
+                FireParticles["drop", array] = FireParticles["drop", array]:add(array(Part))
+                FireParticles[Part + "/time", number] = Curtime + FireParticles[Part + "/dropTime", number]
+                Clear = array(C):add(Clear)
+            }
+        }
+        
+        
+        FireParticles[Part + "/pos", vector] = Pos
+        FireParticles[Part + "/vel", vector] = Vel
+        
+        holoPos(Part, Pos)
+    }
+    foreach(C, I:number = Clear) {
+        FireParticles["fly", array]:remove(I)
+    }
+
+
+
+
+

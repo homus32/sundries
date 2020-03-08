@@ -1,0 +1,876 @@
+@name Oblivion Drone
+@inputs [T1 T2 T3 T4]:wirelink
+@persist Mode Holos:table [Base DE Targ]:entity ArmState [Chats BL]:array Active Bhvr FireMode Defending NeedConirm Radius Confirming LastNPC:string JustScan OldD
+#@model models/cheeze/wires/nano_chip.mdl
+if(dupefinished()) 
+{ 
+    reset()
+    noDuplications()
+}
+
+if(chatClk(owner())) 
+{ 
+    local LS = owner():lastSaid():lower():explode(" ")
+    
+    if(LS:string(1) == "-" & ("/" + Chats:concat("/") + "/"):find("/" + LS:string(2) + "/")) 
+    { 
+        if(Active | LS:string(2) == "on") 
+        { 
+            holoEntity(randint(1, 150)):soundPlay(1, 0.3, "buttons/button19.wav")
+            soundPitch(1, 225)
+        }
+        
+        hideChat(1)
+        ("chat_" + LS:string(2))(LS)
+    }
+    
+    exit()
+}
+
+if(clkName() != "interval" & clkName()) 
+{ 
+    holoEntity(randint(1, 150)):soundPlay(2, 0.3, "buttons/button9.wav")
+    soundPitch(2, 200)
+    
+    ("timer_" + clkName())()
+    exit()
+}
+
+if(changed(T1) & T1) {  rangerFilter(T1:entity())  }
+if(changed(T2) & T2) {  rangerFilter(T2:entity())  }
+if(changed(T3) & T3) {  rangerFilter(T3:entity())  }
+if(changed(T4) & T4) {  rangerFilter(T4:entity())  }
+
+#[ 
+    Behavs:
+    
+    0 - player following
+    1 - stand here
+    2 - kill target 
+]#
+
+switch(Mode)
+{ 
+    case 0, 
+        propSpawnUndo(0)
+        propSpawnEffect(0)
+        
+        Base = propSpawn("models/hunter/blocks/cube1x1x1.mdl", entity():toWorld(vec(0, 0, 50)), ang(), 1)
+        
+        Base:propFreeze(0)
+        Base:propShadow(0)
+        Base:setMass(5000)
+        Base:setAlpha(0)
+        
+        Radius = 1000
+        Mode++
+        
+        runOnTick(1)
+        runOnChat(1)
+        
+        rangerPersist(1)
+        rangerFilter(Base)
+        
+        findIncludeClass("npc*")
+        findIncludeClass(owner():type())
+        
+        
+        #[ Functions ]#
+        function oprint(S:string) 
+        { 
+            print("[Drone] " + S)
+        }
+        
+        function active(State) 
+        { 
+            Active = State
+            ArmState = State ? ArmState : 0
+            
+            if(State) 
+            { 
+                holoEntity(randint(1, 150)):soundPlay(3, 99999, "ambience/mechwhine.wav")
+                soundPitch(3, 50)
+            } 
+            else 
+            { 
+                soundStop(3)
+            }
+            
+                # Switching to player following without aim fire and defending
+            Bhvr       = 0
+            Targ       = owner()
+            FireMode   = 0
+            Defending  = 0
+            NeedConirm = 0
+            Confirming = 0
+            
+            DE   = Targ
+            OldD = DE:getDamage()
+            
+            T1["Fire", number] = 0
+            T2["Fire", number] = 0
+            T3["Fire", number] = 0
+            T4["Fire", number] = 0
+            
+            Base:propFreeze(0)
+            Base:propGravity(!State)
+            
+                # Disabling the lights
+            holoColor(49, State ? holoEntity(49):getColor() : vec(50, 0, 0))
+            holoColor(91, State ? holoEntity(91):getColor() : vec(50, 0, 0)) 
+            holoColor(99, State ? holoEntity(99):getColor() : vec(50, 0, 0)) 
+            holoColor(110, State ? holoEntity(119):getColor() : vec(50, 0, 0)) 
+            holoColor(118, State ? holoEntity(118):getColor() : vec(50, 0, 0)) 
+            
+            holoAlpha(149, 0)
+            holoAlpha(150, 0)
+            
+            holoAlpha(120, 255 * State)
+            holoAlpha(121, 255 * State)
+            holoAlpha(122, 255 * State)
+            
+            oprint("Drone " + (State ? "" : "de") + "activated")
+        }
+        
+        
+        #[ Timer functions ]#
+        function timer_confirm() 
+        { 
+            Confirming = 2
+            local Rl = Targ:npcDisp(DE)
+            
+            if(Rl == "like") 
+            { 
+                BL:pushString(Targ:model())
+                
+                Targ = DE
+                Bhvr = 0
+            } 
+            elseif(JustScan) 
+            { 
+                BL:pushString(Targ:steamID())
+                
+                JustScan = 0
+                
+                Targ = DE
+                Bhvr = 0
+            }
+        }
+        
+        function timer_chase_end() 
+        { 
+            if(Bhvr == 2) 
+            { 
+                Confirming = 0
+                Bhvr       = 0
+                Targ       = DE ?: owner()
+                
+                print("[Drone] Cant reach the target")
+            }
+        }
+        
+        function timer_active() 
+        { 
+            active(1)
+        }
+        
+        
+        #[ Chat functions ]#
+        Chats = array(
+            "on", 
+            "off", 
+            "aim", 
+            "follow", 
+            "standby", 
+            "defend", 
+            "kill", 
+            "radius", 
+            "idle", 
+            "scan"
+        )
+        
+        function chat_scan(LS:array) 
+        { 
+            local T = findPlayerByName(LS:string(3))
+            
+            if(!T:isAlive()) 
+            { 
+                oprint("ERROR: Target dead or not found")
+                return
+            }
+            
+            Targ       = T
+            NeedConirm = 1
+            Bhvr       = 2
+            JustScan   = 1
+        }
+        
+        function chat_radius(LS:array) 
+        { 
+            if(!Active) 
+            { 
+                return 
+            }
+            
+            Radius = LS:string(3):toNumber() ?: 1000
+            oprint("Radius set to " + Radius)
+        }
+        
+        function chat_defend(LS:array) 
+        { 
+            if(!Active) 
+            { 
+                return 
+            }
+            
+            FireMode   = 0
+            Defending  = 1
+            Confirming = 0
+            Bhvr       = 0
+            
+            Targ = LS:string(3) ? findPlayerByName(LS:string(3)) : owner()
+            DE   = Targ
+            OldD = DE:getDamage()
+            
+            oprint("DEFEND: " + DE:name())
+        }
+        
+        function chat_standby(LS:array) 
+        { 
+            if(!Active) 
+            { 
+                return 
+            }
+            
+            FireMode   = 0
+            Bhvr       = 1
+            Defending  = 0
+            Confirming = 0
+            
+            DE   = noentity()
+            OldD = 0
+            
+            oprint("IDLE")
+        }
+        
+        function chat_idle(LS:array) 
+        { 
+            chat_standby(array())
+        }
+        
+        function chat_follow(LS:array) 
+        { 
+            if(!Active) 
+            { 
+                return 
+            }
+            
+            Bhvr       = 0
+            Targ       = LS:string(3) ? findPlayerByName(LS:string(3)) : owner()
+            Defending  = 0
+            Confirming = 0
+            
+            DE   = Targ
+            OldD = DE:getDamage()
+            
+            oprint("FOLLOW: " + DE:name())
+        }
+        
+        function chat_kill(LS:array) 
+        { 
+            if(!Active) 
+            { 
+                return 
+            }
+            
+            FireMode   = 0
+            Bhvr       = 2
+            NeedConirm = 1
+            Confirming = 0
+            
+            Targ = LS:string(3) ? findPlayerByName(LS:string(3)) : owner()
+            oprint("ATTACK: " + Targ:name())
+        }
+        
+        function chat_on(LS:array) 
+        { 
+            stoptimer("active")
+            
+            if(!Active) 
+            { 
+                holoEntity(randint(1, 150)):soundPlay(1, 1.5, "buttons/button6.wav")
+                soundPitch(1, 35)
+                
+                holoColor(49, vec(230, 230, 30))
+                timer("active", 1400)
+            }
+        }
+        
+        function chat_off(LS:array) 
+        { 
+            stoptimer("active")
+            
+            if(Active) 
+            { 
+                holoEntity(randint(1, 150)):soundPlay(1, 3, "buttons/lever8.wav")
+                soundPitch(1, 35)
+                
+                active(0)
+            }
+        }
+        
+        function chat_aim(LS:array) 
+        { 
+            if(Defending | Bhvr == 2) 
+            { 
+                oprint("ERROR: Cant run aim mode while defend / attack")
+                return
+            }
+            
+            FireMode = !FireMode
+            oprint("Aim mode " + (FireMode ? "" : "de") + "activated")
+        }
+        
+        
+        #[
+            Holos structure: 
+                1 - hologram id
+                2 - pos local to base
+                3 - ang local to base
+                4 - scale
+                5 - material
+                6 - model
+                7 - color4
+                8 - parent id (if none - base)
+        ]#
+        
+        
+        #[ Tech holos ]#
+            # Right arm bone
+        Holos:pushArray(array(123, vec(0, -22, 0), ang(), vec(0.1)))
+        
+            # Left arm bone
+        Holos:pushArray(array(124, vec(0, 22, 0), ang(), vec(0.1)))
+        
+            # Confirmation laser
+        Holos:pushArray(array(148, vec(22, 0, 0), ang(), vec(0.1)))
+        Holos:pushArray(array(149, vec(190, 0, 0), ang(0, -90, 90), vec(20, 0.1, 30), "", "prism", vec4(100, 180, 250, 0), 148))
+        Holos:pushArray(array(150, vec(190, 0, 0), ang(0, -90, 90), vec(20.1, 0.1, 30.1), "models/spawn_effect", "prism", vec4(vec(255), 0), 148))
+        
+        
+        
+        #[ Base ]#
+        Holos:pushArray(array(1, vec(), ang(), vec(5), "models/shiny", "hqsphere", vec4(vec(240), 255)))
+        
+        Holos:pushArray(array(2, vec(-24, 0, 11), ang(45, 0, 0), vec(3, 2, 3), "models/shiny", "hq_rcube", vec4(vec(240), 255)))
+        Holos:pushArray(array(3, vec(-18.2, 0, 9), ang(), vec(3, 1.95, 3), "models/shiny", "hq_rcube", vec4(vec(240), 255)))
+        Holos:pushArray(array(16, vec(-32.2, 0, 2.1), ang(45, 0, 0), vec(2.5, 1.6, 1), "", "", vec4(vec(30), 255)))
+        Holos:pushArray(array(17, vec(-18.1, 0, -13.1), ang(45, 0, 0), vec(2.5, 2.5, 1), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(18, vec(-42.1, 0, -36.1), ang(-135, 0, 0), vec(2.3, 2.3, 6), "", "cone", vec4(vec(30), 255)))
+        Holos:pushArray(array(19, vec(-38.1, 0, -33.1), ang(45, 0, 0), -vec(2.3, 2.3, 4), "", "cone", vec4(vec(30), 255)))
+        Holos:pushArray(array(20, vec(-24.1, 0, -18.1), ang(-135, 0, 0), vec(0.48, 0.48, 0.2), "models/debug/debugwhite", "models/Mechanics/wheels/wheel_race.mdl", vec4(vec(20), 255)))
+        Holos:pushArray(array(122, vec(-24.7, 0, -17.6), ang(-135, 0, 0), vec(1.6, 1.6, 0.04), "models/debug/debugwhite", "hq_cylinder", vec4(70, 220, 220, 0)))
+        
+        Holos:pushArray(array(21, vec(0, -21.2, 0), ang(90, 90, 0), -vec(3.45, 3.45, 0.1), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(22, vec(0, 21.2, 0), ang(90, 90, 0), -vec(3.45, 3.45, 0.1), "", "hq_cylinder", vec4(vec(30), 255)))
+        
+            # Face
+        Holos:pushArray(array(23, vec(19, 13, 6.5), ang(90, 0, 0), vec(0.75, 0.75, 2), "models/shiny", "hq_tube_thin", vec4(vec(240), 255)))
+        Holos:pushArray(array(24, vec(19, -13, 6.5), ang(90, 0, 0), vec(0.75, 0.75, 2), "models/shiny", "hq_tube_thin", vec4(vec(240), 255)))
+        Holos:pushArray(array(25, vec(19, 13, -6.5), ang(90, 0, 0), vec(0.75, 0.75, 2), "models/shiny", "hq_tube_thin", vec4(vec(240), 255)))
+        Holos:pushArray(array(26, vec(19, -13, -6.5), ang(90, 0, 0), vec(0.75, 0.75, 2), "models/shiny", "hq_tube_thin", vec4(vec(240), 255)))
+        
+        Holos:pushArray(array(37, vec(19, 13, 6.5), ang(90, 0, 0), vec(0.72, 0.72, 1.85), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(38, vec(19, -13, 6.5), ang(90, 0, 0), vec(0.72, 0.72, 1.85), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(39, vec(19, 13, -6.5), ang(90, 0, 0), vec(0.72, 0.72, 1.85), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(40, vec(19, -13, -6.5), ang(90, 0, 0), vec(0.72, 0.72, 1.85), "", "hq_cylinder", vec4(vec(30), 255)))
+        
+        Holos:pushArray(array(41, vec(19, -7.3, 4.6), ang(0, 0, -20), vec(1.85, 0.8, 0.7), "", "", vec4(vec(30), 255)))
+        Holos:pushArray(array(42, vec(19, 7.3, 4.6), ang(0, 0, 200), vec(1.85, 0.8, 0.7), "", "", vec4(vec(30), 255)))
+        Holos:pushArray(array(43, vec(19, -7.3, -4.6), ang(0, 0, 20), vec(1.85, 0.8, 0.7), "", "", vec4(vec(30), 255)))
+        Holos:pushArray(array(44, vec(19, 7.3, -4.6), ang(0, 0, 160), vec(1.85, 0.8, 0.7), "", "", vec4(vec(30), 255)))
+        Holos:pushArray(array(45, vec(19, 0, 0), ang(), vec(1.85, 1.3, 1.3), "", "", vec4(vec(30), 255)))
+        
+        Holos:pushArray(array(27, vec(19, -11.3, -1.38), ang(0, 0, 20), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(28, vec(19, -11.3, 1.38), ang(0, 0, -20), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(29, vec(19, 11.3, -1.38), ang(0, 0, 160), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(30, vec(19, 11.3, 1.38), ang(0, 0, 200), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        
+        Holos:pushArray(array(31, vec(19, -7.5, 9), ang(0, 0, -20), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(32, vec(19, 7.5, 9), ang(0, 0, 200), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(33, vec(19, -7.5, -9), ang(0, 0, 20), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(34, vec(19, 7.5, -9), ang(0, 0, 160), vec(2, 0.66, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        
+        Holos:pushArray(array(35, vec(19, 0, 7.7), ang(), vec(2, 0.64, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        Holos:pushArray(array(36, vec(19, 0, -7.7), ang(), vec(2, 0.64, 0.04), "models/shiny", "", vec4(vec(240), 255)))
+        
+            # Main eye
+        Holos:pushArray(array(46, vec(19.5, -11, 6), ang(90, 0, 0), vec(0.5, 0.5, 1.85), "", "hq_tube_thin", vec4(vec(100), 255)))
+        Holos:pushArray(array(47, vec(19.15, -11, 6), ang(90, 0, 0), vec(0.45, 0.45, 1.85), "models/shiny", "hq_cylinder", vec4(vec(250), 255)))
+        Holos:pushArray(array(48, vec(19.3, -11, 6), ang(90, 0, 0), vec(0.3, 0.3, 1.85), "", "hq_tube_thin", vec4(vec(100), 255)))
+        Holos:pushArray(array(49, vec(19.3, -11, 6), ang(90, 0, 0), vec(0.2, 0.2, 1.85), "", "hq_cylinder", vec4(50, 0, 0, 255)))
+        Holos:pushArray(array(50, vec(19.4, -11, 6), ang(90, 0, 0), vec(0.4, 0.4, 1.85), "", "hq_tube_thin", vec4(vec(100), 255)))
+        
+            # Sensor
+        Holos:pushArray(array(51, vec(19.45, 8, 4.64), ang(90, 0, 0), vec(0.4, 0.4, 1.85), "", "hq_tube_thin", vec4(vec(100), 255)))
+        Holos:pushArray(array(52, vec(19.3, 8, 4.64), ang(90, 0, 0), vec(0.42, 0.42, 1.85), "", "hq_cylinder", vec4(vec(190), 255)))
+        Holos:pushArray(array(53, vec(19.45, 8, 4.64), ang(90, 0, 0), vec(0.1, 0.08, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(54, vec(19.45, 9.2, 4.64), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(55, vec(19.45, 6.8, 4.64), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(56, vec(19.45, 8.6, 5.74), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(57, vec(19.45, 7.4, 5.74), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(58, vec(19.45, 8.6, 3.54), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(59, vec(19.45, 7.4, 3.54), ang(90, 0, 0), vec(0.09, 0.07, 1.85), "models/shiny", "octagon", vec4(vec(250), 255)))
+        Holos:pushArray(array(60, vec(19.3, 8, 7.25), ang(90, 0, 0), vec(0.02, 0.02, 1.85), "", "hq_cylinder", vec4(255, 150, 50, 255)))
+        Holos:pushArray(array(61, vec(19.3, 10.2, 3.2), ang(90, 0, 0), vec(0.02, 0.02, 1.85), "", "hq_cylinder", vec4(50, 255, 50, 255)))
+        Holos:pushArray(array(68, vec(19.15, 11.3, 5.9), ang(0, 0, 200), vec(1.85, 0.5, 0.3), "", "", vec4(vec(60), 255)))
+        
+            # Micro
+        Holos:pushArray(array(62, vec(19.3, -8, -4.64), ang(90, 0, 0), vec(0.4, 0.4, 1.85), "", "hq_tube_thin", vec4(vec(100), 255)))
+        Holos:pushArray(array(63, vec(19.15, -8, -4.64), ang(90, 0, 0), vec(0.42, 0.42, 1.85), "", "hq_cylinder", vec4(vec(190), 255)))
+        Holos:pushArray(array(64, vec(19.4, -8, -4.64), ang(90, 0, 0), vec(0.33, 0.33, 1.85), "phoenix_storms/pack2/train_floor", "hq_cylinder", vec4(vec(250), 255)))
+        
+        Holos:pushArray(array(65, vec(19.15, -14, -7.14), ang(90, 0, 0), vec(0.12, 0.12, 1.85), "", "hq_cylinder", vec4(vec(60), 255)))
+        Holos:pushArray(array(66, vec(19.15, -12.4, -7.34), ang(90, 0, 0), vec(0.12, 0.12, 1.85), "", "hq_cylinder", vec4(vec(60), 255)))
+        Holos:pushArray(array(67, vec(19.15, -13, -5.84), ang(90, 0, 0), vec(0.12, 0.12, 1.85), "", "hq_cylinder", vec4(vec(60), 255)))
+        
+            # Speaker
+        Holos:pushArray(array(69, vec(19.15, 11, -6), ang(90, 0, 0), vec(0.5, 0.5, 1.85), "", "hq_cylinder", vec4(vec(140), 255)))
+        Holos:pushArray(array(70, vec(30.15, 11, -6), ang(90, 0, 0), vec(0.47, 0.47, 0.1), "", "models/cheeze/wires/speaker.mdl", vec4(vec(60), 255)))
+        
+            # 166
+        Holos:pushArray(array(71, vec(19.15, -4.3, 0), ang(), vec(1.85, 0.09, 0.4), "models/shiny", "", vec4(vec(220), 255)))
+        
+        Holos:pushArray(array(72, vec(19.15, -2.3, 0), ang(), vec(1.85, 0.09, 0.4), "models/shiny", "", vec4(vec(220), 255)))
+        Holos:pushArray(array(73, vec(19.15, -1, -0.6), ang(90, 0, 0), vec(0.3, 0.3, 1.85), "models/shiny", "hq_stube_thick", vec4(vec(220), 255)))
+        
+        Holos:pushArray(array(74, vec(19.15, 4-1.8, 0), ang(), vec(1.85, 0.09, 0.4), "models/shiny", "", vec4(vec(220), 255)))
+        Holos:pushArray(array(75, vec(19.15, 4-0.5, -0.6), ang(90, 0, 0), vec(0.3, 0.3, 1.85), "models/shiny", "hq_stube_thick", vec4(vec(220), 255)))
+        
+            # Sticks
+        Holos:pushArray(array(76, vec(20, 3.4, -11), ang(90, 0, 0), vec(0.03, 0.03, 1.85), "models/shiny", "hq_cylinder", vec4(vec(220), 255)))
+        Holos:pushArray(array(77, vec(20, -3.4, -11), ang(90, 0, 0), vec(0.03, 0.03, 1.85), "models/shiny", "hq_cylinder", vec4(vec(220), 255)))
+        
+        
+            # Back
+        Holos:pushArray(array(4, vec(-20, 9.5, 21.5), ang(90, 0, 0), vec(1, 1, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(8, vec(-44, 9.5, 21.5), ang(-90, 0, 0), vec(1, 1, 2), "models/shiny", "hq_dome", vec4(vec(240), 255)))
+        Holos:pushArray(array(9, vec(-40, 9.5, 21.5), ang(90, 0, 0), vec(0.94, 0.94, 2), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(15, vec(-40.3, 9.5, 21.5), ang(90, 0, 0), vec(0.9, 0.9, 2), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(120, vec(-40.5, 9.5, 21.5), ang(90, 0, 0), vec(0.8, 0.8, 2), "", "hq_tube_thick", vec4(70, 220, 220, 0)))
+        
+        Holos:pushArray(array(5, vec(-20, -9.5, 21.5), ang(90, 0, 0), vec(1, 1, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(6, vec(-44, -9.5, 21.5), ang(-90, 0, 0), vec(1, 1, 2), "models/shiny", "hq_dome", vec4(vec(240), 255)))
+        Holos:pushArray(array(7, vec(-40, -9.5, 21.5), ang(90, 0, 0), vec(0.94, 0.94, 2), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(14, vec(-40.3, -9.5, 21.5), ang(90, 0, 0), vec(0.9, 0.9, 2), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(121, vec(-40.5, -9.5, 21.5), ang(90, 0, 0), vec(0.8, 0.8, 2), "", "hq_tube_thick", vec4(70, 220, 220, 0)))
+        
+        Holos:pushArray(array(10, vec(-20, -13, 11.5), ang(90, 0, 0), vec(0.3, 0.3, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(11, vec(-20, 13, 11.5), ang(90, 0, 0), vec(0.3, 0.3, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        Holos:pushArray(array(12, vec(-20.3, -13, 11.5), ang(90, 0, 0), vec(0.26, 0.26, 4), "", "hq_cylinder", vec4(vec(30), 255)))
+        Holos:pushArray(array(13, vec(-20.3, 13, 11.5), ang(90, 0, 0), vec(0.26, 0.26, 4), "", "hq_cylinder", vec4(vec(30), 255)))
+            
+            # Sticks
+            Holos:pushArray(array(78, vec(-17, -18, 15.5), ang(90, 0, 0), vec(0.03, 0.03, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+            Holos:pushArray(array(79, vec(-15, -18, 17), ang(90, 0, 0), vec(0.03, 0.03, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+            
+            Holos:pushArray(array(80, vec(-17, 18, 15.5), ang(90, 0, 0), vec(0.03, 0.03, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+            Holos:pushArray(array(81, vec(-15, 18, 17), ang(90, 0, 0), vec(0.03, 0.03, 4), "models/shiny", "hq_cylinder", vec4(vec(240), 255)))
+        
+        
+        #[ Right Arm ]#
+        Holos:pushArray(array(82, vec(0, -23, 0), ang(90, 0, 90), vec(3.4, 3.4, 1.3), "models/shiny", "hq_dome", vec4(vec(240), 255), 123))
+        Holos:pushArray(array(83, vec(0, -23, 0), ang(90, 0, 90), vec(3.42, 3.42, 0.02), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(84, vec(0, -23.15, 0), ang(90, 0, 90), vec(3.41, 3.41, 1.31), "", "hq_dome", vec4(vec(30), 255), 82))
+        
+        Holos:pushArray(array(130, vec(2.5, -25.5, 0), ang(0, 180, -90), vec(3, 0.3, 0.4), "", "right_prism", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(131, vec(8.65, -25.95, 0), ang(90, 0, 0), vec(0.22, 0.22, 2), "models/shiny", "hq_cylinder", vec4(vec(240), 255), 82))
+        Holos:pushArray(array(132, vec(8.8, -25.95, 0), ang(90, 0, 0), vec(0.19, 0.19, 2), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        
+        Holos:pushArray(array(136, vec(0, -18.95, -10), ang(0, 0, 50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 82))
+        Holos:pushArray(array(137, vec(0, -18.95, 10), ang(0, 0, -50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 82))
+        Holos:pushArray(array(138, vec(0, -18.95, -14), ang(0, 0, -40), vec(0.08, 1.5, 0.1), "", "", vec4(vec(60), 255), 82))
+        Holos:pushArray(array(139, vec(0, -18.95, 14), ang(0, 0, 40), vec(0.08, 1.5, 0.1), "", "", vec4(vec(60), 255), 82))
+        Holos:pushArray(array(140, vec(12, -18.95, 0), ang(90, 0, 50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 82))
+        Holos:pushArray(array(141, vec(-12, -18.95, 0), ang(90, 0, -50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 82))
+        
+            # Gun upper
+        Holos:pushArray(array(85, vec(10, -25.5, 8), ang(), vec(3, 0.4, 0.75), "", "", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(86, vec(10, -25.5, 9.3), ang(), vec(2, 0.42, 0.55), "models/shiny", "", vec4(vec(240), 255), 82))
+        Holos:pushArray(array(87, vec(29.2, -25.5, 8), ang(), vec(0.2, 0.42, 0.75), "", "right_prism", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(88, vec(23, -25.5, 8), ang(), vec(3, 0.31, 0.66), "", "hq_rcube_thin", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(89, vec(25, -25.5, 9.5), ang(90, 0, 0), vec(0.25, 0.25, 3), "", "hq_tube_thick", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(128, vec(25, -25.5, 9.5), ang(90, 0, 0), vec(0.22, 0.22, 2.9), "", "hq_cylinder", vec4(vec(), 255), 82))
+        Holos:pushArray(array(90, vec(24.5, -25.5, 6.7), ang(90, 0, 0), vec(0.2, 0.2, 3), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(91, vec(24.65, -25.5, 6.7), ang(90, 0, 0), vec(0.16, 0.16, 3), "", "hq_cylinder", vec4(50, 0, 0, 255), 82))
+        Holos:pushArray(array(92, vec(35, -25.5, 8), ang(90, 0, 0), vec(0.3, 0.43, 0.6), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        
+            # Gun lower
+        Holos:pushArray(array(93, vec(10, -25.5, -8), ang(), vec(3, 0.4, 0.75), "", "", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(94, vec(10, -25.5, -9.3), ang(), vec(2, 0.42, 0.55), "models/shiny", "", vec4(vec(240), 255), 82))
+        Holos:pushArray(array(95, vec(29.2, -25.5, -8), ang(0, 0, 180), vec(0.2, 0.42, 0.75), "", "right_prism", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(96, vec(23, -25.5, -8), ang(), vec(3, 0.31, 0.66), "", "hq_rcube_thin", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(97, vec(25, -25.5, -9.5), ang(90, 0, 0), vec(0.25, 0.25, 3), "", "hq_tube_thick", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(127, vec(25, -25.5, -9.5), ang(90, 0, 0), vec(0.22, 0.22, 2.9), "", "hq_cylinder", vec4(vec(), 255), 82))
+        Holos:pushArray(array(98, vec(24.5, -25.5, -6.7), ang(90, 0, 0), vec(0.2, 0.2, 3), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        Holos:pushArray(array(99, vec(24.65, -25.5, -6.7), ang(90, 0, 0), vec(0.16, 0.16, 3), "", "hq_cylinder", vec4(50, 0, 0, 255), 82))
+        Holos:pushArray(array(100, vec(35, -25.5, -8), ang(90, 0, 0), vec(0.3, 0.43, 0.6), "", "hq_cylinder", vec4(vec(30), 255), 82))
+        
+        
+        #[ Left Arm ]#
+        Holos:pushArray(array(101, vec(0, 23, 0), ang(90, 0, -90), vec(3.4, 3.4, 1.3), "models/shiny", "hq_dome", vec4(vec(240), 255), 124))
+        Holos:pushArray(array(102, vec(0, 23, 0), ang(90, 0, 90), vec(3.42, 3.42, 0.02), "", "hq_cylinder", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(103, vec(0, 23.15, 0), ang(90, 0, -90), vec(3.41, 3.41, 1.31), "", "hq_dome", vec4(vec(30), 255), 101))
+        
+        Holos:pushArray(array(133, vec(2.5, 25.5, 0), ang(0, 180, -90), vec(3, 0.3, 0.4), "", "right_prism", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(134, vec(8.65, 25.95, 0), ang(90, 0, 0), vec(0.22, 0.22, 2), "models/shiny", "hq_cylinder", vec4(vec(240), 255), 101))
+        Holos:pushArray(array(135, vec(8.8, 25.95, 0), ang(90, 0, 0), vec(0.19, 0.19, 2), "", "hq_cylinder", vec4(vec(30), 255), 101))
+        
+        Holos:pushArray(array(142, vec(0, 18.95, -10), ang(0, 0, -50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 101))
+        Holos:pushArray(array(143, vec(0, 18.95, 10), ang(0, 0, 50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 101))
+        Holos:pushArray(array(144, vec(0, 18.95, -14), ang(0, 0, 40), vec(0.08, 1.5, 0.1), "", "", vec4(vec(60), 255), 101))
+        Holos:pushArray(array(145, vec(0, 18.95, 14), ang(0, 0, -40), vec(0.08, 1.5, 0.1), "", "", vec4(vec(60), 255), 101))
+        Holos:pushArray(array(146, vec(12, 18.95, 0), ang(90, 0, -50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 101))
+        Holos:pushArray(array(147, vec(-12, 18.95, 0), ang(90, 0, 50), vec(0.1, 1.5, 0.2), "", "", vec4(vec(60), 255), 101))
+        
+            # Gun upper
+        Holos:pushArray(array(104, vec(10, 25.5, 8), ang(), vec(3, 0.4, 0.75), "", "", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(105, vec(10, 25.5, 9.3), ang(), vec(2, 0.42, 0.55), "models/shiny", "", vec4(vec(240), 255), 101))
+        Holos:pushArray(array(106, vec(29.2, 25.5, 8), ang(), vec(0.2, 0.42, 0.75), "", "right_prism", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(107, vec(23, 25.5, 8), ang(), vec(3, 0.31, 0.66), "", "hq_rcube_thin", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(108, vec(25, 25.5, 9.5), ang(90, 0, 0), vec(0.25, 0.25, 3), "", "hq_tube_thick", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(126, vec(25, 25.5, 9.5), ang(90, 0, 0), vec(0.22, 0.22, 2.9), "", "hq_cylinder", vec4(vec(), 255), 101))
+        Holos:pushArray(array(109, vec(24.5, 25.5, 6.7), ang(90, 0, 0), vec(0.2, 0.2, 3), "", "hq_cylinder", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(110, vec(24.65, 25.5, 6.7), ang(90, 0, 0), vec(0.16, 0.16, 3), "", "hq_cylinder", vec4(50, 0, 0, 255), 101))
+        Holos:pushArray(array(111, vec(35, 25.5, 8), ang(90, 0, 0), vec(0.3, 0.43, 0.6), "", "hq_cylinder", vec4(vec(30), 255), 101))
+        
+            # Gun lower
+        Holos:pushArray(array(112, vec(10, 25.5, -8), ang(), vec(3, 0.4, 0.75), "", "", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(113, vec(10, 25.5, -9.3), ang(), vec(2, 0.42, 0.55), "models/shiny", "", vec4(vec(240), 255), 101))
+        Holos:pushArray(array(114, vec(29.2, 25.5, -8), ang(0, 0, 180), vec(0.2, 0.42, 0.75), "", "right_prism", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(115, vec(23, 25.5, -8), ang(), vec(3, 0.31, 0.66), "", "hq_rcube_thin", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(116, vec(25, 25.5, -9.5), ang(90, 0, 0), vec(0.25, 0.25, 3), "", "hq_tube_thick", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(125, vec(25, 25.5, -9.5), ang(90, 0, 0), vec(0.22, 0.22, 2.9), "", "hq_cylinder", vec4(vec(), 255), 101))
+        Holos:pushArray(array(117, vec(24.5, 25.5, -6.7), ang(90, 0, 0), vec(0.2, 0.2, 3), "", "hq_cylinder", vec4(vec(30), 255), 101))
+        Holos:pushArray(array(118, vec(24.65, 25.5, -6.7), ang(90, 0, 0), vec(0.16, 0.16, 3), "", "hq_cylinder", vec4(50, 0, 0, 255), 101))
+        Holos:pushArray(array(119, vec(35, 25.5, -8), ang(90, 0, 0), vec(0.3, 0.43, 0.6), "", "hq_cylinder", vec4(vec(30), 255), 101))
+    break
+    
+    case 1, 
+        if(!Holos:count()) 
+        { 
+            runOnTick(0)
+            interval(0) # Jump to next execution :p
+            
+            Mode++
+            
+            #[ Clips ]#
+            holoClipEnabled(1, 1, 1)
+            holoClipEnabled(1, 2, 1)
+            holoClipEnabled(1, 3, 1)
+            
+            holoClip(1, 1, vec(0, 22, 0), vec(0, -1, 0), 0)
+            holoClip(1, 2, vec(0, -22, 0), vec(0, 1, 0), 0)
+            holoClip(1, 3, vec(-19, 0, -20), vec(1, 0, 1), 0)
+            
+            holoClipEnabled(2, 1)
+            holoClip(2, vec(-10, 0, 10), vec(1, 0, -1), 0)
+            
+            holoClipEnabled(3, 1)
+            holoClip(3, vec(0, 0, 1), vec(0, 0, 1), 0)
+            
+            holoClipEnabled(6, 1)
+            holoClipEnabled(8, 1)
+            
+            holoClip(6, vec(0, 0, 5), vec(0, 0, -1), 0)
+            holoClip(8, vec(0, 0, 5), vec(0, 0, -1), 0)
+            
+            holoClipEnabled(18, 1)
+            holoClipEnabled(19, 1)
+            
+            holoClip(18, vec(0, 0, -20), vec(0.05, 0, -1), 0)
+            holoClip(19, vec(0, 0, 15), vec(-0.05, 0, 1), 0)
+            
+            holoClipEnabled(23, 1)
+            holoClip(23, vec(), vec(-0.5, 1, 0), 0)
+            
+            holoClipEnabled(24, 1)
+            holoClip(24, vec(), vec(-0.5, -1, 0), 0)
+            
+            holoClipEnabled(25, 1)
+            holoClip(25, vec(), vec(0.5, 1, 0), 0)
+            
+            holoClipEnabled(26, 1)
+            holoClip(26, vec(), vec(0.5, -1, 0), 0)
+            
+            holoClipEnabled(84, 1, 1)
+            holoClipEnabled(84, 2, 1)
+            
+            holoClip(84, 1, vec(6, 0, 0), vec(-1, 0, 0), 0)
+            holoClip(84, 2, vec(-6, 0, 0), vec(1, 0, 0), 0)
+            
+            holoClipEnabled(103, 1, 1)
+            holoClipEnabled(103, 2, 1)
+            
+            holoClip(103, 1, vec(6, 0, 0), vec(-1, 0, 0), 0)
+            holoClip(103, 2, vec(-6, 0, 0), vec(1, 0, 0), 0)
+            
+            
+            #[ Shadings ]#
+            holoDisableShading(49, 1)
+            holoDisableShading(60, 1)
+            holoDisableShading(61, 1)
+            
+            holoDisableShading(91, 1)
+            holoDisableShading(99, 1)
+            holoDisableShading(110, 1)
+            holoDisableShading(118, 1)
+            
+            holoDisableShading(120, 1)
+            holoDisableShading(121, 1)
+            holoDisableShading(122, 1)
+            
+            holoDisableShading(149, 1)
+            
+            holoShadow(20, 0)
+            holoShadow(149, 0)
+            holoShadow(150, 0)
+            
+            
+           # active(1)            #####
+        }
+        
+        while(perf() & Holos:count() & holoCanCreate()) 
+        { 
+            local Holo = Holos:removeArray(1)
+            
+            holoCreate(Holo:number(1), Base:toWorld(Holo:vector(2)), Holo:vector(4), Base:toWorld(Holo:angle(3))):setMaterial(Holo:string(5))
+            holoColor(Holo:number(1), Holo:vector4(7))
+            holoModel(Holo:number(1), Holo:string(6))
+            
+            holoParent(Holo:number(1), Holo:number(8) ? holoEntity(Holo:number(8)) : Base)
+            holoShadow(Holo:number(1), 1)
+        }
+    break
+    
+    case 2, 
+        interval(100)
+        
+        local NeedPos = vec(0, -21 - (ArmState & !Confirming) * 4, 0)
+        local CurPos  = Base:toLocal(holoEntity(123):pos())
+        
+        holoPos(123, Base:toWorld(CurPos + (NeedPos - CurPos) / 3))
+        holoPos(124, Base:toWorld((CurPos - NeedPos) / 3 - CurPos))
+        
+        holoAng(123, Active ? ArmState & !Confirming ? Base:toWorld(Base:toLocal(((Bhvr == 2 ? Targ:pos() + vec(0, 0, Targ:boxSize():z() * random(0.3, 0.8)) : DE:aimPos()) - holoEntity(123):pos()):toAngle()) / 5) : Base:angles() : Base:angles())
+        holoAng(124, Active ? ArmState & !Confirming ? Base:toWorld(Base:toLocal(((Bhvr == 2 ? Targ:pos() + vec(0, 0, Targ:boxSize():z() * random(0.3, 0.8)) : DE:aimPos()) - holoEntity(124):pos()):toAngle()) / 5) : Base:angles() : Base:angles())
+        
+        if(!Active) 
+        { 
+            exit()
+        }
+        
+        holoAng(148, Base:toWorld(ang(sin(curtime() * 250) * 10, 0, 0)))
+        holoAng(20, holoEntity(20):toWorld(ang(0, 40, 0)))
+        
+        holoColor(49, Confirming ? vec(230, 230, 30) : ArmState ? vec(250, 0, 0) : vec(0, 250, 0))
+        holoColor(91, vec(50 + 200 * (ArmState & !Confirming), 0, 0)) 
+        holoColor(99, vec(50 + 200 * (ArmState & !Confirming), 0, 0)) 
+        holoColor(110, vec(50 + 200 * (ArmState & !Confirming), 0, 0)) 
+        holoColor(118, vec(50 + 200 * (ArmState & !Confirming), 0, 0)) 
+        
+        holoAlpha(149, 10 * Confirming)
+        holoAlpha(150, 255 * Confirming)
+        
+        local NdAngle = ang()
+        local NdPos   = vec()
+        local Fire    = 0
+        
+        
+        #[ Behavs control ]#
+       if(Base:getDamage() & !FireMode) 
+        { 
+            local T = Base:getAttacker()
+            
+            if(T:isAlive() & T != DE & (T:isPlayer() | T:isNPC())) 
+            {
+            timer("wait",1000)
+            if(!T:hasGodMode()){
+            if(clk("timer")){
+                Targ = T
+            
+                if(Targ != DE) 
+                { 
+                    Confirming = 0
+                    NeedConirm = 0
+                    Bhvr       = 2
+                    JustScan   = 0
+                }
+    }}}
+        }
+        
+        if(Bhvr == 2) 
+        { 
+            
+            if(!Targ:isAlive()) 
+            { 
+                LastNPC = Targ:model()
+                
+                Confirming = 0
+                Bhvr       = 0
+                
+                if(Defending) 
+                { 
+                    Targ = DE
+                } 
+                elseif(Targ == owner()) 
+                { 
+                    chat_standby(array())
+                } 
+                else 
+                { 
+                    chat_follow(array())
+                }
+                
+                exit()
+            }
+            
+            if(Targ:pos():distance(Base:pos()) < 400 + 300 * (!NeedConirm) & !Confirming) 
+            { 
+                if(NeedConirm) 
+                { 
+                    Confirming = 1
+                    NeedConirm = 0
+                    
+                    timer("confirm", 2500)
+                } 
+                else 
+                { 
+                    Fire = 1
+                }
+            }
+        }
+        
+        local NewD = DE:getDamage()
+        if(OldD != NewD & NewD & Targ == DE & !Bhvr & !Defending) 
+        { 
+            local T = DE:getAttacker()
+            OldD    = NewD
+            
+            if(T:isAlive() & T != DE & (Targ:isPlayer() | Targ:isNPC())) 
+            {
+                
+                chat_defend(array(0, 0, DE:name()))
+                
+                Targ       = T
+                NeedConirm = 0
+                Confirming = 0
+                Bhvr       = 2
+                JustScan   = 0
+            }     
+    }
+        
+        if(Defending & findCanQuery() & Targ == DE)   
+        { 
+            findInSphere(DE:pos(), Radius)
+            findSortByDistance(Base:pos())
+            
+            local CA = findToArray()
+            local BS = "#" + BL:concat("#") + "#"
+            
+            while(perf() & CA:count())
+            { 
+                local Ce = CA:removeEntity(1)
+                
+                if(Ce == owner()) 
+                { 
+                    continue
+                }
+                
+                if(Ce:isAlive() & !BS:find("#" + (Ce:isPlayer() ? Ce:steamID() : Ce:model()) + "#")) 
+                { 
+                    Targ       = Ce
+                    NeedConirm = Ce:model() != LastNPC | Ce:isPlayer()
+                    JustScan   = Ce:isPlayer()
+                    Bhvr       = 2
+                    
+                    break
+                }
+            }
+        }
+        
+        switch(Bhvr) 
+        { 
+            case 0, 
+            case 2, 
+                NdPos   = Targ:attachmentPos("chest") ?: Targ:pos() + vec(0, 0, 40)
+                NdAngle = (((FireMode & !Bhvr) ? Targ:eyeTraceCursor():pos() : (NdPos + vec(sin(curtime() * 50), cos(curtime() * 50), sin(curtime() * 25)) * 5)) - Base:pos()):toAngle()
+                
+                ArmState = Bhvr ? (Targ ? 1 : 0) : FireMode
+            break
+            
+            case 1, 
+                NdAngle = FireMode ? (Targ:eyeTraceCursor():pos() - Base:pos()):toAngle() : ang(sin(curtime() * 50), cos(curtime() * 50), sin(curtime() * 25)) * 2
+                NdPos   = Base:pos()
+                
+                ArmState = FireMode
+            break
+        }
+        
+        T1:entity():setPos(holoEntity(91):pos() + Base:forward() * 15 + Base:vel() / 7)
+        T2:entity():setPos(holoEntity(99):pos() + Base:forward() * 15 + Base:vel() / 7)
+        T3:entity():setPos(holoEntity(110):pos() + Base:forward() * 15 + Base:vel() / 7)
+        T4:entity():setPos(holoEntity(118):pos() + Base:forward() * 15 + Base:vel() / 7)
+        
+        T1:entity():setAlpha(0)
+        T2:entity():setAlpha(0)
+        T3:entity():setAlpha(0)
+        T4:entity():setAlpha(0)
+        
+        local TurretAng = FireMode ? Targ:eyeTraceCursor():pos() : (Targ:attachmentPos("chest") ?: Targ:pos() + vec(0, 0, Targ:boxSize():z() * random(0.3, 0.7)))
+        T1:entity():setAng((TurretAng - T1:entity():pos()):toAngle())
+        T2:entity():setAng((TurretAng - T2:entity():pos()):toAngle())
+        T3:entity():setAng((TurretAng - T3:entity():pos()):toAngle())
+        T4:entity():setAng((TurretAng - T4:entity():pos()):toAngle())
+        
+        
+            # Angle
+        local SetAng = NdAngle:setRoll((NdAngle:forward()):distance(Base:angles():forward()) * 30 * -1 ^ (NdAngle:yaw() > (Base:angles():yaw() < 0 ? 360 + Base:angles():yaw() : Base:angles():yaw())))
+        Base:applyTorque((Base:toLocal(rotationVector(quat(SetAng) / quat(Base)) + Base:pos()) * 100 - Base:angVelVector() * 20) * Base:inertia())
+        
+            # Position
+        local Dir = (NdPos - Base:pos()):normalized()
+        local Rg1 = rangerOffsetHull(60, Base:pos(), Dir, vec(60))
+        local Nm  = Rg1:hitNormal()
+        
+        Base:applyForce((Dir - Nm * Dir:dot(Nm)) * clamp(Base:pos():distance(NdPos) - 200, 0, 400) * Base:mass() - Base:vel() * Base:mass() * 0.6 + rangerOffset(60, Base:pos(), vec(0, 0, -1)):hit() * vec(0, 0, 200000))
+        soundPitch(3, 50 + Base:vel():length() / 30)
+        
+        if(changed(Rg1:hit() & Bhvr == 2) & Bhvr == 2) 
+        { 
+            if(Rg1:hit() & Rg1:entity() != Targ) 
+            { 
+                timer("chase_end", 10000)
+            } 
+            else 
+            { 
+                stoptimer("chase_end")
+            }
+        }
+        
+        
+            # Fire
+        Fire = !rangerOffset(60, Base:pos(), Base:forward()):hit() ? FireMode ? Targ:keyAttack1() : Fire : 0
+        
+        if(changed(Fire) & Fire) 
+        { 
+            holoEntity(randint(1, 150)):soundPlay(4, 1, "beams/beamstart5.wav")
+            soundPitch(4, 70)
+        }
+        
+        T1["Fire", number] = Fire
+        T2["Fire", number] = Fire
+        T3["Fire", number] = Fire
+        T4["Fire", number] = Fire
+    break
+}

@@ -1,0 +1,32 @@
+
+@name Fly_props
+@inputs 
+@outputs 
+@persist N I360 F:entity
+@trigger all
+
+
+runOnTick(1)
+if(duped()|dupefinished()){reset()}
+
+
+
+E=entity()
+#E:setAlpha(0)
+O=owner()
+E:setMass(5000)
+if(first()){
+F=propSpawn("models/props_phx/construct/metal_plate1.mdl",O:toWorld(vec(0,0,0)),O:toWorld(ang(0,0,0)),0)
+F:setAlpha(255)
+}
+if(!O:keyDuck()){
+N=-4
+I360++
+F:setPos(O:toWorld(vec(0,0,N)))
+F:setAng(O:toWorld(ang(0,I360*120,0)))
+F:propFreeze(1)
+}
+if(O:keyDuck()){
+F:propFreeze(0)
+N=-10
+}

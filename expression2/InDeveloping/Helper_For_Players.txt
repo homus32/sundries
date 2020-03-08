@@ -1,0 +1,121 @@
+@name E2 Functions for Players :0
+@persist Mode [ Access Players BadPlayers Vars ]:table Command:string
+interval(100)
+switch(Mode){
+    case 0,
+        Mode++
+        runOnChat(1)
+        runOnKeys(owner(),1,array("f5","f6"))
+        
+        Command = "!!"
+        
+        #[ Access  ]#
+        Access = table(
+        array("owner","cleardecals","jail","voteban","votekick","rd","freezeall"),
+        array("user","cleardecals","rd")
+        )
+        
+        #[ Players ]#
+        Players = table(
+        array(owner(),"owner",1)
+        )
+        
+        #[ NotGoodPlayers :D ]#
+            #[BlackList]#
+        BadPlayers = table(
+        )
+        
+        Vars = table(
+        table("StPl","StBPl","LSOw","Access","LS"),
+        table("CMD"),
+        table()
+        )
+        
+        noDuplications()
+        
+    case 1,
+        if(chatClk()){
+            local LS = lastSpoke():lastSaid()
+            local LSOwner = lastSpoke()
+                if(LS:sub(1,Command:length()) == Command){
+                    for(I=1,BadPlayers:count() <= 0 ? BadPlayers:count()+2 : BadPlayers:count() ){
+                        if(LSOwner == BadPlayers[I,entity]){
+                            Vars[1,table]["StBPl",number] = 1
+                            concmd("say "+LSOwner:name()+" you in BlackList")
+                            break
+                        }else{
+                            Vars[1,table]["StBPl",number] = 0
+                            if(I == BadPlayers:count() <= 0 ? BadPlayers:count()+2 : BadPlayers:count() ){
+                                if(Vars[1,table]["StBPl",number] == 0){
+                                    Vars[1,table]["LSOw",entity] = LSOwner
+                                    Vars[2,table]["CMD",array] = LS:sub(Command:length()+1,LS:length()):lower():explode(" ")
+                                    Mode++
+                                    Vars[1,table]["LS",string] = LS
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    
+                    for(I=1,Players:count()){
+                        if(LSOwner == Players[I,array][1,entity]){
+                            Vars[1,table]["StPl",array] = Players[I,array]
+                            break
+                        }else{
+                            Vars[1,table]["StPl",array] = array(LSOwner,"user",1)
+                        }
+                    }
+                    
+                    for(I=1,Access:count()){
+                        if(Vars[1,table]["StPl",array][2,string] == Access[I,array][1,string]){
+                            Vars[1,table]["Access",array] = Access[I,array]:concat(" ",2,Access[I,array]:count()):explode(" ")
+                            break
+                        }elseif(Vars[1,table]["StPl",array][2,string] != Access[I,array][1,string]){
+                            if(I == Access:count()){
+                                Mode = 1
+                                concmd("say Group not Found")
+                                break
+                            }
+                        }
+                    }
+                }
+        }
+    break
+    case 2,
+        for(I=1,Vars[1,table]["Access",array]:count()){
+            if(Vars[2,table]["CMD",array]:string(1) == Vars[1,table]["Access",array][I,string]){
+                Mode = 1
+                concmd("say Access yes")
+                break
+            }else{
+                if(I == Vars[1,table]["Access",array]:count()){
+                    Mode = 1
+                    concmd("say comand not found")
+                    break
+                }
+            }
+        }
+
+    break
+    case 3,
+}
+
+#[
+Vars[1,table]["LSOw",entity]:name()
+Vars[1,table]["StPl",array][2,string]
+Vars[1,table]["Access",array]:concat(", ",2,Access[I,array]:count())
+
+       if(clk("tick") | chatClk()){
+            for(I=1,Vars[1,table]["Access",array]:count()){
+                if(Vars[2,table]["CMD",array]:string(1) == Vars[1,table]["Access",array][I,string]){
+                    Mode = 1
+                    print("Access yes")
+                    break
+                }elseif(1){
+                Mode = 1
+                break
+                }elseif(1){
+                }
+            }
+        }
+]#

@@ -1,0 +1,13 @@
+@name HZ CHTO ETO
+@inputs 
+@outputs 
+@persist O:entity
+@trigger 
+
+if(first()){
+    O = owner()
+    runOnKeys(O,1)
+}
+if(changed(owner():keyWalk())&owner():keyWalk()){
+    O:setPos(vec(-6221.046875,10193.772461,-2187.308594))
+}

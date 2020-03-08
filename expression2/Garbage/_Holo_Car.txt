@@ -1,0 +1,37 @@
+@name  Holo_Car
+@persist M N C E:entity
+M+=10
+C+=7
+N = M % 180
+N = C % 180
+if(first()|dupefinished()){
+    runOnTick(1)
+    E = entity()
+holoCreate(1,E:pos()+vec(5,0,0),vec(0.15),ang(),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(2,E:pos()+vec(5,0,0),vec(0.15),ang(0,220,0),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(3,E:pos(),vec(0.5,0.5,0.5),ang(),vec(255),"models/props_c17/FurnitureRadiator001a.mdl")
+holoCreate(4,E:pos()+vec(0,25,3),vec(0.5,0.5,0.5),ang(0,0,15),vec(255),"models/props_c17/FurnitureRadiator001a.mdl")
+holoCreate(5,E:pos()+vec(0,-25,3),vec(0.5,0.5,0.5),ang(0,0,-15),vec(255),"models/props_c17/FurnitureRadiator001a.mdl")
+holoCreate(6,E:pos()+vec(5,25,3),vec(0.15),ang(),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(7,E:pos()+vec(5,25,3),vec(0.15),ang(0,220,0),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(8,E:pos()+vec(5,-25,3),vec(0.15),ang(),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(9,E:pos()+vec(5,-25,3),vec(0.15),ang(0,220,0),vec(255),"models/xqm/helicopterrotor.mdl")
+holoCreate(10,E:pos()+vec(62,50,88),vec(1.5,1.5,1.5),ang(0,180,0),vec(255),"models/sprops/trans/exhaust/tip_6.mdl")
+holoCreate(11,E:pos()+vec(62,-50,88),vec(1.5,1.5,1.5),ang(0,180,0),vec(255),"models/sprops/trans/exhaust/tip_6.mdl")
+
+holoMaterial(3,"sprops/textures/sprops_metal3")
+holoMaterial(4,"sprops/textures/sprops_metal3")
+holoMaterial(5,"sprops/textures/sprops_metal3")
+holoMaterial(10,"sprops/textures/sprops_chrome")
+holoMaterial(11,"sprops/textures/sprops_chrome")
+
+for(I=1,11){
+    holoParent(I,E)
+}}
+
+holoAng(1,E:toWorld(ang(0,180,M)))
+holoAng(2,E:toWorld(ang(0,180,C+110)))
+holoAng(6,E:toWorld(ang(0,180,M)))
+holoAng(7,E:toWorld(ang(0,180,C+110)))
+holoAng(8,E:toWorld(ang(0,180,M)))
+holoAng(9,E:toWorld(ang(0,180,C+110)))

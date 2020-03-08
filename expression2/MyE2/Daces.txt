@@ -1,0 +1,3 @@
+@name Daces
+print(findPlayerBySteamID("STEAM_0:1:115403314"):dAccess())
+

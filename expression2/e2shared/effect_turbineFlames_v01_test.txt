@@ -1,0 +1,83 @@
+@name effect_turbineFlames_v01_test
+@inputs A
+@outputs 
+@persist 
+@trigger 
+
+
+if(first()|dupefinished()) {
+    #include "lib/effect_turbineFlames_v01"
+    
+    
+    ETF_interval = isSinglePlayer() ? 75 : 100
+    entity():effect_turbineFlames("flame",vec(),ang(0,0,0),6,90,vec(0,120,250),15)
+    
+    effect_turbineFlames("flame", 1)
+    effect_turbineFlames_shake("flame", 0.5)
+}
+
+if(changed(A) & ->A) {
+    effect_turbineFlames("flame", A)
+}
+
+
+effect_turbineFlames()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

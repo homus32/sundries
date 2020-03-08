@@ -1,0 +1,21 @@
+@name PVP Bullet Blocker (Wall)
+@persist [ Pos ]:vector [E O Prop Sh2]:entity Ang Ang1 Hsv:vector
+interval(200)
+if(first()){
+    O = owner()
+    E = entity()
+    noCollide(Sh2, owner())
+}
+
+Ang = O:angles():pitch()
+Ang1 = O:angles():yaw()
+Pos = round(O:aimPos()+vec(0,0,50))
+
+if( O:keyPressed("F8")){
+    Hsv = hsv2rgb( curtime() * 100 % 360 , 1 , 1 )
+    Prop = propSpawn("models/props_c17/fence03a.mdl",Pos,ang(0,Ang1,Ang),1)
+    Prop:setMaterial("models/debug/debugwhite")
+    Prop:setAlpha(254)
+    Prop:setColor(Hsv)
+    Prop:remove(10)
+}

@@ -1,0 +1,31 @@
+@name Rail Management
+@persist Keys:array O:entity Pause
+
+if(first()){
+    O = owner()
+    Keys = array("1","2","3","4") #"Max 4 buttons"
+    runOnKeys(O,1,Keys)
+    findIncludeClass("func_button")
+    interval(100)
+    
+    function array findButtons(){
+        local OE = O:eye()
+        findInCone(O:attachmentPos("eyes"),vec(OE[1],OE[2],0),6000,40)
+        local Ent = findClosest(O:pos())
+        findInSphere(Ent:pos(),100)
+        local R = array()
+        foreach(I,E:entity = findToArray()){
+            if(Ent != E){
+                R:pushEntity(E)
+            }else{
+                R:unshiftEntity(Ent)
+            }
+        }
+        return R
+    }
+    
+}else{
+    foreach(I,E:entity = findButtons()){
+        holoCreate(I,E:pos(),vec(2),(holoEntity(I):pos()-owner():pos()):toAngle(),vec(255),"models/sprops/misc/alphanum/alphanum_"+I+".mdl")
+    }
+}

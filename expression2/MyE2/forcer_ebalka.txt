@@ -1,0 +1,53 @@
+@name Forcer Ebalka
+@inputs Forcer:entity
+@persist O:entity Ply:entity
+@trigger Forcer
+
+if(first()){
+    O = owner()
+    runOnChat(1)
+    runOnKeys(O,1,array("e"))
+    print("Conntect Forcer")
+    
+}else{
+
+    if(Forcer){
+    
+        if(~Forcer & Forcer:type() == "gmod_wire_forcer"){ print("Forcer Connected",Forcer) }elseif(Forcer:type() != "gmod_wire_forcer"){ print("It is not forcer") entity():remove() }
+        
+        if(chatClk(O)){
+        
+            local LS = O:lastSaid():explode(" ")
+            Ply = findPlayerByName(LS:concat(" ",2,LS:count()))
+            
+            if(!Ply){ exit() }
+            
+            if(LS:string(1) == "!force"){
+                hideChat(1)
+                stopAllTimers()
+                timer("force",1)
+                
+            }elseif(LS:string(1) == "!stop"){
+                hideChat(1)
+                stopAllTimers()
+                Forcer:setPos(vec())
+                
+            }elseif(LS:string(1) == "!forcekey"){
+                hideChat(1)
+                stopAllTimers()
+                timer("forcekey",1)
+            }
+        }
+    }
+    
+    if(clk("force")){
+        timer("force",1)
+        local Pos = Ply:attachmentPos("eyes")
+        Forcer["Velocity",number] = 99999999e+100
+        Forcer:setPos(Pos+Ply:forward()*-20)
+        Forcer:setAng((Pos-Forcer:pos()):toAngle())
+    }
+    
+    if(clk("forcekey")){
+    }
+}

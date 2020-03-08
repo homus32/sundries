@@ -1,0 +1,37 @@
+@model models/props_phx/mk-82.mdl
+@persist Beep C
+
+if(first()){
+    Beep = 1000
+    timer("1",10000)
+    timer("beep",1)
+    #noCollideAll(entity(),1)
+    findIncludePlayerProps(owner())
+}
+
+if(clk("beep")){
+    C+=0.013
+    Beep = Beep/(1.01+C)
+    timer("beep",Beep)
+    entity():soundPlay("1",1,"Streetwar.d3_C17_13_beep")    
+}
+
+#entity():setPos(entity(980):pos())
+if(clk("1")){
+    entity():soundPlay("5",1,"beams/beamstart5.wav")
+    propSpawn("models/props_phx/mk-82.mdl",1):propBreak()
+    findInSphere(entity():pos(),1700)
+    
+    foreach(I,E:entity = findToArray()){
+        #noCollideAll(E,1)
+        E:setMass(10000)
+        #E:takeDamage(50)
+        #E:ignite(300)
+        E:propFreeze(0)
+        E:constraintBreak()
+        E:setVel(-(entity():pos()-E:pos())*500)
+        #E:remove(20)
+    }
+    entity():isWeldedTo():remove(10)
+    entity():remove()
+}

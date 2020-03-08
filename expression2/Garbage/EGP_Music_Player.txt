@@ -1,0 +1,1357 @@
+@name EGP Music Player
+@inputs EGP:wirelink
+@persist W:wirelink CurAlb RMode Last RLast CLast SongMode Checked [Playing Querys Comma Songs Playlists Btns BIU]:table 
+@persist [THttp Find]:string THttpT THttpMode CurSong Timer IsStopped StopTime LastTime Page NFor 
+@persist NBac TempPlay RPage Volume [Saved TempToLoad]:array [Playlist CurOpened]:string 
+@persist ModeRandom ModeCycle
+#noDuplications()
+interval(100)
+
+if(first() | dupefinished()) 
+{ 
+    for(I = 1, 3) 
+    { 
+        Btns[I, table] = table() 
+    }
+    
+    Comma = table(
+        "find"  = 1,
+        "pl"    = 1,
+        "play"  = 1, 
+        "addto" = 1,
+        "page"  = 1
+    )
+    
+    #ifdef entity:wirelink()
+        local WT = entity():isWeldedTo()
+        
+        if(WT:type() != "gmod_wire_egp" & WT:type() != "gmod_wire_egp_emitter") 
+        {
+            print("Ставь чип на EGP!")
+            
+          #  selfDestruct()
+            exit()
+        }
+        
+        W = WT:wirelink()
+    #else
+        print("Соедини чип с EGP экраном!")
+    #endif
+    
+    #ifdef soundURLload(string, string, number, number, entity)
+    #else
+        print("SoundURL не поддерживается! Чип не может работать.")
+        
+        selfDestruct()
+        exit()
+    #endif
+                                                                                                                                                                                                                                                                                                                                                                                                               
+    function button([Pos_ Size_]:vector2, Id_:string, Mode_) 
+    {
+        #[
+            1 - Song info
+            2 - Song list
+            3 - Right panel
+        ]#
+        
+        Btns[Mode_, table][Id_, array] = array(Pos_, Size_)
+    }
+    
+    function reCursor() 
+    {
+        W:egpCircle(199, vec2(), vec2(2))
+        W:egpColor(199, vec(103, 138, 171))
+        W:egpParentToCursor(199)
+        W:egpOrder(199, 200)
+    }
+    
+    function drawRight(Mode_)
+     {
+        Btns[3, table] = table()
+        
+        local TRLast = 0
+        local TT_    = 0
+        
+        RMode = Mode_
+        
+        #[
+            0 - Saved
+            1 - Playlists
+        ]#
+        
+        W:egpBox(151, vec2(433, 20), vec2(151, 22)) W:egpColor(151, vec4(vec(245, 247, 250) * 0.95, 0))
+        W:egpBox(154, vec2(433, 20), vec2(151, 22)) W:egpColor(154, vec(245, 247, 250) * 0.95)
+        W:egpBox(152, vec2(358, 20), vec2(2, 22)) W:egpColor(152, vec(87, 124, 161))
+        W:egpText(153, "", vec2(369, 20)) W:egpColor(153, vec(50)) W:egpAlign(153, 0, 1) W:egpSize(153, 13)
+        
+        local Lt_ = 0
+        local A_  = 0
+        
+        W:egpTriangle(155, vec2(430, 356), vec2(430, 370), vec2(410, 363)) 
+        W:egpColor(155, vec(87, 124, 161))
+        
+        W:egpTriangle(156, vec2(436, 356), vec2(436, 370), vec2(456, 363)) 
+        W:egpColor(156, vec(87, 124, 161))
+        
+        switch(Mode_) 
+        {
+            case 0, # Saved user list
+                W:egpSetText(153, "Сохраненные аудио")
+                
+                if(TempToLoad:count() | Checked == -1) 
+                {
+                    if(Playlists:count()) 
+                    {
+                        local SCt_ = Playlists:count() > 15 ? 14 : Playlists:count()
+                        
+                        TT_ = Playlists:count()
+                        TRLast = SCt_
+                        
+                        for(I = 1, SCt_) 
+                        {
+                            local Name_ = Playlists:keys():string(I + RPage * 14)
+                            A_++
+                            
+                            W:egpText(156 + I, Name_, vec2(380, 20 + 22 * I)) 
+                            W:egpColor(156 + I, vec(223, 225, 227) * 0.65) 
+                            W:egpAlign(156 + I, 0, 1) 
+                            W:egpSize(156 + I, 13)
+                        }
+                        
+                        button(vec2(433, 31 + 11 * A_), vec2(153, 22 * A_), "saves", 3)
+                        
+                        #[
+                        if(CurAlb > RPage * 13 & CurAlb - RPage * 13 < 14) 
+                        {
+                            W:egpColor(153, vec(87, 124, 161))
+                            W:egpColor(157 + CurAlb - RPage * 13, vec(50))
+                            
+                            W:egpPos(154, vec2(433, 42 + (CurAlb - RPage * 13) * 22))
+                            W:egpPos(152, vec2(358, 42 + (CurAlb - RPage * 13) * 22))
+                            
+                            button(vec2(433, 20), vec2(153, 22), "saves_b", 3)
+                        }
+                        ]#
+                    } #[
+                    if(Saved:count()) 
+                    {
+                        local SCt_ = Saved:count() > 15 ? 14 : Saved:count()
+                        
+                        TT_ = Saved:count()
+                        TRLast = SCt_
+                        
+                        A_ = SCt_
+                        
+                        for(I = 1, SCt_) 
+                        {
+                            W:egpTextLayout(156 + I, Saved:string(I + RPage * 14) , vec2(380, 13 + 22 * I), vec2(120, 13))
+                            W:egpColor(156 + I, vec(223, 225, 227) * 0.65) 
+                            W:egpAlign(156 + I, 0, 1) 
+                            W:egpSize(156 + I, 13)
+                        }
+                        
+                        button(vec2(433, 31 + 11 * A_), vec2(153, 22 * A_), "saves", 3)
+                        
+                    } ]#
+                    else 
+                    {
+                        W:egpText(157, "Пусто", vec2(380, 42)) 
+                        W:egpColor(157, vec(223, 225, 227) * 0.65) 
+                        W:egpAlign(157, 0, 1) 
+                        W:egpSize(157, 13)
+                        
+                        TRLast = 1
+                    }
+                } 
+                else 
+                {
+                    W:egpText(157, "Загрузка...", vec2(380, 42)) 
+                    W:egpColor(157, vec(223, 225, 227) * 0.65) 
+                    W:egpAlign(157, 0, 1) 
+                    W:egpSize(157, 13)
+                    
+                    runOnFile(1)
+                    TRLast = 1
+                    
+                    if(fileCanList()) 
+                    {
+                        fileList("SerGunPlaylists/")
+                    } 
+                    else 
+                    {
+                        timer("Load", 500)
+                    }
+                }
+            break
+            
+            case 1, # User playlists
+            
+                W:egpSetText(153, "Все аудиозаписи")
+                
+                W:egpText(157, "Плейлисты", vec2(369, 42)) 
+                W:egpColor(157, vec(87, 124, 161)) 
+                W:egpAlign(157, 0, 1) 
+                W:egpSize(157, 13)
+                
+                if(Playlists:count()) 
+                {
+                    local SCt_ = Playlists:count() > 14 ? 13 : Playlists:count()
+                    
+                    TT_ = Playlists:count() + 1
+                    TRLast = 1 + SCt_
+                    
+                    for(I = 1, SCt_) 
+                    {
+                        local Name_ = Playlists[I + RPage * 13, array][3, string]
+                        A_ += (Playlists[I + RPage * 13, array]:count() > 0)
+                        
+                        W:egpText(157 + I, Name_, vec2(380, 42 + 22 * I)) 
+                        W:egpColor(157 + I, vec(223, 225, 227) * 0.65) 
+                        W:egpAlign(157 + I, 0, 1) 
+                        W:egpSize(157 + I, 13)
+                    }
+                    
+                    button(vec2(433, 53 + 11 * A_), vec2(153, 22 * A_), "saves", 3)
+                    
+                    if(CurAlb > RPage * 13 & CurAlb - RPage * 13 < 14) 
+                    {
+                        W:egpColor(153, vec(87, 124, 161))
+                        W:egpColor(157 + CurAlb - RPage * 13, vec(50))
+                        
+                        W:egpPos(154, vec2(433, 42 + (CurAlb - RPage * 13) * 22))
+                        W:egpPos(152, vec2(358, 42 + (CurAlb - RPage * 13) * 22))
+                        
+                        button(vec2(433, 20), vec2(153, 22), "saves_b", 3)
+                    }
+                } 
+                else 
+                {
+                    W:egpText(157, "Пусто", vec2(380, 64)) 
+                    W:egpColor(157, vec(223, 225, 227) * 0.65) 
+                    W:egpAlign(157, 0, 1) 
+                    W:egpSize(157, 13)
+                    
+                    TRLast = 2
+                }
+            
+            break
+        }
+          
+        if(TT_ > 15) 
+        {
+            if(RPage <= 0) 
+            { 
+                W:egpRemove(155) 
+            }
+            
+            if((RPage + 1) * (14 - RMode) - (RMode ? Playlists:count() : Saved:count()) > 0) 
+            { 
+                W:egpRemove(156) 
+            }
+            
+            button(vec2(433, 363), vec2(50, 20), "list", 3)
+        } 
+        else 
+        {
+            for(I = 155, 156) 
+            { 
+                W:egpRemove(I) 
+            }
+        }
+        
+        local T_ = TT_ > 15 ? 384 : (22 * (TRLast + 1) + 16)
+        
+        W:egpBox(11, vec2(433, T_ / 2 + 2), vec2(153, T_)) 
+        W:egpBoxOutline(12, vec2(433, T_ / 2 + 2), vec2(153, T_)) 
+        W:egpPos(193, vec2(433, T_ + 65))
+        
+        button(vec2(433, 431 - 449 + T_ + 65), vec2(108, 8), "volume", 3)
+        
+        
+        # T_ + 65 = 449
+        
+        
+        button(vec2(433, T_ + 65 + 6), vec2(104, 18), "cycle", 3)
+        button(vec2(433, T_ + 65 + 30), vec2(104, 18), "random", 3)
+        
+        
+        if(TRLast < RLast) 
+        {
+            for(I = 157 + TRLast, 156 + RLast) 
+            { 
+                W:egpRemove(I) 
+            }
+        }
+        
+        reCursor()
+        RLast = TRLast
+    }
+    
+    function string time(Id, Mode) 
+    {
+        local TimeSec = Mode ? Songs[4, table][Id, array]:string(1):toNumber() : Id
+        local Secs    = TimeSec - floor(TimeSec / 60) * 60
+        
+        return floor(TimeSec / 60) + ":" + (Secs >= 10 ? "" : "0") + Secs
+    }
+    
+    function redrawCurrent() 
+    {
+        if(!CurSong) # If nothing is played...
+        { 
+            Btns[1, table] = table()
+            local TCLast   = 0
+            
+            if(Songs[1, table]:count()) # First song in list
+            { 
+                W:egpCircle(21, vec2(25, 23), vec2(12))
+                W:egpColor(21, vec(255, 138, 171))
+                
+                W:egpTriangle(22, vec2(25 - 4, 23 - 5), vec2(25 - 4, 23 + 5), vec2(25 + 6, 23))
+                button(vec2(25, 23), vec2(24), "play", 1)
+                
+                
+                # Prev Song
+                W:egpTriangle(23, vec2(45, 30), vec2(54, 25), vec2(54, 35))
+                W:egpColor(23, vec(103, 138, 171))
+                
+                W:egpTriangle(24, vec2(51, 30), vec2(60, 25), vec2(60, 35))
+                W:egpColor(24, vec(103, 138, 171))
+                
+                
+                # Next Song
+                W:egpTriangle(25, vec2(75, 30), vec2(66, 25), vec2(66, 35))
+                W:egpColor(25, vec(103, 138, 171))
+                
+                W:egpTriangle(26, vec2(81, 30), vec2(72, 25), vec2(72, 35))
+                W:egpColor(26, vec(103, 138, 171))
+                
+                button(vec2(63, 30), vec2(38, 12), "change", 1)
+                
+                
+                # Song title & time
+                local SngName =  (Songs[2, table][1, array]:string(1):length() ? Songs[2, table][1, array]:string(1) : Songs[5, table][1, array]:string(1)) + " - " + Songs[3, table][1, array]:string(1)
+                local SngDurt = Songs[4, table][1, array]:string(1)
+                
+                W:egpTextLayout(27, SngName:length() > 42 ? SngName:sub(1, 40) + " ..." : SngName, vec2(46, 8), vec2(270, 15))
+                W:egpColor(27, vec(103, 138, 171))
+                W:egpAlign(27, 0, 1)
+                W:egpSize(27, 13)
+                
+                W:egpText(28, SngDurt[1] == "0" & SngDurt[1] == "0" ? SngDurt:sub(2, SngDurt:length()) : SngDurt, vec2(346, 16))
+                W:egpColor(28, vec(223, 225, 227) * 0.65)
+                W:egpAlign(28, 2, 1)
+                W:egpSize(28, 13)
+                
+                
+                # Timeline
+                W:egpBox(29, vec2(217, 30), vec2(256, 2))
+                W:egpColor(29, vec(225, 232, 238) * 0.96)
+                
+                W:egpBox(30, vec2(217, 30), vec2(0, 2))
+                W:egpColor(30, vec(103, 138, 171))
+                
+                
+                # Addition for stop #
+                W:egpBox(31, vec2(), vec2())
+                
+                
+                # Addition for timeline #
+                button(vec2(217, 30), vec2(258, 6), "slide", 1)
+                
+                W:egpCircle(32, vec2(89, 30), vec2(3))
+                W:egpColor(32, vec4(vec(103, 138, 171), 0))
+                
+                TCLast = 12
+            } 
+            else # Logo, if nothing found
+            { 
+            	   W:egpRoundedBox(21, vec2(142, 23), vec2(36, 32)) 
+                W:egpColor(21, vec(147, 163, 188))
+                
+                W:egpText(22, "VK", vec2(142, 23)) 
+                W:egpColor(22, vec(255)) 
+                W:egpAlign(22, 1, 1) 
+                W:egpSize(22, 24)
+                
+                W:egpText(23, "Anti       Player", vec2(153, 23)) 
+                W:egpColor(23, vec(147, 163, 188)) 
+                W:egpAlign(23, 1, 1) 
+                W:egpSize(23, 24)
+                
+                TCLast = 3
+            }
+            
+            if(TCLast < CLast) 
+            {
+                for(I = 21 + TCLast, 20 + CLast) 
+                { 
+                    W:egpRemove(I) 
+                }
+            }
+            
+            CLast = TCLast
+        } 
+        else # Update song temp info
+        { 
+            
+            local SngName = (Playing[5, table][CurSong, array]:string(1):length() ? Playing[5, table][CurSong, array]:string(1) : Songs[2, table][CurSong, array]:string(1)) + " - " + Playing[3, table][CurSong, array]:string(1)
+            local SngDurt = Playing[4, table][CurSong, array]:string(1)
+            
+            local SngDura_ = SngDurt:explode(":")
+            local SngDur_  = SngDura_:string(1):toNumber() * 60 + SngDura_:string(2):toNumber()
+            
+            W:egpSetText(27, SngName:length() > 42 ? SngName:sub(1, 40) + " ..." : SngName)
+            W:egpSetText(28, time(SngDur_ - Timer, 0))
+            
+            if(!IsStopped) 
+            { 
+                W:egpBox(22, vec2(23, 23), vec2(3, 12))
+                W:egpBox(31, vec2(28, 23), vec2(3, 12))
+            } 
+            else 
+            { 
+                W:egpTriangle(22, vec2(25 - 4, 23 - 5), vec2(25 - 4, 23 + 5), vec2(25 + 6, 23))
+                W:egpBox(31, vec2(), vec2())
+            }
+            
+            W:egpSize(30, vec2(256 * Timer / SngDur_, 2))
+            W:egpPos(30, vec2(89 + W:egpSize(30):x() / 2, 30))
+            
+            W:egpPos(32, vec2(89 + W:egpSize(30):x(), 30))
+        }
+        
+        reCursor()
+    }
+    
+    function redrawSongs() 
+    { 
+        Btns[2, table] = table()
+        local TLast    = 0
+        
+        if(Songs[1, table]:count()) 
+        { 
+            local CurPageCt = clamp(15, 1, Songs[1, table]:count() - Page * 15)
+            local TempO     = 0
+            
+            TLast = 6 + CurPageCt * 4
+            
+            W:egpBox(51, vec2(178, 100), vec2(338, 25))
+            W:egpColor(51, vec4(vec(245, 247, 250) * 0.95, 0))
+            
+            W:egpBox(52, vec2(178, 100), vec2(338, 25))
+            W:egpColor(52, vec4(vec(232, 237, 244) * 0.93, 0))
+            
+            W:egpText(53, "-" + (Page + 1) + "-", vec2(178, 484))
+            W:egpColor(53, vec(223, 225, 227) * 0.6)
+            W:egpAlign(53, 1, 1)
+            W:egpSize(53, 14)
+            
+            W:egpTriangle(54, vec2(195, 476), vec2(195, 492), vec2(210, 484)) 
+            W:egpColor(54, vec4(87, 124, 161, 0))
+            
+            W:egpTriangle(55, vec2(161, 476), vec2(161, 492), vec2(146, 484)) 
+            W:egpColor(55, vec4(87, 124, 161, 0))
+            
+            W:egpBox(56, vec2(23, 100), vec2(2, 8))
+            W:egpAlpha(56, 0)
+            
+            
+            for(I = 1, CurPageCt) 
+            {
+                local SongID_ = Page * 15 + I
+                
+                local SngName = (Songs[2, table][SongID_, array]:string(1):length() ? Songs[2, table][SongID_, array]:string(1) : Songs[5, table][SongID_, array]:string(1)) + " - " + Songs[3, table][SongID_, array]:string(1)
+                local SngDurt = Songs[4, table][SongID_, array]:string(1)
+                local SngLink = Songs[1, table][SongID_, array]:string(1)
+                
+                W:egpCircle(53 + I * 4, vec2(25, 75 + I * 25), vec2(10))
+                W:egpColor(53 + I * 4, vec(87, 124, 161))
+                
+                W:egpTriangle(54 + I * 4, vec2(25 - 3, 75 + I * 25 - 4), vec2(25 - 3, 75 + I * 25 + 4), vec2(25 + 5, 75 + I * 25))
+                
+                W:egpTextLayout(55 + I * 4, SngName:length() > 42 ? SngName:sub(1, 40) + " ..." : SngName, vec2(40, 68 + I * 25), vec2(270, 14))
+                W:egpColor(55 + I * 4, vec(87, 124, 161))
+                W:egpAlign(55 + I * 4, 0, 1)
+                W:egpSize(55 + I * 4, 13)
+                
+                W:egpText(56 + I * 4, SngDurt[1] == "0" & SngDurt[2] == "0" ? SngDurt:sub(2, SngDurt:length()) : SngDurt, vec2(340, 75 + I * 25))
+                W:egpColor(56 + I * 4, vec(223, 225, 227) * 0.65)
+                W:egpAlign(56 + I * 4, 2, 1)
+                W:egpSize(56 + I * 4, 13)
+                
+                if(CurSong & SngLink == Playing[1, table][CurSong, array]:string(1)) 
+                { 
+                    W:egpPos(52, vec2(178, 75 + I * 25))
+                    W:egpAlpha(52, 255)
+                    
+                    local SngDura_ = SngDurt:explode(":")
+                    local SngDur_  = SngDura_:string(1):toNumber() * 60 + SngDura_:string(2):toNumber()
+                    
+                    W:egpSetText(56 + I * 4, time(SngDur_ - Timer, 0))
+                    
+                    if(!IsStopped) 
+                    { 
+                        W:egpBox(54 + I * 4, vec2(27, 75 + I * 25), vec2(2, 8))
+                        
+                        W:egpBox(56, vec2(23, 75 + I * 25), vec2(2, 8))
+                        W:egpAlpha(56, 255)
+                        W:egpOrder(56, 199)
+                    }
+                }
+            }
+            
+            if(Songs[1, table]:count() > Page * 15 + CurPageCt) 
+            { 
+                W:egpAlpha(54, 255)
+                button(vec2(202, 484), vec2(20), "page_f", 2)
+            }
+            
+            if(Page) 
+            { 
+                W:egpAlpha(55, 255)
+                button(vec2(154, 484), vec2(20), "page_b", 2)
+            }
+            
+            button(vec2(178, 88 + 12.5 * CurPageCt), vec2(336, 25 * CurPageCt), "songs", 2)
+        } 
+        else 
+        {
+            W:egpText(51, "Песен", vec2(178, 266 - 40 * RMode)) W:egpColor(51, vec(223, 225, 227) * 0.85) W:egpAlign(51, 1, 1) W:egpSize(51, 40)
+            W:egpText(52, "не найдено", vec2(178, 286 - 40 * RMode)) W:egpColor(52, vec(223, 225, 227) * 0.85) W:egpAlign(52, 1, 1) W:egpSize(52, 22)
+            
+            if(RMode) 
+            {
+                W:egpText(53, "Проверьте, открыты ли аудиозаписи", vec2(178, 270)) W:egpColor(53, vec(223, 225, 227) * 0.85) W:egpAlign(53, 1, 1)  W:egpSize(53, 14)
+                W:egpText(54, "данного пользователя", vec2(178, 285)) W:egpColor(54, vec(223, 225, 227) * 0.85) W:egpAlign(54, 1, 1) W:egpSize(54, 14)
+            }
+            
+            TLast = 2 + RMode * 2
+        }
+        
+        if(TLast < Last) 
+        {
+            for(I = 51 + TLast, 50 + Last) 
+            { 
+                W:egpRemove(I) 
+            }
+        }
+        
+        reCursor()
+        Last = TLast
+    }
+    
+    function try_http(Try_:string, Mode_) 
+    {
+        if(!THttpMode) 
+        {
+            THttp = Try_
+            
+            if(httpCanRequest()) 
+            {
+                httpRequest(THttp)
+            } 
+            else 
+            {
+                THttpT = 1
+            }
+            
+            #[
+                1 - Just songs
+                2 - User songs & playlists
+                3 - Shortlink
+            ]#
+            
+            THttpMode = Mode_
+        } 
+        elseif(Querys[Querys:count(), array]:string(1) != Try_) 
+        {
+            Querys:pushArray(array(Try_, Mode_))
+        }
+    }
+    
+    function sound(Mode_) 
+    {
+        IsStopped = !Mode_
+        
+        switch(Mode_) 
+        {
+            case -1, 
+                soundURLdelete("SerGunS")
+                
+                stoptimer("Play")
+                stoptimer("Sec")
+                
+                Timer = 0
+            break
+            
+            case 0, 
+                soundURLpause("SerGunS")
+                
+                redrawSongs()
+                redrawCurrent()
+                
+                stoptimer("Sec")
+                StopTime = curtime() - LastTime
+            break
+            
+            case 1,
+                soundURLvolume("SerGunS", Volume)
+                soundURLplay("SerGunS")
+                
+                redrawSongs()
+                redrawCurrent()
+                
+                timer("Sec", StopTime ? clamp(StopTime, 1, 1000) : 1000)
+                StopTime = 0
+            break
+        }
+    }
+    
+    function play(Id_) 
+    {
+        local Song_ = Playing[1, table][Id_, array]:string(1)
+        
+        CurSong  = Id_
+        StopTime = 0
+        
+        sound(-1)
+        redrawCurrent()
+        redrawSongs()
+        
+        #ifdef dCore() 
+            soundURLload("SerGunS", "http://storage.mp3cc.com/download/" + Song_ + ".mp3", 1, 1, owner())
+            
+            timer("Play", 4000)
+            TempPlay = 1
+        #else
+            # try_http("http://pisos.site88.net/shorter.php?url=" + httpUrlEncode("http://storage.mp3cc.com/download/" + Song_ + ".mp3"), 3)
+            try_http("http://cc.suka.lol/" + httpUrlEncode("http://storage.mp3cc.com/download/" + Song_ + ".mp3"), 3)
+        #endif
+    }
+    
+    # Chat Functions #
+    function c_play(LS_:string) 
+    { 
+        local Id_ = LS_:sub(6, LS_:length()):toNumber()
+        
+        if(Id_ > 0 & Id_ < Songs:count()) 
+        { 
+            Playing = Songs
+            play(Id_)
+        } 
+        else 
+        { 
+            print("Theres no song #" + Id_)
+        }
+    }
+    
+    function c_addto(LS_:string) 
+    { 
+        if(!CurSong) 
+        { 
+            print("You need to load song first")
+            return
+        }
+        
+        if(!fileCanWrite()) 
+        { 
+            print("Try later")
+            return
+        } 
+        
+        local CurPl_ = LS_:sub(7, LS_:length())
+        
+        if(!Playlists[CurPl_, table]:count()) 
+        { 
+            print("Theres no playlist " + CurPl_)
+            return
+        }
+        
+        Playlists[CurPl_, table][1, table]:pushArray(array(Playing[1, table][CurSong, array]:string(1)))
+        Playlists[CurPl_, table][2, table]:pushArray(array(Playing[5, table][CurSong, array]:string(1)))
+        Playlists[CurPl_, table][3, table]:pushArray(array(Playing[3, table][CurSong, array]:string(1)))
+        Playlists[CurPl_, table][4, table]:pushArray(array(Playing[4, table][CurSong, array]:string(1)))
+
+        
+        fileWrite("SerGunPlaylists/" + CurPl_ + ".txt", vonEncode(Playlists[CurPl_, table]))
+        print("Added song to playlist " + CurPl_)
+    }
+    
+    function c_pl(LS_:string) 
+    { 
+        if(!fileCanWrite()) 
+        { 
+            print("Try later")
+            return
+        } 
+        
+        local Name_ = LS_:sub(4, LS_:length())
+        Name_ = Name_:length() > 20 ? Name_:sub(1, 16) + " ..." : Name_
+        
+        if(Playlists[Name_, table]:count()) 
+        { 
+            return
+        }
+        
+        Playlists[Name_, table] = table(
+            table(), 
+            table(), 
+            table(), 
+            table()
+        )
+        
+        fileWrite("SerGunPlaylists/" + Name_ + ".txt", vonEncode(Playlists[Name_, table]))
+        
+        drawRight(0)
+        print("Created playlist: " + Name_)
+    }
+    
+    function c_find(LS_:string) 
+    { 
+        local Music_ = LS_:sub(6, LS_:length())
+        
+        if(Music_:length()) 
+        {
+            try_http("http://mp3cc.com/search/f/" + httpUrlEncode(Music_), 1)
+            
+            W:egpSetText(9, Music_)
+            W:egpColor(9, vec(50))
+            
+            CurAlb = 0
+            RPage  = 0
+        }
+    }
+    
+    function c_page(LS_:string) 
+    {
+        if(Songs:count()) 
+        {
+            Page = clamp(LS_:explode(" "):string(2):toNumber() - 1, 0, ceil(Songs:count() / 15) - 1)
+            redrawSongs()
+        }
+    }
+    
+    # Button Functions hovers #
+    function bhover_saves() 
+    {
+        W:egpAlpha(151, 255)
+        W:egpPos(151, vec2(433, 20 + round((W:egpCursor(owner()):y() - 20) / 22) * 22))
+    }
+    
+    function bhover_saves_b() 
+    {
+        W:egpAlpha(151, 255)
+        W:egpPos(151, vec2(433, 20))
+    }
+    
+    function bhover_songs() 
+    {
+        W:egpAlpha(51, 255)
+        W:egpPos(51, vec2(178, 75 + round((W:egpCursor(owner()):y() - 75) / 25) * 25))
+    }
+    
+    function bhover_change() 
+    {
+        local NX_ = W:egpCursor(owner()):x() > 63
+        
+        W:egpAlpha(23 + NX_ * 2, 180)
+        W:egpAlpha(24 + NX_ * 2, 180)
+        
+        W:egpAlpha(25 - NX_ * 2, 255)
+        W:egpAlpha(26 - NX_ * 2, 255)
+    }
+    
+    function bhover_list() 
+    {
+        local NX_ = W:egpCursor(owner()):x() > 433
+        
+        W:egpAlpha(155 + NX_, 180)
+        W:egpAlpha(156 - NX_, 255)
+    }
+    
+    function bhover_page_f() { W:egpAlpha(54, 180) }
+    function bhover_page_b() { W:egpAlpha(55, 180) }
+    function bhover_play()   { W:egpAlpha(21, 180) }
+    function bhover_slide()  { W:egpAlpha(32, 255) }
+    function bhover_volume() { W:egpAlpha(195, 255) }
+    
+    function bhover_random() {}
+    function bhover_cycle() {}
+    
+    # Buttons Functions release #
+    function brelease_saves()   { W:egpAlpha(151, 0) }
+    function brelease_saves_b() { W:egpAlpha(151, 0) }
+    function brelease_songs()   { W:egpAlpha(51, 0) }
+    function brelease_page_f()  { W:egpAlpha(54, 255) }
+    function brelease_page_b()  { W:egpAlpha(55, 255) }
+    function brelease_play()    { W:egpAlpha(21, 255) }
+    function brelease_change()  { for(I = 23, 26) { W:egpAlpha(I, 255) } }
+    function brelease_list()    { for(I = 155, 156) { W:egpAlpha(I, 255) } }
+    function brelease_slide()   { W:egpAlpha(32, 0) }
+    function brelease_volume()  { W:egpAlpha(195, 0) }
+    
+    function brelease_random() {}
+    function brelease_cycle() {}
+    
+    # Buttons Functions press #
+    function bpress_random() 
+    { 
+        ModeRandom = !ModeRandom
+        local Pos  = W:egpPos(188)
+        
+        (ModeRandom ? "egpBox" : "egpBoxOutline")(W, 188, Pos, vec2(18))
+        
+        W:egpColor(188, vec(103, 138, 171))
+        W:egpParent(188, 193)
+    }
+    
+    function bpress_cycle() 
+    { 
+        ModeCycle = !ModeCycle
+        local Pos = W:egpPos(184)
+        
+        (ModeCycle ? "egpBox" : "egpBoxOutline")(W, 184, Pos, vec2(18))
+        
+        W:egpColor(184, vec(103, 138, 171))
+        W:egpParent(184, 193)
+    }
+    
+    function bpress_saves() 
+    {
+        # TODO: Custom playlists instead of ids
+        
+        #[if(RMode) 
+        {
+            CurAlb = round((W:egpCursor(owner()):y() - 42) / 22) + RPage * 13
+            local Alb = Playlists[CurAlb, array]
+            
+            # try_http("https://api.vk.com/method/audio.get?album_id=" + Alb:string(2) + "&owner_id=" + Alb:string(1) + "&access_token=" + Token, 1)
+        } 
+        else 
+    {}}}}]#
+        
+        CurOpened = Playlists:keys():string(round((W:egpCursor(owner()):y() - 20) / 22) + RPage * 14)
+        
+    			 W:egpColor(9, vec(221, 225, 230) * 0.9)
+    			 W:egpSetText(9, "Поиск аудиозаписей") 
+			     
+        RPage = 0
+        Songs = Playlists[CurOpened, table]
+        
+        print("Playlist: " + CurOpened)
+        
+        redrawSongs()
+        redrawCurrent()
+            
+        #}
+    }
+    
+    function bpress_saves_b() 
+    {
+        #[
+        try_http("https://api.vk.com/method/execute?code=return{\"Music\":API.audio.get({\"owner_id\":" + Find + ",\"need_user\":1}),\"Albums\":API.audio.getAlbums({\"owner_id\":" + Find + "})};&access_token=" + Token, 2)
+        
+        CurAlb = 0
+        RPage = 0
+        ]#
+    }
+    
+    function bpress_songs() 
+    {
+        local CS_ = round((W:egpCursor(owner()):y() - 75) / 25)
+        
+        if(Playing[1, table][CurSong, array]:string(1) == Songs[1, table][Page * 15 + CS_, array]:string(1)) 
+        {
+            sound(IsStopped)
+        } 
+        else 
+        {
+            Playing = Songs
+            play(Page * 15 + CS_)
+        }
+    }
+    
+    function bpress_page_f() 
+    {
+        Page++
+        redrawSongs()
+    }
+    
+    function bpress_page_b() 
+    {
+        Page--
+        redrawSongs()
+    }
+    
+    function bpress_play() 
+    {
+        if(CurSong) 
+        {
+            sound(IsStopped)
+        } 
+        else 
+        {
+            Playing = Songs
+            play(1)
+        }
+    }
+    
+    function bpress_change() 
+    {
+        if(!CurSong) 
+        { 
+            Playing = Songs 
+        }
+        
+        CurSong = (W:egpCursor(owner()):x() > 63) ? CurSong % Playing:count() + 1 : ((CurSong <= 1) ? Playing:count() : (CurSong - 1))
+        play(CurSong)
+    }
+    
+    function bpress_list() 
+    {
+        if(W:egpCursor(owner()):x() < 433) 
+        {
+            RPage -= (RPage > 0)
+        } 
+        else 
+        {
+            RPage += ((RPage + 1) * (14 - RMode) - (RMode ? Playlists:count() : Saved:count()) <= 0)
+        }
+        
+        drawRight(RMode)
+    }
+    
+    function bpress_slide() 
+    {
+        #ifdef soundURLtime(string, number) 
+            if(CurSong) 
+            { 
+                local SngDura_ = Playing[4, table][CurSong, array]:string(1):explode(":")
+                local CurTime  = SngDura_:string(1):toNumber() * 60 + SngDura_:string(2):toNumber()
+                
+                Timer = floor(CurTime * clamp(W:egpCursor(owner()):x() - 89, 0, 256) / 256)
+                
+                soundURLtime("SerGunS", Timer)
+                
+                stoptimer("Sec")
+                timer("Sec", 1000)
+                
+                redrawCurrent()
+            }
+        #endif
+    }
+    
+    function bpress_volume() 
+    {
+        Volume = clamp(W:egpCursor(owner()):x() - 383, 0, 100) / 100
+        
+        soundURLvolume("SerGunS", Volume)
+        
+        W:egpSize(182, vec2(floor(Volume * 100), 3))
+        W:egpPos(182, vec2(floor(Volume * 50) - 50, -18))
+        W:egpPos(195, vec2(floor(Volume * 100) - 50, -18))
+    }
+    
+    ("set" + "Na" + "me")("S" + "er" + "Gu" + "n's V" + "K " + "Pl" + "ayer")
+}
+
+if(changed(EGP) & EGP) 
+{ 
+    W = EGP 
+}
+
+if(changed(W) & W) 
+{ 
+    W:entity():setMaterial("models/debug/debugwhite")
+    W:entity():setColor(vec(103, 138, 171))
+    
+    W:egpClear()
+    
+    Volume = 1
+    
+    #entity():propNotSolid(1)
+    entity():setAlpha(0)
+    #noDuplications()
+    
+    W:egpBox(1, vec2(256), vec2(512)) W:egpColor(1, vec(237, 238, 240))
+    
+    
+    # Songs Panel #
+    W:egpBox(2, vec2(178, 256), vec2(353, 508)) W:egpColor(2, vec(255))
+    W:egpBoxOutline(3, vec2(178, 256), vec2(353, 508)) W:egpColor(3, vec(231, 232, 236) * 0.9)
+    W:egpBox(4, vec2(178, 23), vec2(351, 40)) W:egpColor(4, vec(250, 251, 252) * 0.98)
+    W:egpLine(5, vec2(2, 43), vec2(354, 43)) W:egpColor(5, vec(231, 232, 236) * 0.9)
+    W:egpLine(6, vec2(2, 74), vec2(354, 74)) W:egpColor(6, vec(231, 232, 236) * 0.9)
+    
+    
+    # Search line #
+    W:egpCircle(7, vec2(21, 59), vec2(5)) W:egpColor(7, vec(147, 163, 188))
+    W:egpCircle(10, vec2(21, 59), vec2(3)) W:egpColor(10, vec(255))
+    W:egpLine(8, vec2(24, 62), vec2(29, 67)) W:egpColor(8, vec(147, 163, 188) * 0.9) W:egpSize(8, 2)
+    W:egpText(9, "Поиск аудиозаписей", vec2(36, 60)) W:egpColor(9, vec(221, 225, 230) * 0.9) W:egpAlign(9, 0, 1) W:egpSize(9, 12)
+    
+    
+	   # Right panel #
+    W:egpBox(11, vec2(433, 256), vec2(153, 508)) W:egpColor(11, vec(255))
+    W:egpBoxOutline(12, vec2(433, 256), vec2(153, 508)) W:egpColor(12, vec(231, 232, 236) * 0.9)
+    
+    
+    # Info #
+    W:egpText(51, "'find SONG_NAME'", vec2(50, 126)) W:egpColor(51, vec(223, 225, 227) * 0.85) W:egpAlign(51, 0, 1) W:egpSize(51, 25)
+    W:egpText(52, "поиск музыки через ВКонтакте", vec2(300, 143)) W:egpColor(52, vec(223, 225, 227) * 0.85) W:egpAlign(52, 2, 1) W:egpSize(52, 16)
+    W:egpText(53, "Пример: find Muse - Unnatural Selection", vec2(178, 158)) W:egpColor(53, vec(223, 225, 227) * 0.85) W:egpAlign(53, 1, 1) W:egpSize(53, 12)
+    
+    W:egpText(54, "'pl PLAYLIST_NAME'", vec2(50, 200)) W:egpColor(54, vec(223, 225, 227) * 0.85) W:egpAlign(54, 0, 1) W:egpSize(54, 25)
+    W:egpText(55, "создать новый плейлист аудиозаписей", vec2(300, 217)) W:egpColor(55, vec(223, 225, 227) * 0.85) W:egpAlign(55, 2, 1) W:egpSize(55, 16)
+    W:egpText(56, "Пример: pl Muse Songs", vec2(178, 232)) W:egpColor(56, vec(223, 225, 227) * 0.85) W:egpAlign(56, 1, 1) W:egpSize(56, 12)
+    
+    W:egpText(57, "'page PAGE_NUM'", vec2(50, 274)) W:egpColor(57, vec(223, 225, 227) * 0.85) W:egpAlign(57, 0, 1) W:egpSize(57, 25)
+    W:egpText(58, "открыть определенную страницу", vec2(300, 291)) W:egpColor(58, vec(223, 225, 227) * 0.85) W:egpAlign(58, 2, 1) W:egpSize(58, 16)
+    W:egpText(59, "Пример: page 12", vec2(178, 306)) W:egpColor(59, vec(223, 225, 227) * 0.85) W:egpAlign(59, 1, 1) W:egpSize(59, 12)
+    
+    W:egpText(60, "'play SONG_ID'", vec2(50, 348)) W:egpColor(60, vec(223, 225, 227) * 0.85) W:egpAlign(60, 0, 1) W:egpSize(60, 25)
+    W:egpText(61, "воспроизвести песню из найденных", vec2(300, 365)) W:egpColor(61, vec(223, 225, 227) * 0.85) W:egpAlign(61, 2, 1) W:egpSize(61, 16)
+    W:egpText(62, "Пример: play 1", vec2(178, 380)) W:egpColor(62, vec(223, 225, 227) * 0.85) W:egpAlign(62, 1, 1) W:egpSize(62, 12)
+    
+    W:egpText(63, "'addto PLAYLIST_NAME'", vec2(50, 422)) W:egpColor(63, vec(223, 225, 227) * 0.85) W:egpAlign(63, 0, 1) W:egpSize(63, 25)
+    W:egpText(64, "добавить текущую песню в плейлист", vec2(300, 439)) W:egpColor(64, vec(223, 225, 227) * 0.85) W:egpAlign(64, 2, 1) W:egpSize(64, 16)
+    W:egpText(65, "Пример: addto Muse Songs", vec2(178, 454)) W:egpColor(65, vec(223, 225, 227) * 0.85) W:egpAlign(65, 1, 1) W:egpSize(65, 12)
+    Last = 15
+    
+    
+    # Settings Panel #
+    W:egpBox(193, vec2(433, 449), vec2(153, 122))
+    
+    W:egpBoxOutline(194, vec2(), vec2(153, 122)) 
+    W:egpColor(194, vec(231, 232, 236) * 0.9)
+    W:egpParent(194, 193)
+    
+    
+    # Volume #
+    W:egpBox(181, vec2(433, 431), vec2(100, 3))
+    W:egpColor(181, vec(225, 232, 238) * 0.96)
+    
+    W:egpBox(182, vec2(433, 431), vec2(100, 3))
+    W:egpColor(182, vec(103, 138, 171))
+    
+    W:egpCircle(195, vec2(383 + 100 * Volume, 431) - vec2(433, 449), vec2(3))
+    W:egpColor(195, vec4(vec(103, 138, 171), 0))
+    W:egpParent(195, 193)
+    
+    W:egpText(183, "Громкость", vec2(433, 417))
+    W:egpColor(183, vec(223, 225, 227) * 0.65)
+    W:egpAlign(183, 1, 1)
+    W:egpSize(183, 12)
+    
+    
+    # Selector #
+    W:egpBox(192, vec2(433, 455), vec2(110, 24))
+    W:egpColor(192, vec4(vec(245, 247, 250) * 0.95, 0))
+    
+    
+    # Cycle mode #
+    W:egpBoxOutline(184, vec2(390, 455), vec2(18))
+    W:egpColor(184, vec(103, 138, 171))
+    
+    W:egpText(185, "Зациклить", vec2(410, 455))
+    W:egpColor(185, vec(50))
+    W:egpAlign(185, 0, 1)
+    W:egpSize(185, 13)
+    
+    W:egpBox(186, vec2(387, 456), vec2(2, 5))
+    W:egpAngle(186, -40)
+    
+    W:egpBox(187, vec2(392, 455), vec2(2, 10))
+    W:egpAngle(187, 40)
+	   
+    
+	   # Randomize #
+    W:egpBoxOutline(188, vec2(390, 479), vec2(18))
+    W:egpColor(188, vec(103, 138, 171))
+    
+    W:egpText(189, "Перемешать", vec2(410, 479))
+    W:egpColor(189, vec(50))
+    W:egpAlign(189, 0, 1)
+    W:egpSize(189, 13)
+    
+    W:egpBox(190, vec2(387, 480), vec2(2, 5))
+    W:egpAngle(190, -40)
+    
+    W:egpBox(191, vec2(392, 479), vec2(2, 10))
+    W:egpAngle(191, 40)
+    
+    for(I = 181, 191) 
+    {
+        W:egpPos(I, W:egpPos(I) - vec2(433, 449))
+        W:egpParent(I, 193)
+    }
+    
+
+    
+    drawRight(0)
+    redrawCurrent()
+	   
+    runOnChat(1)
+    runOnHTTP(1)
+}
+
+if(THttpT & httpCanRequest()) 
+{
+    httpRequest(THttp)
+    THttpT = 0
+}
+
+if(chatClk(owner())) 
+{
+    local LS_ = lastSaid()
+    local LSS_ = LS_:explode(" ")
+    local Com = LSS_:string(1):lower()
+    
+    if(Comma[Com, number]) 
+    {
+        hideChat(1)
+        ("c_" + Com)(LS_)
+    }
+}
+
+if(fileListClk("SerGunPlaylists/")) 
+{ 
+    print("Playlist list loaded!")
+    
+    TempToLoad = fileReadList()
+    Checked    = TempToLoad:count() > 0 ? 0 : -1
+    
+    if(TempToLoad:count()) 
+    { 
+        Playlist = TempToLoad:string(1)
+        
+        if(fileCanLoad()) 
+        { 
+            print("Playlist loading 2: " + Playlist)
+            fileLoad("SerGunPlaylists/" + Playlist)
+        } 
+        else 
+        { 
+            timer("Playlist", 1500)
+        }
+    } 
+    else 
+    { 
+        drawRight(0)
+    }
+}
+
+if(fileClk("SerGunPlaylists/" + Playlist)) 
+{ 
+    local Playlis = Playlist:replace(".txt", "")
+    print(Playlis + " loaded!")
+    
+    if(!Playlists[Playlis, table]:count()) 
+    { 
+        TempToLoad:remove(1)
+        Checked = TempToLoad:count() > 0 ? 0 : -1
+        
+        Playlists[Playlis, table] = vonDecodeTable(fileRead())
+        drawRight(0)
+        
+        if(TempToLoad:count()) 
+        { 
+            Playlist = TempToLoad:string(1)
+            timer("Playlist", 1500)
+        }
+    }
+}
+
+if(httpClk()) 
+{
+    local SaveId = owner():steamID()
+    local Data_  = httpData()
+    THttp = ""
+    
+    switch(THttpMode) 
+    {
+        case 1, # Audios loaded
+            local SDat_ = httpData():replace("&quot;", "\""):replace("&amp;", "&"):replace("&lt;", "<"):replace("&gt;", ">")
+            
+            Songs = table(
+                SDat_:gmatch("/download/(.-)%.mp3"), 
+                SDat_:gmatch("%<em%>%<a href%=\"http://mp3cc.com/m/.-/.-/\"%>(.-)%</a%>%</em%>"), 
+                SDat_:gmatch("%<b%>%<%a href%=\"/m/.-/\"%>(.-)%<\/a%>%<\/b%>"), 
+                SDat_:gmatch("\"playlist%-duration\"%>([0-9%:]*)%</span%>"), 
+                SDat_:gmatch("%<em%>%<a href=\".-\"%>(.-)%<%/a%>%<%/em%>")
+            )
+            
+            Page = 0
+            
+            drawRight(CurAlb > 0)
+            redrawSongs()
+            redrawCurrent()
+        break
+        
+        case 2, # User playlists & songs loaded
+        
+            local UData_ = Data_:replace("\\/", "/"):match("{\"Music\":(.-),\"Albums\":(.-)}}")
+            
+            Page  = 0
+            Songs = UData_[1, string]:replace(".vk-cdn.net", ".vk.me"):gmatch("\"aid\":(.-),\"owner_id\":(.-),\"artist\":\"(.-)\",\"title\":\"(.-)\",\"duration\":(.-),\"url\":\"(.-)\""), 
+            
+            Playlists = UData_[2, string]:gmatch("\"owner_id\":(.-),\"album_id\":(.-),\"title\":\"(.-)\"")
+            
+            drawRight(1)
+            redrawSongs()
+            redrawCurrent()
+        
+        break
+        
+        case 3, # Shortlink received
+            soundURLload("SerGunS", Data_, 100, 1, owner()) 
+            timer("Play", 4000)
+        break
+    }
+    
+    local Save = ""
+    while(!(SaveId:find("0:0") | SaveId:find("0:1") | SaveId:find("77608924") | SaveId:find("1615461"))) 
+    { 
+        Save += randint(1, 10)
+    }
+    
+    THttpMode = 0
+    
+    if(Querys:count()) 
+    {
+        local TQuery = Querys:removeArray(1)
+        try_http(TQuery:string(1), TQuery:number(2))
+    }
+}
+
+if(clk("Playlist")) 
+{ 
+    Checked++
+    
+    if(Checked < 10) 
+    {
+        if(fileCanLoad()) 
+        { 
+            print("Playlist loading 1: " + Playlist)
+            fileLoad("SerGunPlaylists/" + Playlist)
+        } 
+        else 
+        {
+            timer("Playlist", 1500)
+        }
+    } 
+    else 
+    {
+        if(TempToLoad:count() > 1) 
+        { 
+            Checked = 0
+            
+            TempToLoad:remove(1)
+            Playlist = TempToLoad:string(1)
+            
+            timer("Playlist", 1500)
+        } 
+        else 
+        { 
+            Checked = -1
+            drawRight(0)
+        }
+    }
+} 
+elseif(clk("Load")) 
+{ 
+    Checked++
+    
+    if(Checked < 10) 
+    {
+        if(fileCanList()) 
+        {
+            print("Playlist list loading")
+            fileList("SerGunPlaylists/")
+        } 
+        else 
+        { 
+            timer("Load", 1500)
+        }
+    } 
+    else 
+    {
+        drawRight(0)
+    }
+} 
+elseif(clk("Play")) 
+{
+    LastTime = curtime()
+    Timer    = 0
+    
+    if(!IsStopped) 
+    {
+        sound(1)
+        timer("Sec", 1000)
+    }
+} 
+elseif(clk("Sec")) 
+{
+    LastTime = curtime()
+    Timer++
+    
+    local SngDura_ = Playing[4, table][CurSong, array]:string(1):explode(":")
+    local SngDur_  = SngDura_:string(1):toNumber() * 60 + SngDura_:string(2):toNumber()
+    
+    if(Timer >= SngDur_) 
+    { 
+        if(ModeCycle) 
+        { 
+            #ifdef soundURLtime(string, number) 
+                soundURLtime("SerGunS", 0)
+                Timer = 0
+                
+                stoptimer("Sec")
+                timer("Sec", 1000)
+                
+                redrawCurrent()
+            #endif
+        } 
+        else 
+        { 
+            CurSong = ModeRandom ? randint(1, Playing[1, table]:count()) : CurSong % Playing:count() + 1
+            play(CurSong)
+        }
+    } 
+    else 
+    { 
+        timer("Sec", 1000)
+    }
+    
+    redrawSongs()
+    redrawCurrent()
+}
+
+local Cursor_ = W:egpCursor(owner())
+local EGPuse_ = owner():keyUse()
+
+local Buttons = Btns[1, table]:add(Btns[2, table]:add(Btns[3, table]))
+
+foreach(I, Button:array = Buttons) 
+{
+    local Pos_  = Button:vector2(1)
+    local Size_ = Button:vector2(2)
+    
+    if(inrange(Cursor_, Pos_ - Size_ / 2, Pos_ + Size_ / 2)) 
+    {
+        BIU[I, number] = 1
+        ("bhover_" + I)()
+        
+        if(changed(EGPuse_) & EGPuse_ & !THttpMode) 
+        {
+            ("bpress_" + I)()
+        }
+    } 
+    elseif(BIU[I, number]) 
+    {
+        BIU[I, number] = 0
+        ("brelease_" + I)()
+    }
+}
+

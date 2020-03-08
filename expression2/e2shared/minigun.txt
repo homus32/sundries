@@ -1,0 +1,93 @@
+@name minigun
+@persist [E O Base Pivot]:entity I NumHolo Hold T Roll
+runOnTick(1)
+
+if(first()){
+    E=entity()
+    O=owner()
+    Pivot=holoCreate(0)
+    
+    holoParent(0,E)
+    holoAlpha(0,0)
+    
+    Base=holoCreate(1,E:pos(),vec(0.75,0.75,4),ang(90,0,0),vec(200),"hq_tube")
+    holoParent(1,0)
+    
+    I = 2
+    NumHolo = 15
+    Hold=1
+     function entity holoStyle(Index,Position:vector,Scale:vector,Angle:angle,Colour:vector,Model:string)
+        {
+            holoPos(Index,Position) holoScale(Index,Scale) holoAng(Index,Angle) holoColor(Index,Colour) holoModel(Index,Model) 
+            return holoEntity(Index)   
+        }
+}
+elseif(I <= NumHolo & holoCanCreate() & I > 0){
+    holoCreate(I) holoScale(I,vec())
+    I++   
+}
+elseif(I > NumHolo & I > 0){
+    
+    holoStyle(2,Base:toWorld(vec(0,6,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(3,Base:toWorld(vec(0,-6,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(4,Base:toWorld(vec(6,0,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(5,Base:toWorld(vec(-6,0,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(6,Base:toWorld(vec(4,4,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(7,Base:toWorld(vec(4,-4,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(8,Base:toWorld(vec(-4,4,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(9,Base:toWorld(vec(-4,-4,0)),vec(0.1,0.1,4),Base:toWorld(ang()),vec(150),"hq_tube")
+    holoStyle(10,Base:toWorld(vec(0,0,-18)),vec(1.2,1.2,0.75),Base:toWorld(ang()),vec(150),"hq_cylinder")
+    holoStyle(11,Base:toWorld(vec(0,0,20)),vec(1.3,1.3,1),Base:toWorld(ang()),vec(150),"hq_cylinder")
+    holoStyle(12,Base:toWorld(vec(-3,-10,23)),vec(0.1,0.1,0.5),Base:toWorld(ang(0,0,90)),vec(150),"hq_cylinder")
+    holoStyle(13,Base:toWorld(vec(-2,0,25)),vec(0.25,0.25,1.75),Base:toWorld(ang(30,0,0)),vec(150),"cube")    
+    holoStyle(14,Base:toWorld(vec(2,0,28)),vec(0.2,0.2,0.2),Base:toWorld(ang(0,0,90)),vec(150),"hq_torus")
+    holoStyle(15,Base:toWorld(vec(2,0,28)),vec(0.05,0.05,0.1),Base:toWorld(ang(-60,0,0)),vec(150),"cube")
+for(I=2,9){
+        holoParent(I,10)
+    }
+    for(I=10,NumHolo){
+        holoParent(I,Base)
+    }
+    
+    I=0
+    }
+elseif(I==0){
+    if(O:weapon():type()=="weapon_physgun"){
+        O:weapon():setAlpha(0)
+        Hold=0
+    }
+    else{
+        Hold=1
+        O:weapon():setAlpha(255)
+    }
+     if($Hold){
+        if(Hold==0){
+            holoPos(0,O:attachmentPos("anim_attachment_RH"))
+            holoAng(0,O:attachmentAng("anim_attachment_RH"))
+            holoParentAttachment(0,O,"anim_attachment_RH")
+            holoAng(1,Pivot:toWorld(ang(80,-12,180)))
+            holoPos(1,Pivot:toWorld(vec(28,-6,7)))
+            
+        }
+        elseif(Hold==1){
+            holoPos(0,O:attachmentPos("chest"))
+            holoAng(0,O:attachmentAng("chest"))
+            holoParentAttachment(0,O,"chest")
+            holoAng(1,Pivot:toWorld(ang(0,0,0)))
+            holoPos(1,Pivot:toWorld(vec(-16,0,0)))
+        }
+    }
+}
+T=(T+10)%360
+
+Roll=O:keyAttack2()
+
+if(Roll&!Hold){
+    holoAng(10,holoEntity(10):toWorld(ang(0,T,0)))
+#ifdef    entity:shootTo(vector,vector,number,number,number,string)
+holoEntity(10):shootTo(holoEntity(10):pos()-holoEntity(10):forward()*5,O:aimPos()-holoEntity(2):pos()-vec(0,0,30),0,0,0,"toolTracer")
+#endif
+    holoEntity(10):soundPlay(1,0.3,"weapons/minigun/gunfire/minigun_fire.wav")
+}
+
+

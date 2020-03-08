@@ -1,0 +1,164 @@
+@name Jail
+@persist Created On Num F E:entity T:entity
+@model models/mechanics/wheels/wheel_speed_72.mdl
+
+
+noDuplications()
+
+runOnChat(1)
+
+interval(100)
+
+Last = owner():lastSaid():explode(" ")
+
+E = entity()
+
+F = findInSphere(entity():pos(),150)
+
+
+E:propFreeze(1)
+
+E:setAng(ang(0,0,0))
+
+
+if (chatClk(owner()) & Last:string(1)=="!!stop"){
+    
+    hideChat(1)
+    
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"Stop jailing...")
+
+On = 0
+
+Created = 0
+
+propDeleteAll()
+
+
+}
+
+if (chatClk(owner()) & Last:string(1)=="!!kill" & On == 1){
+    
+    hideChat(1)
+    
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"Player exploded succefully!")
+
+Explosif = propSpawn("models/props_phx/cannonball_solid.mdl", E:pos()+vec(0,0,0), 1)
+
+Explosif:propBreak()
+
+
+}
+
+Position = "STEAM_0:1:111857722"
+
+if (chatClk(owner()) & Last:string(1)=="!!jail" & Last:string(2)){
+    
+    hideChat(1)
+
+    
+T = findPlayerByName(Last:string(2))
+
+if (T:steamID()!= Position){
+    
+if (Created == 0){
+    
+timer("NeedCreate",10)
+
+}
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"You jail: ",teamColor(T:team()),T:name(),
+vec(255,255,255)," (",teamColor(T:team()),teamName(T:team()),vec(255,255,255),")")
+
+timer("end",Num*1000)
+
+E:setPos(T:pos()+vec(0,0,-2))}else{printColor(vec(156),"[",vec(222),"Jail",vec(156),"] "
+,vec(255),"You can't jail this player!"), owner():soundPlay(7,5,"buttons/button2.wav")
+
+}
+
+}
+
+
+findIncludeEntity(T)
+
+if (clk("NeedCreate")){
+    
+On = 1
+
+Jail4 = propSpawn("models/props_phx/construct/windows/window_angle360.mdl",E:pos()+vec(0,0,95),0)
+
+Jail4:parentTo(E)
+
+Jail3 = propSpawn("models/props_phx/construct/windows/window_angle360.mdl",E:pos()+vec(0,0,4),0)
+
+Jail3:parentTo(E)
+
+Jail2 = propSpawn("models/mechanics/wheels/wheel_speed_72.mdl",E:pos()+vec(0,0,102),0)
+
+Jail2:parentTo(E)
+
+Jail1 = propSpawn("models/props_phx/construct/windows/window_curve360x2.mdl",E:pos()+vec(0,0,4),0)
+
+Jail1:parentTo(E)
+
+Created = 1
+
+NeedColor = 1
+
+}
+
+
+if (On == 1 & !F > 0){
+    
+E:setPos(T:pos()+vec(0,0,-2))
+
+}
+
+if (first()){
+    
+Col = vec(255,255,255)
+
+Created = 0
+
+On = 0
+
+E:setColor(vec(156))
+
+}
+
+if (NeedColor==1){
+    
+NeedColor = 0
+    
+Jail3:propFreeze(1)
+
+Jail3:setMaterial("models/player/shared/ice_player")
+
+Jail3:setColor(vec(255,0,0))
+
+
+Jail4:propFreeze(1)
+
+Jail4:setMaterial("models/player/shared/ice_player")
+
+Jail4:setColor(vec(255,0,0))
+
+
+Jail1:setAng(ang(0,0,0))
+
+Jail1:propFreeze(1)
+
+Jail1:setColor(Col)
+
+Jail1:setMaterial("models/props_combine/citadel_cable")
+
+
+Jail2:setAng(ang(0,0,0))
+
+Jail2:propFreeze(1)
+
+Jail2:setColor(vec(156))
+
+}
+
+
+

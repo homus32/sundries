@@ -1,0 +1,26 @@
+@name Seat_Turret
+@inputs P:wirelink
+@persist Seat:entity
+@model models/hunter/blocks/cube075x075x075.mdl
+interval(59)
+if(first()){
+    propSpawnUndo(0)
+    Seat = seatSpawn("",entity():pos()+vec(0,13,16),ang(),1) Seat:propDraw(0) Seat:parentTo(entity())
+}
+
+if(Seat:driver() & Seat:driver() == owner()){
+    P:entity():setAng(Seat:driver():eyeAngles())
+    Seat:propNotSolid(1)
+    if(Seat:driver():keyAttack1()){
+        P["Fire",number] = 1
+    }else{
+        P["Fire",number] = 0
+}}elseif(Seat:driver() & Seat:driver() != owner()){
+    Seat:killPod()
+}else{
+    P:entity():setAng(entity():angles()+ang(0,90,0))
+    P["Fire",number] = 0
+    Seat:propNotSolid(0)
+}
+P:entity():setPos(entity():toWorld(vec(0,0,60)))
+

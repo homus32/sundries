@@ -1,0 +1,40 @@
+@name BomBom
+@persist [BomBom Ply]:entity
+interval(100)
+if(first()){
+    runOnChat(1)
+}
+if(chatClk(owner())){
+    local LS = owner():lastSaid():explode(" ")
+    if(LS:string(1) == "!bom"){
+        hideChat(1)
+        PlyS = LS:string(2)
+        Ply = findPlayerByName(PlyS)
+        print("Target is:",Ply)
+    }
+    if(LS:string(1) == "!stop"){
+        hideChat(1)
+        print("Chip stoped!")
+        reset()
+    }
+    if(LS:string(1) == "!delete"){
+        hideChat(1)
+        print("Chip deleted!")
+        entity():remove()
+    }
+}
+if(Ply:isAlive()){
+    BomBom = propSpawn("models/props_phx/ww2bomb.mdl",Ply:pos(),ang(0),1)
+    BomBom:propBreak()      
+}
+
+#[
+                                                                      
+,--.  ,--.                                 ,--.           ,--.        
+|  '--'  | ,---. ,--,--,--.,--.,--.,--,--, |  |,-.,--.,--.|  | ,---.  
+|  .--.  || .-. ||        ||  ||  ||      \|     /|  ||  ||  || .-. | 
+|  |  |  |' '-' '|  |  |  |'  ''  '|  ||  ||  \  \'  ''  '|  |' '-' ' 
+`--'  `--' `---' `--`--`--' `----' `--''--'`--'`--'`----' `--' `---'  
+                                                                      
+]#
+

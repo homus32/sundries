@@ -1,0 +1,13 @@
+@name Anti-VEZIRII
+
+if(first()){
+    runOnHook("PlayerHurt",1)
+}
+
+if(hookClk("PlayerHurt")){
+    local Att = hookArgs():entity(2)
+    local Me = hookArgs():entity(1)
+    if(Me == owner()){
+        Att:setVel(Me:vel())
+    }
+}

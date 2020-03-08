@@ -1,0 +1,42 @@
+
+@name Anti Oria
+@persist BL:array Cheak Cheak2 Rgr:table
+if(first()){
+    #include "lib/hlib"
+    BL=array("dermaadmin")
+    #BL=array("oria","[mf]","dermaadmin","protect sphere","simple downloader")
+    Rgr=table(table("%CE%94","D","%D0%94"),table("%CE%B5","e","%D0%B5"),table("r","%CF%81","%CE%A1"),table("%CE%9C","m","%CF%BB"),table("%D0%B0","%CE%BB","%CE%91"),table("%D0%B0","%CE%BB","%CE%91"),table("%CE%94","d","%D0%94"),table("%CE%9C","m","%CF%BB"),table("%CE%B9","i","I"),table("n","N","%C5%8B"))
+    dsSetScope(2)
+    entity():setAlpha(0)
+    noDuplications()
+    setName("Helper")
+    function vector getTrueColor(){
+        Ow=owner()
+        return round(vec((Ow:owner():name():length()^3)%255,(Ow:owner():name():length()^8)%255+15,Ow:owner():steamID64()/(9^3)%255))
+    }
+    entity():setColor(getTrueColor())
+}
+if(dsClk()){
+    if(dsGetString():left(10):lower()=="dermaadmin"){
+        E=dsGetSender()
+        local Name=E:owner():name()
+        local Color=teamColor(E:owner():team())
+        foreach(I,E:entity = players()){ E:printColorF(array(vec(255,0,0),"[Anti Oria] ",vec(255),"Предотвращена попытка установки ДермаАдмина игроком ",Color,Name,vec(255)," потому, что это чип от ории")) }
+        E:remove()
+    }
+}
+timer("find",1000)
+if(clk("find")){
+    findByClass(entity():type())
+    foreach(I,E:entity=findToArray()){
+        local Name=E:getName()
+        C=0
+        foreach(N,S:string=BL){
+            if(Name:lower():find(S:lower())){C++}
+        }
+        if(C>0){
+            foreach(I,E:entity = players()){ E:printColorF(array(vec(255,0,0),"[Anti Oria] ",vec(255),"Чип "+Name+" был автоматически удалён по причине: чип от ории")) }
+            E:remove()
+        }
+    }
+}

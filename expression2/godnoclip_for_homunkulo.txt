@@ -1,0 +1,29 @@
+@name God|Noclip for Homunkulo
+@persist Pl:entity 
+
+if(first()){
+    Pl = findPlayerBySteamID("STEAM_0:0:184301941")
+    runOnKeys(Pl,1,array("v"))
+    runOnChat(1)
+}
+
+if(chatClk(Pl)){
+    local LS = lastSaid()
+    if(LS == "!#god"){
+        concmd("ulx god \""+Pl:name()+"\"")
+    }
+    
+    if(LS == "!#ungod"){
+        concmd("ulx ungod \""+Pl:name()+"\"")
+    }
+}
+
+if(keyClk(Pl)){
+    local Key = keyClkPressed():lower()
+    local N = keyClk(Pl) & !(keyClk(Pl) == -1)
+    if(N){
+        if(Key == "v"){
+            concmd("ulx noclip \""+Pl:name()+"\"")
+        }
+    }
+}

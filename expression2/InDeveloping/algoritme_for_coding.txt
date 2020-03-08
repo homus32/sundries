@@ -1,0 +1,19 @@
+@name 
+@persist [ X Y Z I ]
+interval(100)
+if(first()){
+    I=1 
+    holoCreate(0,entity():pos(),vec( 0 ),ang(),vec(255),"") 
+} 
+if( I < 287 ){
+     holoCreate(I,holoEntity(0):pos()+vec(X*13,Y*13,5+(Z*13)),vec( 1 ),ang(),vec(255),"") 
+     holoParent(I , holoEntity(0)) 
+    if( X>=10-Z ){ 
+        Y++ X=Z 
+        }elseif(X<10-Z ){
+             X++ 
+            } 
+            if( Y >= 11 - Z ){
+                 Z++ X=Z Y=Z 
+                } I++  
+            }

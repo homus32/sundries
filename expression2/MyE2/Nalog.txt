@@ -1,0 +1,8 @@
+@name Nalog
+
+
+foreach(K,E:entity = players()){
+E:psTake(5)
+E:printColor(vec(156),"[",vec(222),"Налог",vec(156),"] ",vec(255),"Ваш налог состовляет 5 поинт.")
+}
+

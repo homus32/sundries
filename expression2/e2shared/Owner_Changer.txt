@@ -1,0 +1,44 @@
+@name Owner Changer
+@persist O:entity [LS Command]:string
+
+runOnChat(1)
+
+if(first()) {
+    O = owner()
+}
+
+if(chatClk(O)) 
+{
+    
+    LS = O:lastSaid()
+    Exp = LS:explode(" ")
+    Command = Exp[1, string]
+    
+    if(Command == "!sm") 
+    {
+        
+        printColor(vec(0 , 255 , 0), "Material Painted!" )
+        
+        #ifdef O:setMaterial(string)
+        O:setMaterial(Exp[2, string])
+        
+        #else
+        for(I=1, 50)
+        {
+        O:setSubMaterial(I, Exp[2, string] )
+        } 
+        #endif
+        
+    }
+        if(Command == "!setcol") 
+    {
+        printColor(vec(Exp[2, string]:toNumber() ,Exp[3, string]:toNumber() , Exp[4, string]:toNumber()), "Color Painted!" )
+        O:setColor(vec(Exp[2, string]:toNumber() ,Exp[3, string]:toNumber() , Exp[4, string]:toNumber() ) )   
+    }
+        if(Command == "!ssm") 
+    {
+        printColor(vec(0 , 255 , 0), "Material Painted!" )
+        O:setSubMaterial(Exp[2, string]:toNumber(), Exp[3, string] )
+        
+    }
+}

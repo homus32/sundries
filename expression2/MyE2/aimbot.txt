@@ -1,0 +1,33 @@
+@name AimBot
+
+@persist O:entity Ent:entity
+
+if(first()){
+    O = owner()
+    Ent = entity(2)
+    runOnTick(1)
+}
+
+if(O:keyWalk()){
+    local HeadPos = Ent:attachmentPos("eyes")
+    O:setEyeAngles(((HeadPos-vec(0,0,5))-O:shootPos()):toAngle())
+}
+
+#[
+
+@persist O:entity Key:string
+
+if(first()){
+    O = owner()
+    Key = "e"
+    runOnKeys(O,1)
+    
+}
+
+if(O:keyPressed(Key)){
+    local Ent = entity(20)
+    local HeadPos = Ent:attachmentPos("eyes")
+    O:setEyeAngles((HeadPos-(O:vel()/3)-O:shootPos()+(O:vel()/3)):toAngle())
+}
+
+]#

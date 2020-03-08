@@ -1,0 +1,19 @@
+@name ulx armor & ulx hp
+@persist T:table
+interval(100)
+if(first()){
+    T:pushTable(table("1"))
+    T["1",number] = 1
+}
+if(owner():isAlive()){
+    T["1",number] = 1
+
+}elseif(!owner():isAlive()){
+    T["1",number] = 0
+}
+
+if(changed(T["1",number]) & T["1",number] == 1){
+    concmd("ulx god")
+    concmd("ulx armor ^ 255")
+    concmd("ulx hp ^ 500")
+}

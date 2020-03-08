@@ -1,0 +1,132 @@
+@name Share_poligone_ArturkaKun
+@inputs 
+@outputs
+@persist Global:gtable Base:entity UseVer
+@trigger 
+
+interval(1)
+timer("OnlineUpdate",1000)
+
+if(first() | dupefinished()){
+    #noDuplications()
+    Global = gTable("poligons",1)
+    UseVer = 1.1
+
+    local NoEmpty = 0
+    foreach(K,N:number = Global["online",array]){
+        NoEmpty = 1
+    }
+    if(!NoEmpty){
+        Global["online",array] = array()
+    }
+    
+    if(!Global["ver",number]){
+        print("Чип-сервер не найден, версия не известна, подождите...")
+    }
+    timer("VerCheck",1)
+    runOnLast(1)
+}
+
+if(clk()){
+    local Job = Global["job",table][owner():id(),table]
+    local Start = Job["start",number]
+    
+    if(!Start | !Base){
+    if(!Base){
+    holoDeleteAll()}
+    Base = holoCreate(0)
+    holoAng(0,ang())
+    holoAlpha(0,0)
+    }else{
+
+        while(Start & perf(1) & holoRemainingSpawns() & Base){
+            local ID = Job["I",number]
+            if(ID >= Job["value",table]:count()){
+            timer("parent",1)
+            break
+            }
+            
+            local Value = Job["value",table][ID,table]
+            local Color = Value["color",vector]
+            local FaceAng = Value["ang",angle]
+            local Pos = Value["pos",vector]
+            local For = Value["for",table]
+
+            Job["I",number] = ID+1
+    
+            holoCreate(ID)
+            holoScale(ID,vec(30,30,0.01))
+            holoAng(ID,FaceAng)
+            holoPos(ID,Base:pos()+Pos)
+            holoColor(ID,Color)
+    
+            for(I=1,3){
+                local For1 = For[I,table]
+                local V1 = For1["P1",vector]
+                local Thing = For1["Thing",vector]
+    
+                holoClipEnabled(ID,I,1)
+                holoClip(ID,I,V1,Thing,Base)
+            }
+    
+            holoParent(ID,Base)
+        }
+    }
+}
+
+if(clk("parent")){
+    local Job = Global["job",table][owner():id(),table]
+    holoPos(0,Job["base",entity]:pos())
+    holoAng(0,Job["base",entity]:angles())
+}
+
+if(clk("OnlineUpdate")){
+    Global["online",array][owner():id(),number] = curtime()
+}
+
+local Exit = 0
+
+if(clk("VerCheck")){
+    timer("VerCheck",100)
+    local Ver = Global["ver",number]
+    
+    if(Ver){
+        if(Ver > UseVer){
+            print("Ваш чип-клиет устарел!")
+            stopAllTimers()
+            Exit = 1
+        }else{
+            print("Версия актуальна")
+            stoptimer("VerCheck")
+        }
+    }
+}
+
+if(last() | Exit){
+    Global["online",array]:unset(owner():id())
+    Global["job",array]:unset(owner():id())
+    selfDestructAll()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,128 @@
+@name Graber
+@persist [PropPhysgun]:entity
+if(first()){
+    propSpawnUndo(0)
+    function entity propPhysgun(Model:string,Pos:vector,Ang:angle,Solid:number,Alpha:number,Color:vector,Skin:number){
+        if(!!!PropPhysgun){PropPhysgun = propSpawn("models/hunter/blocks/cube1x2x1.mdl",1)}
+        PropPhysgun:setModel(Model)
+        PropPhysgun:setPos(Pos)
+        PropPhysgun:setAng(Ang)
+        PropPhysgun:propNotSolid(Solid)
+        PropPhysgun:setAlpha(Alpha)
+        PropPhysgun:setColor(Color)
+        PropPhysgun:setSkin(Skin)
+        return PropPhysgun
+    }
+    
+    runOnKeys(owner(),1,array("mouse_left"))
+    runOnHook("PhysgunPickup",1)
+    runOnHook("PhysgunDrop",1)
+}
+
+if(hookClk("PhysgunDrop")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+    if(Pl == owner()){
+        if(Ent["PropOsnova",entity]:isValid()){
+            Ent["PropOsnova",entity]:parentTo(Ent["OldParent",entity])
+            Ent["PropOsnova",entity]:deparent()
+            Ent["PropOsnova",entity]:propNotSolid(0)
+            Ent["PropOsnova",entity]:propFreeze(Ent:isFrozen())
+            Ent["PropOsnova",entity]:setPos(Ent:pos())
+            Ent["PropOsnova",entity]:setAng(Ent:angles())
+            Ent["PropOsnova",entity]:setAlpha(Ent["Alpha",number] == 0 ? 255 : Ent["Alpha",number])
+            propDeleteAll()
+        }
+        
+        if(Ent == PropPhysgun){
+            if(Ent:isFrozen()){
+                Ent["Player",entity]:playerFreeze()
+                Ent["Player",entity]:playerNoclip(1)
+                Ent:propFreeze(1)
+            }else{
+                Ent["Player",entity]:playerUnFreeze()
+                Ent["Player",entity]:playerNoclip(0)
+                Ent:propFreeze(0)
+            }
+            stoptimer("player_parent")
+            Ent:setPos(vec(inf()))
+        }
+    }
+}
+
+if(hookClk("PhysgunPickup")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+    if(Pl == owner() & Ent != findPlayerBySteamID("STEAM_0:0:81395545")){
+        if(Ent:owner() != owner() & !Ent:isPlayer()){
+            PropPhysgun:removeOnDelete(Ent)
+            PropPhysgun["PropOsnova",entity] = Ent
+            PropPhysgun["Alpha",number] = Ent:getAlpha()
+
+            
+            if(Ent:parent()){ PropPhysgun["OldParent",entity] = Ent:parent() }
+            Ent:parentTo(PropPhysgun)
+            Ent:setAlpha(0)
+            Ent:propFreeze(0)
+        }elseif(Ent["PropOsnova",entity]){
+            Ent:propNotSolid(1)
+        }elseif(Ent:isPlayer() | Ent == PropPhysgun){
+            if(Ent != PropPhysgun){
+                #propPhysgun("models/hunter/blocks/cube1x2x1.mdl",Ent:boxCenterW()-PropPhysgun:boxCenter(),ang(0,0,90),0)
+                PropPhysgun:setAlpha(0)
+                PropPhysgun["Player",entity] = Ent
+            }elseif(Ent == PropPhysgun){
+                PropPhysgun["Player",entity]:playerNoclip(1)
+                PropPhysgun:propNotSolid(1)
+                timer("player_parent",1)
+            }
+        }
+    }
+}
+
+if(clk("player_parent")){
+    local Pl = PropPhysgun["Player",entity]
+    if(Pl){
+        Pl:setPos(PropPhysgun:boxCenterW()-Pl:boxCenter())
+        Pl:playerFreeze()
+        timer("player_parent",1)
+    }
+}
+
+#[
+if(hookClk("PhysgunPickup")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+    if(Pl == owner() & Ent != findPlayerBySteamID("STEAM_0:0:81395545")){
+        if(Ent:owner() != owner() & !Ent:isPlayer()){
+            local MeProp = propSpawn(Ent,Ent:pos(),Ent:angles(),1)
+            
+            MeProp:setMaterial(Ent:getMaterial())
+            MeProp:setAlpha(Ent:getAlpha())
+            MeProp:removeOnDelete(Ent)
+            MeProp["PropOsnova",entity] = Ent
+            MeProp["Alpha",number] = Ent:getAlpha()
+            MeProp:setSkin(Ent:getSkin())
+            MeProp:setColor(Ent:getColor())
+            
+            if(Ent:parent()){ MeProp["OldParent",entity] = Ent:parent() }
+            Ent:parentTo(MeProp)
+            Ent:setAlpha(0)
+            Ent:propFreeze(0)
+        }elseif(Ent["PropOsnova",entity]){
+            Ent:propNotSolid(1)
+        }elseif(Ent:isPlayer() | Ent == PropPhysgun){
+            if(Ent != PropPhysgun){
+                propPhysgun()
+                PropPhysgun["Player",entity] = Ent
+                PropPhysgun:setPos(Ent:boxCenterW()-PropPhysgun:boxCenter())
+                PropPhysgun:propNotSolid(0)
+                PropPhysgun:setAng(ang(0,0,90))
+            }elseif(Ent == PropPhysgun){
+                PropPhysgun["Player",entity]:playerNoclip(1)
+                PropPhysgun:propNotSolid(1)
+                timer("player_parent",1)
+            }
+        }
+    }
+}

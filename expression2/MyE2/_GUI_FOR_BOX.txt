@@ -1,0 +1,146 @@
+@name  GUI FOR BOX
+@persist Players:array Ow:entity CheckEnt:array
+if(first()){
+    runOnGUI(1)
+    
+    Ow = owner()
+    
+    function guiOn(){
+        Players = players()
+        guiWindow(0,vec2(),vec2(450,300))
+        guiSetValue(0,"Settings")
+        guiResizeEnable(0,0)
+        guiMaximizeEnable(0,0)
+        guiMinimizeEnable(0,0)
+        guiList(1,vec2(150,10),vec2(300,250))
+        guiList(2,vec2(10,10),vec2(135,250))
+        guiParent(1,0)
+        guiParent(2,0)
+        
+        for(I=3,8){
+            guiButton(I,vec2(),vec2(1,37))
+            guiSetValue(I,I)
+            guiDockMargin(I,0,0,0,5)
+            guiParent(I,2)
+        }
+        
+        guiButton(9,vec2(),vec2(1,35))
+        guiAvatar(10,vec2(),vec2(37,37))
+        guiSetValue(9,"void")
+        guiSetValue(10,"")
+        guiDockMargin(9,0,0,0,15)
+        guiParent(10,9)
+        guiParent(9,1)
+
+        foreach(I,E:entity = Players){
+        
+            I = I+10
+            IAva = I+players():count()
+            ICheckBox = IAva+players():count()
+            
+            guiButton(I,vec2(),vec2(35))
+            guiAvatar(IAva,vec2(),vec2(37,37))
+            guiCheckbox(ICheckBox,vec2(260,2))
+            guiSetValue(I,E:name())
+            guiSetValue(IAva,E:steamID())
+            guiDockMargin(I,0,0,0,3)
+            guiParent(IAva,I)
+            guiParent(ICheckBox,I)
+            guiParent(I,1)
+        }
+        
+        guiSetValue(3,"Add")
+        guiSetValue(4,"Remove")
+        guiSetValue(5,"TP")
+        guiSetValue(6,"UnCheack All")
+        guiSetValue(7,"Cheack All")
+        guiSetValue(8,"Turn")
+        
+        SRC = egpScrSize(owner())
+        SRC = vec2(SRC:x()-530,0)
+        guiPos(0,SRC)
+    }
+    guiOn()
+    
+    function plyUpdate(){
+        Players = players()
+        foreach(I,E:entity = Players){
+        
+            I = I+10
+            IAva = I+players():count()
+            ICheckBox = IAva+players():count()
+            
+            guiButton(I,vec2(),vec2(35))
+            guiAvatar(IAva,vec2(),vec2(37,37))
+            guiCheckbox(ICheckBox,vec2(260,2))
+            guiSetValue(I,E:name())
+            guiSetValue(IAva,E:steamID())
+            guiDockMargin(I,0,0,0,3)
+            guiParent(IAva,I)
+            guiParent(ICheckBox,I)
+            guiParent(I,1)
+        }
+    }
+}
+
+if(guiClk()){
+    ID = guiId()
+    EntButt = Players[ID-10,entity]
+    EntCheck = Players[ID-((Players:count()*2)+10),entity]
+    
+    if(EntButt){
+        plyUpdate()
+        guiSetValue(9,EntButt:name())
+        guiSetValue(10,EntButt:steamID())
+        Ow["Selected",entity] = EntButt
+    }elseif(EntCheck){
+        if(guiGetString() == "true"){
+            print("Check")
+            CheckEnt:pushEntity(EntCheck)
+        }else{
+            print("UnCheck") 
+            foreach(I,E:entity = CheckEnt){
+                if(E == EntCheck){
+                    CheckEnt:removeEntity(I)
+                    break
+                }
+            }
+        }
+    }elseif(ID >= 3 & ID <= 8){
+        switch(ID){
+            case 3,
+                if(CheckEnt:count() != 0){
+                }else{
+                    
+                }
+            break
+            
+            case 4,
+                if(CheckEnt:count() != 0){
+                }else{
+                
+                }
+            break
+            
+            case 5,
+                if(CheckEnt:count() != 0){
+                }else{
+                
+                }
+            break
+            
+            case 6,
+                if(CheckEnt:count() != 0){
+                }
+            break
+            
+            case 7,
+                CheckEnt:clear()
+            break
+            
+            case 8,
+                #Turn=!Turn
+            break
+        }
+    }
+}

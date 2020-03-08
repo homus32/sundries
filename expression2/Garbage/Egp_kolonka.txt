@@ -1,0 +1,274 @@
+@name Egp kolonka
+@persist [E O]:entity [T T1]:array EGP:entity Serv List LastList LastSound ANG:angle ON ON1
+@inputs Egp:wirelink 
+runOnKeys(owner(),1)
+runOnHTTP(1)
+runOnChat(1)
+
+if(first()){
+function void loadList(NUM:number){
+N = 0
+List = NUM
+while(N != 17){
+N++
+Egp:egpText(N+1000,T[N+(17*(List-1)),string],vec2(90,(55*N)-20))
+if(N >= 10){
+Egp:egpPos(N+1000,vec2(110,(55*N)-20))
+}
+Egp:egpColor(N+1000,vec(0))
+}}}
+
+if(first()){
+findIncludeClass("gmod_wire_egp")
+findInSphere(entity():pos(),999)
+findSortByDistance(entity():pos())
+EGP1 = findResult(1)
+EGP = EGP1
+N = entity():createWire(EGP1,"Egp","wirelink")
+if(N == 1){
+print("egp link")}
+hint("by Artur200320081",1)
+hint("V 1.0",1)
+hint("Egp kolonka",1)
+O = owner()
+Egp:egpClear()
+Egp:egpResolution(vec2(0),vec2(1000))
+Egp:egpRoundedBox(1,vec2(500),vec2(2000,1000)) Egp:egpColor(1,vec4(0,0,0,0))
+Egp:egpText(2,"created by artur200320081",vec2(590,930)) 
+Egp:egpText(10,"пользуйся на здоровье",vec2(600,960)) 
+Egp:egpText(11,"Egp kolonka",vec2(400,450)) 
+Egp:egpCircle(3000,vec2(500,900),vec2(90,40))   
+Egp:egpText(4,"Go",vec2(480,880))
+Egp:egpColor(4,vec(0,0,255))
+Egp:egpCircle(5000,Egp:egpCursor(O),vec2(10))
+Egp:egpParentToCursor(5000)
+T[T:count()+1,string] = "Piano Sonate No.8 in C minor, Op.13 Pathetique "
+T[T:count()+1,string] = "Sonate op.13 (Pathetique) - Allegro"
+T[T:count()+1,string] = "Fur Elise1"
+T[T:count()+1,string] = "Sicilienne, Op. 78"
+T[T:count()+1,string] = "Sonate Nr.8 c-moll op.13 Pathetique: 1. Grave - Allegro molto e con brio"
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = ""
+T[T:count()+1,string] = "Fantaisie-Impromptu op.66"
+T[T:count()+1,string] = "Liebestraume 3"
+T[T:count()+1,string] = "Praludium C-Dur, BWV 846"
+T[T:count()+1,string] = "Sonate op.13 (Pathetique) - Adagio cantabil"
+T[T:count()+1,string] = "Nocturne op. 9  2"
+T[T:count()+1,string] = "Etude op.103 Chanson de l'adieu"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/17335485/V096V0k3S29Ja0F2SnB0ZTdhQWlKN2JMbHJON1lOU2VxYU9IOW90S1NTNEtTb2Z2MDRSUkNMUGFVaTlGSDZXZU5xVHVTZnh6VW1pczVDcDhNRGQvcUNDeWNLeTVxbGxiSlZNemhhUkY3eWFzRW1meEhqQnhyY291cU1UUlJEcUg/ludwig-van-beethoven-bonn-battezzato-il-17-dicembre-1770-vienna-26-marzo-1827-glenn-gould-piano-sonate-no.8-in-c-minor-op.13-pathetique-1798-1.grave-di-molto-e-con-brio_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/38918024/V096V0k3S29Ja0F2SnB0ZTdhQWlKN2JMbHJON1lOU2VxYU9IOW90S1NTN2pJVlJaUzc0bEdRZUo0M2xaMG95bmhvWHJWTUFTZ1d6NzNQV3kyUWk4ckU4djY1SFF6UWw5K0JzaE5RSFkzdDNaNS9YVUorV2dKTll6UVNqdGhGcDg/08-l.-van-beethoven-sonate-op.13-pathetique-allegro_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/86154533/V096V0k3S29Ja0F2SnB0ZTdhQWlKN2JMbHJON1lOU2VxYU9IOW90S1NTNUFNWkVkUmtOYUFxNVpoM085SGpibncwdzFPMitlV0FaS3NNY2EzeVJ1bEx2R3B1RkZtakUzemtnUm96bStZNzV6anFodUVlWjNzVWY3aEJqclpGcHo/-k-elize_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/59604651/V096V0k3S29Ja0F2SnB0ZTdhQWlKN2JMbHJON1lOU2VxYU9IOW90S1NTN2tSM3c0TDlnbGw5UkVyd1E1OFhadVNkKzFCRVZwQStmN0dyY05jbUd4WmtaRy80V3ViaHdocjQyKzFTeTZaMlBXK0lxZEUvNUtiZFhqc2l5SDlROHc/gabriel-faur-sicilienne-op.-78-for-piano_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/34312226/V096V0k3S29Ja0F2SnB0ZTdhQWlKN2JMbHJON1lOU2VxYU9IOW90S1NTNnJzR0k1Wm1tNTZuZHo4OFkxbzVGdFV4dmxGQlZ4MkpNMkJDSEV3QUdkcHpub3BuWDVicTIwQ1VYSi9XUk52WmhCZGxKK3QwazBWRlROdzZIMHlEOXA/andras-schiff-sonate-nr.8-c-moll-op.13-pathetique-1.-grave-allegro-molto-e-con-brio_(mp3.cc).mp3"
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = ""
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/16378058/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjQ0FKRTRBZm4wdUFkRFUwSGJaSnhWK3FwTElvbVd6dTlLaW1TS214ekFrN2lkcVlXQTJpcWE0aXVkTnRHTCtDU21WVXE4eTNaTXV3UVYvMFcwNmx1Mkw/06-l.-van-beethoven-sonate-op.13-pathetique-grave_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/35815888/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjQmg1aXUrWkkwZ1Q1L0RKdFgyVlJuOS9OdmtDakFzMmtHNHk2Y1k4KzZIM3UzTWR2TjlqVnA2VzVDYVYxeUpjdkFFLzZ5K3I2bkRBNHhXZE5EMXFpZ0U/klassika-.-list-liebestraume-3_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/88810148/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjQ0VodEdNb0xFVFRSTURLanhvRlBJdXdvM1RKbENQODQwVDRGRVhML2Z1NjNGOWRVdW9uUDZDalZDa1FadUVtZnFtL3ZEQk5KRXNxVjZjRWI0Y2M5ejE/andr-s-schiff-j.s.-bach-das-wohltemperierte-klavier-book-1-bwv-846-869-pr-ludium-c-dur-bwv-846_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/16378171/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjQ0FKRTRBZm4wdUFkRFUwSGJaSnhWK1FHOEMzRmFIVERFSVovcmh2QnhTKzZQN1c5WkZDbFQ3NEFtSkNLbEh0WVpVMGRFeTBpeGhwSHM3ZzFoeUFJWUs/07-l.-van-beethoven-sonate-op.13-pathetique-adagio-cantabile_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/43895622/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjRFZxaFd2MDBxZHpxUEhzcmVrdHk4RTRGNTdvZHlYYlo0MGNrUmFpTzl1MU1udkhQbS9rWXlCWUhoUlROeGxhM1p3ZkZqTGNNaDFJa1dSOEV4QS9vckY/frederic-shopen-nocturne-op.-9-2_(mp3.cc).mp3"
+T1[T1:count()+1,string] = "http://storage.mp3cc.org/download/28484107/MWZjVU9MMEVlZEVCNHA4UUxWa1c5S2NQa3UwTUNrYTh4QjZ2Mm9zQmZjQkhCQlZhVEhhay94c2s1aGNiZU9ncEFhMzVQdFZCQjhGUGlRNVBhMDR1V0NvQldNeHVlRW1Hc1Jzdm5LdjZFcU5sbVFnMmZ2Nlg1WlI1ZlZrYzNqV0E/f.f.-chopin-etude-op.10-3-chanson-de-l-adieu_(mp3.cc).mp3"
+timer("cursor",100)
+Serv = 1
+List = 1
+#entity():setAlpha(0)
+noCollideAll(EGP,1)
+ON1 = 1
+EGP:setPos(entity():pos()+(entity():eye()*vec(100,100,0))+vec(0,0,100))
+EGP:setAng(entity():eyeAngles()*ang(0,1,0)+ang(0,-90,100))
+weld(EGP,entity())
+}
+
+
+
+if(ON1 && owner():weapon():type() == "weapon_crowbar" && owner():keyAttack2() && keyClk(owner())){
+timer("pri",100)
+EGP:propFreeze(1)}
+
+if(clk("pri")){
+if(owner():keyAttack2()){
+if(ON == 0){
+EGP:setPos(owner():pos()+(owner():eye()*vec(100,100,0))+vec(0,0,70))
+EGP:setAng(owner():eyeAngles()*ang(0,1,0)+ang(0,-90,90))
+ON = 1}
+timer("pri",100)
+}else{
+ON = 0
+EGP:setPos(entity():pos()+(entity():eye()*vec(100,100,0))+vec(0,0,100))
+EGP:setAng(entity():eyeAngles()*ang(0,1,0)+ang(0,-90,100))}}
+
+
+if(keyClk(O) && Serv == 1 | clk("cursor") && Serv == 1){
+timer("cursor",100)
+if(owner():aimEntity() == EGP){
+if(Egp:egpPos(3000):distance2(Egp:egpCursor(O)) < 5000){
+Egp:egpColor(3000,vec(100))
+if(owner():keyUse()){
+Egp:egpClear()
+stoptimer("cursor")
+timer("cursor1",100)
+N = 0
+while(N != 17){
+N++
+Egp:egpRoundedBox(N,vec2(500,55*N),vec2(950,50))
+
+if(mod(N,2)){
+Egp:egpColor(N,vec(255))}else{
+Egp:egpColor(N,vec(180))}
+
+Egp:egpText(N+1000,T[N,string],vec2(90,(55*N)-20))
+if(N >= 10){
+Egp:egpPos(N+1000,vec2(110,(55*N)-20))
+}
+Egp:egpColor(N+1000,vec(0))
+Egp:egpText(N+4000,N:toString()+".",vec2(50,(55*N)-20))
+Egp:egpColor(N+4000,vec(0))
+Egp:egpCircle(N+2000,vec2(900,55*N),vec2(20))
+Egp:egpColor(N+2000,vec(100))
+}
+
+Egp:egpCircle(18+2000,vec2(500,980),vec2(20))
+Egp:egpText(23+1000,"||",vec2(482,960))
+Egp:egpColor(18+2000,vec(100))
+Egp:egpBox(19+2000,vec2(600,980),vec2(40))
+Egp:egpColor(19+2000,vec(100))
+Egp:egpBox(20+2000,vec2(700,980),vec2(40))
+Egp:egpColor(20+2000,vec(100))
+Egp:egpBox(21+2000,vec2(800,980),vec2(40))
+Egp:egpColor(21+2000,vec(100))
+Egp:egpBox(22+2000,vec2(900,980),vec2(40))
+Egp:egpColor(22+2000,vec(100))
+
+Egp:egpText(20+1000,"1",vec2(590,960))
+Egp:egpText(21+1000,"2",vec2(690,960))
+Egp:egpText(22+1000,"3",vec2(790,960))
+Egp:egpText(24+1000,"4",vec2(890,960))
+
+Egp:egpColor(19+2000,vec(0,255,0))
+Egp:egpCircle(5000,Egp:egpCursor(O),vec2(10))
+Egp:egpParentToCursor(5000)
+Egp:egpColor(5000,vec(50))
+Serv = 2
+}}else{
+Egp:egpColor(3000,vec(255))
+}}}
+
+
+if(keyClk(O) && Serv == 2){
+if(owner():aimEntity() == EGP){
+N = 0
+while(N != 22){
+N++
+if(Egp:egpPos(N+2000):distance2(Egp:egpCursor(O)) < 400 && O:keyUse()){
+if(N < 18){
+print("loading...")
+if(T1[N,string]:left(25) != "http://storage.mp3cc.org/"){
+httpRequest(T1[N+(17*(List-1)),string]) 
+soundURLPurge() 
+}else{
+soundURLdelete("1")
+soundURLload("1",T1[N+(17*(List-1)),string],100,0,owner())
+}
+
+LastSound = N+(17*(List-1))
+}else{
+if(N == 18){
+print("stoped...")
+soundURLdelete("1")}
+elseif(N == 19){
+if(List != 1){
+loadList(1)
+Egp:egpColor(19+2000,vec(0,255,0))
+Egp:egpColor(20+2000,vec(100))
+Egp:egpColor(21+2000,vec(100))
+Egp:egpColor(22+2000,vec(100))
+}
+}
+elseif(N == 20){
+if(List != 2){
+loadList(2)
+Egp:egpColor(20+2000,vec(0,255,0))
+Egp:egpColor(19+2000,vec(100))
+Egp:egpColor(21+2000,vec(100))
+Egp:egpColor(22+2000,vec(100))
+}
+}
+elseif(N == 21){
+if(List != 3){
+loadList(3)
+Egp:egpColor(21+2000,vec(0,255,0))
+Egp:egpColor(19+2000,vec(100))
+Egp:egpColor(20+2000,vec(100))
+Egp:egpColor(22+2000,vec(100))
+}
+}
+elseif(N == 22){
+if(List != 4){
+loadList(4)
+Egp:egpColor(22+2000,vec(0,255,0))
+Egp:egpColor(19+2000,vec(100))
+Egp:egpColor(20+2000,vec(100))
+Egp:egpColor(21+2000,vec(100))
+}
+}
+
+}}}}}
+
+if(httpClk()){
+local Data = httpData()
+local Req = Data:matchFirst("http:\/\/storage.mp3cc.org\/listen\/[0-9]+\/[A-Za-z0-9\-\_]+\/[A-Za-z0-9\-_]+")
+local Url = Req + "(mp3.cc).mp3"
+if(Data:find("/listen/")){
+soundURLdelete("1")
+soundURLload("1",Url,100,0,owner())
+}} 
+
+
+if(chatClk(O)){
+local LS=O:lastSaid()
+if(LS:left(4) == "/vol"){
+hideChat(1)
+Vol = LS:sub(6,LS:length()):toNumber()
+print("set volum to "+Vol)
+Vol = Vol/100
+soundURLvolume("1",Vol)}
+
+
+if(LS:left(4) == "/egp"){
+hideChat(1)
+G = LS:sub(6,LS:length())
+if(G == "on"){
+print("on")
+ON1 = 1
+}
+elseif(G == "off"){
+print("off")
+ON1 = 0}}}
+
+
+
+
+
+#[
+#ifdef EGP:soundFFT() print(EGP:soundFFT()) #endif
+
+
+if(entity():soundFFT("1"):count() < 0){
+print("loading...")
+httpRequest(T1[LastSound+1,string]) 
+LastSound++
+soundURLPurge() 
+}
+
+
+
+
+

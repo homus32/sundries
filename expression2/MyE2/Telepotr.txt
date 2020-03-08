@@ -1,0 +1,19 @@
+@name Telepotr In SkyBox
+@persist [ Seat O ]:entity
+interval(1)
+if(first()){
+    propSpawnUndo(0)
+    O = owner()
+    Seat = seatSpawn("",1)
+}
+if(Seat:driver()){
+    Seat:setPos(vec(2893.09375, 2818, 4416.625))
+    timer("1",30)
+}
+if(clk("1")){
+    Seat:ejectPod()
+    timer("2",30)
+}
+if(clk("2")){
+    Seat:setPos(entity():pos()+vec(0,0,30))
+}

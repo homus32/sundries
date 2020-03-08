@@ -1,0 +1,21 @@
+@name Cube Spawn
+@persist  Radius Count X Y Z
+Radius = 2
+while(Z < Radius){ 
+    Z++
+    Y = 0
+    
+    while(Y < Radius){ 
+        Y++
+        X = 0
+        
+        while(X < Radius){ 
+            X++
+            Count++
+            
+            holoCreate(Count)
+            holoPos(Count,entity():toWorld(vec(X*15,Y*15,Z*15)))
+            holoParent(Count,entity())
+        }
+    }
+}

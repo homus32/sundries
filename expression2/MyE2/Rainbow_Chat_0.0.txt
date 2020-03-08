@@ -1,0 +1,18 @@
+@name Rainbow Chat 0.0
+@persist O:entity Hsv:vector String:string
+interval(100)
+if(first()){
+    runOnChat(1)
+    O = owner()
+}
+if(chatClk(O)){
+    local LS = O:lastSaid()
+    if(LS:left(1)!="["){
+        hideChat(1)
+    }
+    Hsv = hsv2rgb(curtime() * 100 % 360, 1, 1)
+    String = "say [c "+Hsv+LS+"[/c]"
+    concmd(String)
+    #print(String)
+}
+    

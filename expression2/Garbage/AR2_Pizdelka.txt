@@ -1,0 +1,29 @@
+@name AR2 Pizdelka not work
+interval(100)
+if(first()){ propSpawnUndo(0) findExcludePlayer(owner()) }
+findByClass("prop_combine_ball")
+foreach(I,E:entity = findToArray()){
+    if(E:owner() == owner()){
+        if(!E["isParent?",number]){
+            findByClass("player")
+            P = propSpawn("models/hunter/plates/plate.mdl",E:pos(),E:angles(),0)
+            #P:propNotSolid(1)
+            E:parentTo(P) 
+            P:removeOnDelete(E)
+            E["Ent",entity] = P
+            E["Targer",entity] = findClosest(owner():aimPos())
+            E["isParent?",number] = 1
+        }else{
+            if(E["Targer",entity]:isAlive()){
+                E["Ent",entity]:propFreeze(0)
+                E:propFreeze(0)
+                E["Ent",entity]:applyForce(((E["Targer",entity]:pos() - E:pos())*10)+vec(0,0,100*10-500))
+                
+            }else{
+                findByClass("player")
+                E["Targer",entity] = findClosest(E:pos())
+            }
+        }
+    }    
+}
+

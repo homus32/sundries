@@ -1,0 +1,29 @@
+@name A.R.B.U.Z
+@model models/props_junk/watermelon01.mdl
+interval(300)
+
+if(first()){ 
+    propSpawnUndo(0) 
+    noCollideAll(entity(),0)
+    entity():propFreeze(0)
+    entity():setdLight(entity():pos(),vec(255),2,2000,0)
+    entity():setTrails(10,1,10,"trails/smoke",vec(0,255,0),255)
+}
+
+entity():dLightColor(hsv2rgb(curtime()*100%360,1,1))
+entity():setVel(randvec(-1000,1000))
+entity():setColor(hsv2rgb(curtime()*100%360,1,1))
+
+if(clkName() == "interval"){
+    local P = propSpawn("models/props_junk/watermelon01.mdl",0)
+    P:propFreeze(0)
+    noCollideAll(P,1)
+    P:setVel(randvec(-300,300))
+    P:remove(35)
+    timer(P:id():toString(),10*1000)
+}
+
+if(clkName() != "interval"){
+    local Ent = entity(clkName():toNumber())
+    Ent:propFreeze(1)
+}

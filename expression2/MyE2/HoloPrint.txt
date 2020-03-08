@@ -1,0 +1,17 @@
+@name HoloPrint
+@persist  Text:string TextT:array
+
+if(first()){
+    Text = "FULL AFK"
+    TextT = Text:explode("")
+}
+for(I=1,TextT:count()){
+    if(TextT[I,string] != " "){
+    holoCreate(I)
+    holoPos(I,entity():pos()+vec(I*-10,0,20))
+    holoAng(I,ang(0,0,0))
+    holoModel(I,"models/sprops/misc/alphanum/alphanum_"+TextT[I,string]+".mdl")
+    holoColor(I,hsv2rgb(I*50,1,1))
+    holoParent(I,entity())
+}
+}

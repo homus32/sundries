@@ -1,0 +1,104 @@
+@name egp_3D_Grafic
+@inputs 
+@outputs 
+@persist Coff A B C VecArray:array Egp:wirelink Mode
+@trigger 
+
+interval(100)
+
+if(first()){
+#noDuplications()
+
+Egp = entity():isWeldedTo():wirelink()
+Egp:egpClear()
+Coff = 150
+VecArray = array(
+vec(1,1,1),
+vec(-1,1,1),
+vec(-1,-1,1),
+vec(1,-1,1),
+vec(1,-1,-1),
+vec(-1,-1,-1),
+vec(-1,1,-1),
+vec(1,1,-1),
+vec(1,-1,-1),
+vec(-1,-1,-1),
+vec(-1,-1,1),
+vec(-1,1,1),
+vec(-1,1,-1),
+vec(1,1,-1),
+vec(1,1,1),
+vec(1,-1,1))
+
+
+Mode = 1
+}
+#[
+if(Mode == 1){
+Matrix = matrix(ang(A,B,C))
+A = (A+1)%360
+B = (B+2)%360
+C = (C+3)%360
+}
+if(Mode == 2){
+Matrix = matrix(Egp:entity():angles()+ang(45,45,45))
+}
+]#
+
+A = (A+1)%360
+B = (B+2)%360
+C = (C+3)%360
+
+Temp = array()
+Temp2 = array()
+Temp3 = array()
+
+foreach(K,Vec:vector = VecArray){
+Matrix = matrix(ang(A,B,C))
+Temp:pushVector2(vec2(256,256)+vec2(Matrix*Vec)*Coff)
+Matrix = matrix(ang(A,B,C))
+Temp2:pushVector2(vec2(256,256)+vec2(Matrix*Vec)*Coff/1.5)
+Matrix = matrix(ang(A,B,C))
+Temp3:pushVector2(vec2(256,256)+vec2(Matrix*Vec)*Coff/3)
+}
+
+Egp:egpPolyOutline(3,Temp3)
+Egp:egpPolyOutline(2,Temp2)
+Egp:egpPolyOutline(1,Temp)
+
+Egp:egpSize(1,5)
+Egp:egpSize(2,5)
+Egp:egpSize(3,5)
+
+Egp:egpColor(1,vec4(255,0,0,128))
+Egp:egpColor(2,vec4(0,255,0,128))
+Egp:egpColor(3,vec4(0,0,255,128))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

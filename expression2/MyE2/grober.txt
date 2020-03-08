@@ -1,0 +1,76 @@
+@name Graber
+@persist [PropPhysgun]:entity
+if(first()){
+    propSpawnUndo(0)
+    runOnHook("PhysgunPickup",1)
+    runOnHook("PhysgunDrop",1)
+    PropPhysgun = propSpawn("models/hunter/blocks/cube1x2x1.mdl",1)
+    PropPhysgun:propNotSolid(1)
+    PropPhysgun:setAlpha(1)
+    PropPhysgun:setAng(ang(0,0,90))
+}
+
+if(hookClk("PhysgunDrop")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+    if(Pl == owner()){
+        local Parent = Ent["PropOsnova",entity]
+        if(Parent){
+            Parent:deparent()
+            Parent:propNotSolid(0)
+            Parent:propFreeze(Ent:isFrozen())
+            Ent:remove() 
+        }elseif(Ent == PropPhysgun){
+            Ent:setAng(ang(0,0,90))
+            Ent:setPos(entity():pos())
+            Ent:propNotSolid(1)
+            Ent["Player",entity]:playerNoclip(0)
+            if(Ent:isFrozen()){
+                Ent["Player",entity]:playerFreeze()
+            }else{
+                Ent["Player",entity]:playerUnFreeze()
+            }
+            Ent:propFreeze(1)
+            stoptimer("player_parent")
+        }
+    }
+}
+
+if(hookClk("PhysgunPickup")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+    if(Pl == owner()){
+        if(Ent:owner() != owner() & !Ent:isPlayer()){
+            local MeProp = propSpawn(Ent,Ent:pos(),Ent:angles(),1)
+            MeProp:setMaterial(Ent:getMaterial())
+            MeProp:setAlpha(Ent:getAlpha())
+            MeProp:removeOnDelete(Ent)
+            MeProp["PropOsnova",entity] = Ent
+            
+            Ent:parentTo(MeProp)
+            Ent:propNotSolid(0)
+            Ent:propFreeze(0)
+        }elseif(Ent["PropOsnova",entity]){
+                Ent:propNotSolid(1)
+        }elseif(PropPhysgun != Ent&Ent:isPlayer()){
+            PropPhysgun["Player",entity] = Ent
+            PropPhysgun:setPos(Ent:boxCenterW()-PropPhysgun:boxCenter())
+            PropPhysgun:propNotSolid(0)
+            PropPhysgun:setAng(ang(0,0,90))
+        }elseif(Ent == PropPhysgun){
+            if(PropPhysgun["Player",entity]:isPlayer()){
+                PropPhysgun["Player",entity]:playerNoclip(1)
+                timer("player_parent",1)
+                PropPhysgun:propNotSolid(1)
+            }
+        }
+    }
+}
+
+if(clk("player_parent")){
+    local Pl = PropPhysgun["Player",entity]
+    if(Pl){
+        Pl:setPos(PropPhysgun:boxCenterW()-Pl:boxCenter())
+        timer("player_parent",1)
+    }
+}

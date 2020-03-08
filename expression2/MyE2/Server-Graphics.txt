@@ -1,0 +1,56 @@
+@name Server-Graphics
+@persist Index
+interval(100)
+if(first()){
+    for(I=1,200)
+    {
+        holoCreate(I,entity():pos()+vec(0,1.2*I,0),vec(0.1),ang(),vec(255),"")
+        holoDisableShading(I,1)
+        holoParent(I,entity())
+    }
+    
+    function number e2All(){
+        findIncludeClass("gmod_wire_expression2")
+        findByClass("gmod_wire_expression2")
+        R = findToArray()
+        
+        Sum = 0
+        for(I=1,(R:count() <= 0 ? 1 : R:count()))
+        {
+            Sum += round(R[I,entity]:cpuUsage()*1000000)+round(entity():cpuUsage()*1000000)
+                
+            if(I == (R:count() <= 0 ? 1 : R:count()))
+            {
+                return Sum
+            }
+        }
+    }
+    timer("Holo",1000)
+}
+Index++
+
+Load = e2All()
+HoloHeight = Load/100
+holoPos(Index,entity():pos() + vec(sin(Index)*Index,1.2*Index,HoloHeight/2))
+holoScale(Index,vec(0.1,0.1,HoloHeight/12))
+Load = clamp((Load/2700)^3*2, 0, 255)
+holoColor(Index,vec(255,255-Load,255-Load))
+
+holoPos(1001,entity():pos()+vec(sin(Index)*Index,1.2*(Index+1),25))
+
+
+
+if(Index == 100)
+{
+    Index = 0
+    for(I=1,200)
+    {
+        holoColor(I,holoEntity(I):getColor()/2)
+    }
+}
+if(clk("Holo"))
+{
+    holoCreate(1001,entity():pos()+vec(0,1.2,25),vec(0.15,0.15,5),ang(),vec(255,255,0),"")
+    holoDisableShading(1001,1)
+    holoParent(1001,entity())
+}

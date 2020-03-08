@@ -1,0 +1,66 @@
+@name Timer System 
+@persist Timers:array Sec:table
+if(first()){
+     Sec = table(
+        "god" = 20,
+        "noclip" = 10,
+        "ungod" = 5
+    )
+    
+    function number checkTimer(Ent:entity,Timer:string){
+        if(Timers:count() == 0){
+            Timers:pushString(Timer)
+        }
+        foreach(I,S:string = Timers){
+            if(S == Timer){
+                break
+            }elseif(I == Timers:count()){
+                Timers:pushString(Timer)
+            }
+        }
+        foreach(I,S:string = Timers){
+            if(S == Timer){
+                return 0
+            }
+        }   
+    }
+    
+    function setTimer(Timer:string,Ent:entity){
+        foreach(I,S:string = Timers){
+            if(Timer == S){
+                Ent[S,number] =  Sec[S,number]
+                break
+            }
+        }
+    }
+    
+    function setTimer(Timer:string,Ent:entity,Time:number){
+        foreach(I,S:string = Timers){
+            if(Timer == S){
+                Ent[S,number] = Time
+                break
+            }
+        }
+    }
+}
+
+if(clk("tick") | first()){
+    foreach(K,S:string = Timers){
+        foreach(I,Pl:entity = players()){
+            if(Pl[S,number] > 0){
+                Pl[S,number] = Pl[S,number]-1
+            }
+        }
+    }
+    timer("tick",1000)
+}
+
+if(clk("tick") | first()){
+    foreach(I,Pl:entity = players()){
+        if(Pl["Timer",number] > 0){
+            Pl["Timer",number] = Pl["Timer",number]-1
+        }
+    }
+    timer("tick",1000)
+}
+

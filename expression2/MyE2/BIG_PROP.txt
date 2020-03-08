@@ -1,0 +1,14 @@
+@name BIG PROP
+@persist            EE:entity
+                      if(first()){
+                    runOnTick(1)
+                  EE=entity()
+                 holoCreate(1)
+                holoPos(1,EE:toWorld(vec(0,0,10)))
+              holoModel(1,"models/hunter/plates/plate32x32.mdl")
+            holoMaterial(1,"models/debug/debugwhite")
+            holoDisableShading(1,1)
+         holoScale(1,vec(30,30,1))
+       holoParent(1,entity())}
+    holoColor(1,vec(random(0,255),random(0,255),random(0,255)))
+holoColor(1,hsv2rgb(curtime()*100%360,1,1))

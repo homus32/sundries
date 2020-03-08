@@ -1,0 +1,32 @@
+@name setHP
+noDuplications()
+function void entity:setHealthC(Health){
+    if(isinf(Health)){ Health = 1e+10 }
+    
+    local Armor = This:armor()
+    local GT = gTable("setHealt",0)
+    
+    This:setArmor(0)
+    This:setHealth(This:maxHealth())
+    GT["TempEntity",entity] = This
+    
+    runCode("
+    runOnHook(\"PlayerHurt\",1)
+    
+    This = gTable(\"setHealt\",0)[\"TempEntity\",entity]
+    
+    if(hookClk(\"PlayerHurt\")){
+    if(hookArgs()[1,entity] != This | hookArgs()[2,entity] != owner()){ exit() }
+    if(hookArgs()[3,number] >= This:maxHealth()){ runOnHook(\"PlayerHurt\",0) exit() }
+    This:takeDamage(1000)}")
+    
+    This:takeDamage(inf())
+    This:takeDamage(This:health()-Health-10000)
+    This:takeDamage(This:health()-Health)
+    This:setArmor(Armor)
+    This:setVel(-This:vel()*1.3)
+    runOnHook("PlayerHurt",0)
+}
+owner():setHealthC(2281337)
+#entity(12):setHealthC(2281337)
+entity():remove()

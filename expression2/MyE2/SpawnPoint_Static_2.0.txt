@@ -1,0 +1,24 @@
+@name SpawnPoint Static 2.0
+@persist [Seat O]:entity Alive TP ON Spawn:vector
+                                                                                                                                                                                    #[
+  ____          _   _                             _          _       
+ | __ ) _   _  | | | | ___  _ __ ___  _   _ _ __ | | ___   _| | ___  
+ |  _ \| | | | | |_| |/ _ \| '_ ` _ \| | | | '_ \| |/ / | | | |/ _ \ 
+ | |_) | |_| | |  _  | (_) | | | | | | |_| | | | |   <| |_| | | (_) |
+ |____/ \__, | |_| |_|\___/|_| |_| |_|\__,_|_| |_|_|\_\\__,_|_|\___/ 
+        |___/                                                        
+       
+                                                                                                                                                                                    ]#
+
+
+interval(100)
+if(first()){ runOnChat(1) propSpawnUndo(0) O = owner() Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1) Seat:setAlpha(0) 
+Seat:setPos(vec(4045, -13148, 244)) printColor(vec(0,255,255),"Print console: ",vec(255,255,0),"[b]wire_expression2_concmd_whitelist +use,-use[/b]") concmd("-use")
+noCollideAll(Seat,1) #noDuplications()
+} if(chatClk(O)){ local LS = O:lastSaid() if(LS == "!##"){hideChat(1) ON = 1 Spawn = O:pos() printColor(vec(255,0,255),"Spawnpoint setted")}}
+if(ON == 1){if(!O:isAlive()){Alive = 1} if(O:isAlive() & Alive == 1){Seat:setPos(O:pos()) concmd("+use") Alive = 0 TP = 1}
+if(O:inVehicle() & TP == 1){ Seat:setPos(Spawn) concmd("-use") timer("1",30) TP = 0}
+if(clk("1")){ Seat:remove() Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1) Seat:setAlpha(0) Seat:setPos(vec(4045, -13148, 244)) noCollideAll(Seat,1)}}
+if(!Seat){ Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1) Seat:setAlpha(0) Seat:setPos(vec(4045, -13148, 244)) noCollideAll(Seat,1)}
+#Используеться технология " Я в машине "
+# XDDD

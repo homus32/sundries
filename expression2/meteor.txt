@@ -1,0 +1,51 @@
+@name Telekinez
+@persist Meteor:array Collision
+
+if(first()){
+    #findIncludePlayerProps(owner())
+    runOnKeys(owner(),1,array("lalt","o"))
+}
+
+if(keyClk(owner())){
+    local Key = keyClkPressed():lower()
+    local AimPos = owner():aimPos()
+    local N = keyClk(owner()) & !(keyClk(owner()) == -1)
+    if(N){
+        if(Key == "lalt"){
+
+            findByClass("prop*")
+            Meteor = findToArray()
+
+            foreach(I,E:entity = Meteor){
+                E:propFreeze(0)
+                E:constraintBreak()
+                E:setMass(100000)
+                E:setVel((AimPos-E:pos())*10000)
+                #E:setTrails(50, 1, 5, "trails/smoke", vec(255,100,0), 200) 
+            }
+        }
+
+        if(Key == "o"){
+            if(Meteor:count() != 0){
+                Collision = 0
+                timer("collision",1)
+            }
+        }
+    }
+}
+
+if(clk("collision")){
+
+    Collision++
+    print(Collision+"/"+Meteor:count())
+
+    if(Collision != Meteor:count()){
+        timer("collision",50)
+    }
+
+    foreach(I,E:entity = Meteor){
+      if(E != Meteor[Collision,entity]){
+            noCollide(E,Meteor[Collision,entity])
+        }
+    }
+}

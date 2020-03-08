@@ -1,0 +1,33 @@
+@name Armor generator
+@persist I Owner:entity
+if(first()){
+    Owner = owner()
+    runOnDamage(1,Owner)
+    timer("armor",1)
+    setName("HZ chto eto takoe....")
+    runOnKeys(owner(),1,array("lalt"))
+}
+
+if(damageEntClk()){
+    timer("armor",10*1000)
+    stoptimer("setarmor")
+    I = 0
+}
+if(clk("armor")){
+    timer("setarmor",1)
+}
+if(clk("setarmor")){
+    I+=3
+    Owner:setArmor(Owner:armor()+I)
+    #Owner:setHealth(Owner:health()+I)
+    timer("setarmor",250)
+    if(Owner:armor() == 255){
+    stoptimer("setarmor")
+    }
+}
+
+if(changed(Owner:keyPressed("lalt"))&Owner:keyPressed("lalt")){
+    local Aim = Owner:aimPos()
+    Owner:setPos(Aim-Owner:forward()*50)
+    Owner:setVel(Owner:forward()*300+vec(0,0,150))
+}

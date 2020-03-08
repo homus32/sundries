@@ -1,0 +1,7 @@
+@name spawnpoint
+@persist A E:entity
+@outputs T 
+if(first() | duped() | dupefinished()){ runOnHook("PlayerSpawn",1) runOnHook("PlayerDeath",1) E = entity():isWeldedTo() }
+if(hookClk("PlayerDeath") & hookArgs():entity(1) == owner()){ A = 1 T = 0 }
+if(hookClk("PlayerSpawn") & A == 1 & hookArgs():entity(1) == owner()){ T = 1 }
+if(E:driver()){ E:ejectPod() }

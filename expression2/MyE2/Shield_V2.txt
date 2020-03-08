@@ -1,0 +1,234 @@
+@name Shield V2
+@persist [ ShP O ]:entity [ HoloModels PropModels ]:table [ Weapon AliveEntity ]:array 
+@persist Radius Sh ShO HInd Trail
+interval(100)
+if(first()){
+    runOnKeys(owner(),1,array("mouse1","mouse2","x","o","p","i"))
+    runOnLast(1)
+    noDuplications()
+    
+    findIncludeClass("prop_combine_ball")
+    findIncludeModel("models/weapons/w_missile.mdl")
+    findIncludeClass("npc_grenade_frag")
+    findIncludeClass("grenade_ar2")
+    findIncludeClass("prop_vehicle_jeep")
+    
+    propSpawnUndo(0)
+    
+    Radius = 380
+    O = owner()
+    Sh = 1
+    ShO = 1
+
+    #[ ________________________________________________________________________  
+      |                                                                        |  
+      | Example:                                                               |  
+      | array(HoloModel,Pos(toWorld),Scale,Ang,Color4,HoloMaterial,HoloShading)|  
+      |________________________________________________________________________|  
+                                                                                ]#
+    HoloModels = table(
+        "models/weapons/w_missile.mdl" = array(),
+        "npc_grenade_frag" = array("models/hunter/misc/shell2x2.mdl",vec(),vec(1),ang(),vec4(0,0,0,100),"models/debug/debugwhite",1),
+        "grenade_ar2" = array("models/hunter/plates/plate2x2.mdl",vec(),vec(1),ang(),vec4(0,0,0,100),"models/debug/debugwhite",1),
+        "prop_vehicle_jeep" = array()
+    )
+    
+    #[ ____________________________________________________________________________________________________
+      |                                                                                                    |  
+      | Example:                                                                                           |  
+      | array(PropModel,Pos(toWorld),Ang,Vec4,Material,Freeze,NoCollideAll,Index(Delete),Addition(timer))  |  
+      |____________________________________________________________________________________________________|  
+                                                                                                                        ]#
+    PropModels = table(
+        "prop_combine_ball" = array("models/hunter/misc/shell2x2.mdl",vec(0,0,15),ang(),vec4(0,0,0,100),"models/debug/debugwhite",1,0,1,"pushBall"),
+        "models/weapons/w_missile.mdl" = array("models/hunter/blocks/cube2x2x2.mdl",vec(),ang(),vec4(0),"",1,0,0),
+        "npc_grenade_frag" = array("models/hunter/misc/shell2x2.mdl",vec(),ang(),vec4(),"",1,0,1),
+        "npc_grenade_frag_second" = array("models/hunter/blocks/cube2x2x2.mdl",vec(),ang(),vec4(),1,1,1),
+        "grenade_ar2" = array("models/hunter/blocks/cube2x2x2.mdl",vec(),ang(),vec4(0),"",1,0,0),
+        "prop_vehicle_jeep" = array("models/hunter/blocks/cube2x2x2.mdl",vec(0,0,-10),ang(),vec4(0,0,0,100),"models/debug/debugwhite",1,0,0,"pushCar")
+    )
+    
+    Weapon = array(
+        "weapon_357",
+        "weapon_crowbar",
+        "weapon_pistol",
+        "weapon_rpg",
+        "weapon_stunstick",
+        "gmod_camera",
+        "weapon_medkit",
+        "weapon_physgun",
+        "gmod_tool"
+    )
+    
+    function updateFriendList(){
+        local FriendList = array(
+            #O,
+            findPlayerBySteamID(""),
+            findPlayerBySteamID(""),
+            findPlayerBySteamID(""),
+            findPlayerBySteamID(""),
+            findPlayerBySteamID("")
+        )
+        
+        foreach(I,E:entity = FriendList){
+            E["FriendListSh",number] = 1
+        }
+    }
+    updateFriendList()
+    
+    function entity holoCreateT(Type:string,Ent:entity){
+        local Holo = HoloModels[Type,array]
+        
+        if(Holo:count() != 0){
+            HInd++
+            local Model = Holo:string(1)
+            local Pos = Ent:toWorld(Holo:vector(2))
+            local Scale = Holo:vector(3)
+            local Ang = Holo:angle(4)
+            local Vec4 = Holo:vector4(5)
+            local Material = Holo:string(6)
+            local Shading = Holo:number(7)
+            holoCreate(HInd,Pos,Scale,Ang,Vec4,Model),holoDisableShading(HInd,Shading),holoMaterial(HInd,Material),holoParent(HInd,Ent)
+            return holoEntity(HInd)
+        }
+        return noentity()
+    }
+    
+    function entity propSpawnT(Type:string,Ent:entity){
+        local Prop = PropModels[Type,array]
+        
+        if(Prop:count() >= 6){
+            local Model = Prop:string(1)
+            local Pos = Ent:toWorld(Prop:vector(2))
+            local Ang = Prop:angle(3)
+            local Vec4 = Prop:vector4(4)
+            local Material = Prop:string(5)
+            local Freeze = Prop:number(6)
+            local NoColide = Prop:number(7)
+            local Delete = Prop:number(8)
+            local Timer = Prop:string(9)
+            P = propSpawn(Model,Pos,Ang,Freeze),P:setColor(Vec4),P:setMaterial(Material),P:propFreeze(Freeze),P:removeOnDelete(Ent),noCollideAll(P,NoColide)
+            
+            if(Timer){ timer(Timer+"||"+vonEncode(array(P,Ent)),1) }
+            
+            if(Delete != 0){
+                local Decoded = vonDecode(Ent["AliveEnt",string])
+                Decoded:pushEntity(P)
+                Ent["AliveEnt",string] = vonEncode(Decoded)
+                AliveEntity:pushEntity(Ent) 
+            }
+        }
+        if(!P){ return noentity() }
+        return P
+    }
+    
+    
+    holoCreate(0):setTrails(15,10,10,"trails/smoke", vec(255,0,0),255) holoAlpha(0,0)
+    
+    for(I=0,150){
+        if(!holoEntity(I)){
+            HInd = I
+            break
+        }
+    }
+}
+
+if(last()){ foreach(I,E:entity = players()){ E["FriendListSh",number] = 0 } }
+
+if(ShO){
+    findInSphere(O:pos(),Radius)
+    
+    if(findToArray():count() != 0){
+    
+        foreach(I,E:entity = findToArray()){
+        
+            if(E:owner()["FriendListSh",number] != 1){
+            
+                if(E["Block",number] != 1){
+                    E["Block",number]=!E["Block",number]
+                    
+                    local Prop = propSpawnT(E:type(),E)
+                    local Hologram = holoCreateT(E:type(),Prop)
+                    
+                    if(E:type() == "npc_grenade_frag"){
+                        Prop = propSpawnT("npc_grenade_frag_second",E)
+                        continue
+                    }
+                    
+                    if(E:type() == "grenade_ar2"){
+                        Hologram:setAng((O:pos()-E:owner():pos()):toAngle()+ang(90,0,0))
+                        continue
+                    }
+                    
+                    if(E:model() == "models/weapons/w_missile.mdl"){
+                        Prop = propSpawnT("models/weapons/w_missile.mdl",E)
+                        Hologram = holoCreateT("models/weapons/w_missile.mdl",Prop)
+                        Hologram:setAng((O:pos()-E:owner():pos()):toAngle()+ang(90,0,0))
+                        continue 
+                    }
+                    
+                    if(E:type() == "prop_vehicle_jeep"){
+                        Prop:setPos(E:pos()+E:forward()*190)
+                        Prop:setAng(E:angles())
+                        continue
+                    }     
+                }
+            }
+        }
+        
+        if(changed(players():count())){
+            updateFriendList()
+        }
+                     
+    }
+    
+    foreach(I,E:entity = AliveEntity){
+    
+        if(O:pos():distance(E:pos()) >= Radius){
+            E["Block",number]=!E["Block",number]
+            vonDecode(E["AliveEnt",string]):propDelete()
+            E["AliveEnt",string] = ""
+        }
+    }
+    
+    if(holoEntity(0)){
+        Trail+=20
+        holoPos(0,O:pos()+vec(sin(Trail)*Radius,cos(Trail)*Radius,20))
+    }
+}
+
+if(clkName() != "interval"){
+    local TimerR = clkName():explode("||")
+    local Timer = TimerR:string(1)
+    local Entitys = vonDecode(TimerR:string(2))
+    
+    if(Timer == "pushBall"){
+        local Pattron = Entitys:entity(2)
+        local Prop = Entitys:entity(1)
+        #local Vel = vec(Pattron:vel()[1],Pattron:vel()[2],0)*5
+        
+        if(!Prop["pushed",number]){
+            timer(clkName(),300)
+            Prop["pushed",number] = 1
+            Prop:propFreeze(0)
+            Prop:setVel(vec(0,0,100000))
+            
+        }else{
+            Prop:propFreeze(1)
+        }
+    }
+    
+    if(Timer == "pushCar"){
+        local Prop = Entitys:entity(1)
+        local Pattron = Entitys:entity(2)
+        timer(clkName(),500)
+        if(Prop["timer",number]){
+            stoptimer(clkName())
+            Pattron["Block",number]=!Pattron["Block",number]
+            Prop:remove()
+        }else{
+            Prop["timer",number] = 1
+        }
+    } 
+}
+

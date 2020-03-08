@@ -1,0 +1,20 @@
+@name 
+@inputs Seat:entity
+@persist Gun:entity I
+@trigger Seat
+
+if(~Seat){
+    Gun = holoCreate(1)
+    Gun:setPos(Seat:pos()+Seat:boxCenter())
+    Gun:setAng(Seat:angles())
+    holoParent(holoIndex(Gun),Seat)
+
+}
+I+=10%360
+if(Seat:driver() | 1){
+    interval(500)
+    AngS = Seat:angles()
+    #2 3
+}else{
+    interval(1000)
+}

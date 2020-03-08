@@ -1,0 +1,46 @@
+@name PvPBan 
+if(first()){
+    #include "lib/Hlib"
+    
+    runOnHook("PlayerHurt",1)
+    noDuplications()
+    runOnLast(1)
+
+    function update(){
+        local Ban = array(
+            findPlayerBySteamID("STEAM_0:1:116875024"),
+            findPlayerBySteamID("STEAM_0:0:190489477"),
+            findPlayerBySteamID("STEAM_0:1:437599538"),
+            findPlayerBySteamID("STEAM_0:1:169400103"),
+            findPlayerBySteamID("STEAM_0:1:464916082"),
+            findPlayerBySteamID("STEAM_0:0:432691633"),
+            findPlayerBySteamID("STEAM_0:0:101695468"),
+            findPlayerBySteamID("STEAM_0:0:89377249")
+        )
+        
+        foreach(I,Eban:entity = Ban){
+            if(Eban["PvPBan",number] == 0){
+                Eban["PvPBan",number] = 1
+                Eban:printColorF(array(teamColor(Eban:team()),Eban:name(),vec(255),", я заблокироваль тебе ПвП"))
+            }
+        }
+        
+        foreach(I,SaveArmor:entity = players()){
+            SaveArmor["Armor",number] = SaveArmor:armor()
+            SaveArmor["Health",number] = SaveArmor:health()
+        }
+    }
+    update()
+}
+
+
+if(hookClk("PlayerHurt")){
+    local Att = hookArgs():entity(2)
+    local Ply = hookArgs():entity(1)
+    local DmgT = Ply:getDamageType()
+    if(Att["PvPBan",number] == 1 & hookArgs():entity(1) ){
+        Ply:setHealth(Ply:health()+hookArgs():number(4))
+        Ply:setArmor(Ply["Armor",number])
+    }
+    update()
+}

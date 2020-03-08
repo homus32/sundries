@@ -1,0 +1,121 @@
+@name SpawnPoint Dinamic & Static Without E2P
+@persist [ S Ow ]:entity ModeForSpawn Mode OwnerPos:vector Command:string ForOff OnOff
+
+if(first()){
+    setName("010 wtf")
+    runOnHook("PlayerSpawn",1)
+    runOnHook("PlayerDeath",1)
+    propSpawnUndo(0)
+    Command = "#"
+    Ow = owner()
+    runOnChat(1)
+    concmd("-use")
+    Mode = 10
+    OnOff = 1
+    
+    function propSpawnS(){
+        S = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",vec(0,0,1500),ang(),1)
+        S:propDraw(0)
+    }
+    
+    function teleporting(){
+        if(!!!S){ propSpawnS() }
+        S:setPos(Ow:pos())
+        concmd("+use")
+        timer("seat",500)
+    }
+}
+
+if(chatClk(Ow)){
+    local LS = Ow:lastSaid():lower():explode(" ")
+    if(LS:string(1):sub(1,1) == Command){
+        LS = LS:string(1):replace(Command,""):explode(" ")
+        switch(LS:string(1)){
+            case "setsp",
+                hideChat(1)
+                printColor(vec(255,0,255),"You set spawnpoint")
+                stopAllTimers()
+                OwnerPos = Ow:pos()    
+                Mode = 0            
+            break
+            
+            case "dsp",
+                hideChat(1)
+                printColor(vec(0,255,255),"You turn Dinamic SpawnPoint")
+                stopAllTimers()
+                Mode = 1
+            break
+            
+            case "error",
+                hideChat(1)
+                printColor(vec(0,255,0),"You reset Dinamic SpawnPoint")
+                Mode = 2
+            break
+            
+            case "offsp",       
+                hideChat(1)
+                printColor(vec(255,255,0),"You off SpawnPoint")
+                Mode = 10
+            break
+        }
+    }
+}
+
+switch(Mode){
+    case 0,
+        if(hookClk("PlayerDeath") & hookArgs():entity(1) == Ow){
+            ModeForSpawn = !ModeForSpawn
+            stoptimer("wait")
+        }
+        if(hookClk("PlayerSpawn") & hookArgs():entity(1) == Ow & ModeForSpawn){
+            timer("wait",10*1000)
+            ModeForSpawn = !ModeForSpawn
+        }
+    break
+    
+    case 1,
+        if(hookClk("PlayerDeath") & hookArgs():entity(1) == Ow){
+            ModeForSpawn = !ModeForSpawn
+            OwnerPos = Ow:pos()
+            stoptimer("wait")
+        }
+        if(hookClk("PlayerSpawn") & hookArgs():entity(1) == Ow & ModeForSpawn){
+            timer("wait",10*1000)
+            ModeForSpawn = !ModeForSpawn
+        }
+    break
+    
+    case 2,
+        if((hookClk("PlayerSpawn") | hookClk("PlayerDeath") ) & hookArgs():entity(1) == Ow){
+            Mode = 1
+            OwnerPos = Ow:pos()
+            stoptimer("wait")
+        }
+    break
+}
+
+if(clk("wait")){
+    teleporting()
+}
+
+if(clk("seat")){
+    if(S:driver() == Ow){
+        concmd("-use")
+        S:setPos(OwnerPos-vec(0,0,95))
+        timer("eject",50)
+    }elseif(S:driver()){
+        S:killPod()
+        concmd("-use")
+        timer("wait",1000)
+    }elseif(Ow:inVehicle()){
+        stopAllTimers()
+        concmd("-use")
+    }else{
+        concmd("-use")
+        timer("wait",1000)
+    }
+}
+if(clk("eject")){
+    S:ejectPod()
+    S:setPos(vec(0,0,1500))
+}

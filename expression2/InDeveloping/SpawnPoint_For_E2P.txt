@@ -1,0 +1,40 @@
+@name SpawnPoint For E2P
+@persist Pos:vector Dinamic
+interval(100)
+if(first()){
+    runOnChat(1)    
+    runOnHook("PlayerSpawn",1)
+}
+
+if(chatClk(owner())){
+    local LS = owner():lastSaid():lower():explode(" ")
+    
+    if(LS:string(1) == "/setsp"){
+        Pos = owner():pos()
+        Dinamic = 0
+        runOnHook("PlayerDeath",0)
+    }
+    
+    if(LS:string(1) == "/spdin"){
+        Dinamic=!Dinamic
+        runOnHook("PlayerDeath",Dinamic)
+    }
+    
+    if(LS:string(1) == "/error"){
+    }
+    
+}
+if(hookClk("PlayerSpawn")){
+    local Pl = hookArgs():entity(1)
+    
+    if(Pl == owner()){
+        Pl:setPos(Pos)
+    }
+}
+if(hookClk("PlayerDeath")){
+    local Pl = hookArgs():entity(1)
+    
+    if(Pl == owner()){
+        Pos = owner():pos()
+    }
+}

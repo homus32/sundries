@@ -1,0 +1,8 @@
+@name gg
+@persist [E O]:entity 
+if(first()){
+    runOnTick(1)
+    propSpawnUndo(0)
+    O = owner() 
+    E = entity()
+}

@@ -1,0 +1,44 @@
+@name NewSpawn
+@persist Ent:entity
+
+if(first()){
+    runOnHook("PlayerSpawn",1)
+    runOnChat(1)
+    runOnLast(1)
+    
+}else{
+
+    Ent = hookArgs():entity(1)
+    
+    if(Ent["spawn",number] == 1){
+        Ent:setPos(entity():pos()+vec(randint(-200,200),randint(-200,200),0))
+    }
+    
+    if(chatClk()){
+        Spoke = lastSpoke()
+        S = Spoke:lastSaid()
+        
+        if(S == "!spawnoff"){
+            Spoke["spawn",number] = 0
+            Spoke:print(_HUD_PRINTCENTER,"You disinclude spawnpoint - Homunkulo")
+            Spoke:print("You disinclude spawnpoint - Homunkulo")
+        }elseif(S == "!spawnon"){
+            Spoke["spawn",number] = 1
+            Spoke:print(_HUD_PRINTCENTER,"You include spawnpoint - Homunkulo")
+            Spoke:print("You include spawnpoint - Homunkulo")
+        }elseif(Spoke == owner() & S:explode(" "):string(2) & S:explode(" "):string(1) == "!spawnon"){
+            R = S:explode(" ")
+            Spoke = findPlayerByName(R:string(2))
+            Spoke["spawn",number] = 1
+            Spoke:print(_HUD_PRINTCENTER,"You include spawnpoint - Homunkulo")
+            Spoke:print("You include spawnpoint - Homunkulo")
+        }
+    }
+    
+    if(last()){
+    
+        foreach(K,E:entity = players()){
+            E["spawn",number] = 0
+        }
+    }
+}

@@ -1,0 +1,392 @@
+@name DS_Lib
+@persist DSL_GColor:vector DSL_GWirelink:wirelink DSL_GK DSL_good:string DSL_GArray:table
+@persist DSL_GX DSL_GY DSL_GH DSL_GW DSL_GRes DSL_GI DSL_GJ DSL_GR DSL_GDiv DSL_GGap DSL_GDelta
+
+
+########Function#########
+#wirelink:initScreen(Resolution,ColorMode) 
+#иницилизировать экран с Resolution(разрешением)
+
+#wirelink:drawPixel(X,Y,Color,Resolution)
+#нарисовать пиксель по X Y корднатам,Color цветом и Resolution(разрешением)
+
+#wirelink:didClear()
+#очистить экран
+
+#wirelink:didBox(X,Y,H,W,Color,Resolution)
+#рисует квадрат по кординатам X Y,H W (высотой шириной),Color цветом и resolution(разрешением)
+#после выполнения запускает таймер:"DSL_good" и записывает в преременую DSL_good:"box_create"
+
+#wirelink:didBox(table,Resolution)
+#рисует квадрат со значениями передаваймых в массиве и  resolution(разрешением)
+#после выполнения запускает таймер:"DSL_good" и записывает в преременую DSL_good:"box_array_create"
+#строение массива:table(array(X,Y,H,W,vec(Color)))
+
+#wirelink:dsCircle(X,Y,Radius,Color,Res)
+#рисует круг по X Y кординатам с Radius,Color,Res
+#после выполнения запускает таймер:"DSL_good" и записывает в переменую DSL_good:"circle_create"
+
+#wirelink:dsLine(Pos1:vector2,Pos2:vector2,Color,Res)
+#создает линию между Pos1 и Pos2 с цветом Color и Res разрешением
+
+#wirelink:dsStar(X,Y,Radius,Cof,Color,Res)
+#дермовый круг за то отличная звезда XD
+#рисует фиг пойми что по X Y кординатам с radius и каким то коффециэнтом
+#после выполнения запускает таймер:"DSL_good" и записывает в переменую DSL_good:"star_create"
+
+#wirelink:dsEllipse(X,Y,W,H,Color,Res)
+#рисует эллепс с W,H сторонами
+#после выполния запускает таймер:"DSL_good" и записывает в переменую DSL_good:"ellipse_create"
+
+#N = number:mathMap(InMin,InMax,OutMin,OutMax)
+#конвертировать число number по диапозону
+
+########EndFunction#########
+
+
+if(first()){
+    #noDuplications()
+    
+    function void printError(){
+        entity():setColor(vec(255,0,0))
+        entity():setName("chip crash on DS_Lib")
+        printColor(vec(30),"[",vec(255,0,0),"DS_Lib",vec(30),"] ",vec(255,255,0),"chip crash on DS_Lib")
+        hint("chip crash on DS_Lib",3)
+        stopAllTimers()
+        exit()
+    }
+    
+    function wirelink:initScreen(Res){
+        This[1048574] = 0
+        This[1048569] = 3
+        This[1048575] = 1
+        This[1048572] = Res
+        This[1048573] = Res
+    }
+    
+    function wirelink:drawPixel(X,Y,Color:vector,Res){
+        This[X+Y*Res] = rgb2digi(Color,3)
+    }
+    
+    function wirelink:dsClear(){
+        This[1048574] = 0
+    }
+    
+    function wirelink:dsBox(X,Y,H,W,Color:vector,Res){
+        DSL_GX = X
+        DSL_GY = Y
+        DSL_GH = H
+        DSL_GW = W
+        DSL_GColor = Color
+        DSL_GRes = Res
+        DSL_GWirelink = This
+        DSL_GI = DSL_GJ = 0
+        timer("DSL_box",1)
+    }
+    
+    function wirelink:dsBoxArray(Array:table,Res){
+        DSL_GK = 2
+        DSL_GRes = Res
+        DSL_GI = DSL_GJ = 0
+        DSL_GArray = Array
+        DSL_GWirelink = This
+        DSL_LTemp = Array[1,array]
+        DSL_GX = DSL_LTemp[1,number]
+        DSL_GY = DSL_LTemp[2,number]
+        DSL_GH = DSL_LTemp[3,number]
+        DSL_GW = DSL_LTemp[4,number]
+        DSL_GColor = DSL_LTemp[5,vector]
+        timer("DSL_Abox",1)
+    }
+    
+    function wirelink:dsStar(X,Y,R,Cof,Color:vector,Res){
+        DSL_GX = X
+        DSL_GY = Y
+        DSL_GColor = Color
+        DSL_GRes = Res
+        DSL_GR = R
+        DSL_GI = DSL_GJ = -1
+        DSL_GDiv = Cof
+        DSL_GWirelink = This
+        timer("DSL_circle1",1)
+    }
+    
+    function wirelink:dsLine(Pos1:vector2,Pos2:vector2,Color:vector,Res){
+    
+        if(Pos1:x() <= Res && Pos1:y() <= Res && Pos2:x() <= Res && Pos2:y() <= Res){
+        
+            if(Pos1:x() >= 0 && Pos1:y() >= 0 && Pos2:x() >= 0 && Pos2:y() >= 0){
+                local X0 = Pos1:x()
+                local Y0 = Pos1:y()
+                local X1 = Pos2:x()
+                local Y1 = Pos2:y()
+                
+                local Dx = (X1 > X0) ? (X1 - X0) : (X0 - X1)
+                local Dy = (Y1 > Y0) ? (Y1 - Y0) : (Y0 - Y1)
+                local Sx = (X1 >= X0) ? (1) : (-1)
+                local Sy = (Y1 >= Y0) ? (1) : (-1)
+                
+                if(Dy < Dx){
+                    local D = (Dy ^ 1) - Dx
+                    local D1 = Dy ^ 1
+                    local D2 = (Dy - Dx) ^ 1
+                    This:drawPixel(X0,Y0,Color,Res)
+                    local X = X0 + Sx
+                    local Y = Y0
+                    
+                    for(I = 1,Dx){
+                        if (D > 0){
+                            D += D2
+                            Y += Sy
+                            
+                        }else{
+                            D += D1
+                        }
+                        This:drawPixel(X,Y,Color,Res)
+                        X+=Sx
+                    }
+                    
+                }else{
+                    local D = (Dx ^ 1) - Dy
+                    local D1 = Dx ^ 1
+                    local D2 = (Dx - Dy) ^ 1
+                    This:drawPixel(X0,Y0,Color,Res)
+                    local X = X0
+                    local Y = Y0 + Sy
+                    
+                    for(I = 1,Dy){
+                    
+                        if(D > 0){
+                            D += D2
+                            X += Sx
+                            
+                        }else{
+                            D += D1
+                        }
+                        This:drawPixel(X,Y,Color,Res)
+                        Y+=Sy
+                    }
+                }
+                
+            }else{
+                printError()
+            }
+            
+        }else{
+            printError()
+        }
+    }
+    
+    function wirelink:dsCircle(GX,GY,R,Color:vector,Res){
+        local X = 0
+        local Y = R
+        local Gap = 0
+        local Delta = (2 - 2 * R)
+        local I = 0
+        DSL_GX = X
+        DSL_GY = Y
+        DSL_GW = GX
+        DSL_GH = GY
+        DSL_GR = R
+        DSL_GColor = Color
+        DSL_GRes = Res
+        DSL_GGap = Gap
+        DSL_GDelta = Delta
+        DSL_GI = I
+        DSL_GWirelink = This
+        timer("DSL_circle3",1)
+    }
+    
+    function wirelink:dsEllipse(GX,GY,GW,GH,Color:vector,Res){
+        
+        if(GX+GW > Res || GX-GW < 0){
+            printError()
+        }
+        
+        if(GY+GH > Res || GY-GH < 0){
+            printError()
+        }
+        DSL_GX = GX
+        DSL_GY = GY
+        DSL_GW = GW
+        DSL_GH = GH
+        DSL_GColor = Color
+        DSL_GRes = Res
+        DSL_GWirelink = This
+        DSL_GJ = DSL_GI = 0
+        timer("DSL_ellipse",1)
+    }
+    
+    function number number:mathMap(InMin,InMax,OutMin,OutMax){
+        return (This - InMin) * (OutMax - OutMin) / (InMax - InMin) + OutMin
+    }
+}
+
+
+
+if(clk("DSL_box")){
+    timer("DSL_box",1)
+    
+    while(perf()){
+        DSL_GWirelink:drawPixel(DSL_GI+DSL_GX,DSL_GJ+DSL_GY,DSL_GColor,DSL_GRes)
+        DSL_GI++
+        
+        if(DSL_GI > DSL_GH){
+            DSL_GJ++
+            DSL_GI = 0
+        }
+        
+        if(DSL_GJ > DSL_GW){
+            stoptimer("DSL_box")
+            timer("DSL_good",1)
+            DSL_good = "box_create"
+            break
+        }
+    }
+}
+
+
+if(clk("DSL_Abox")){
+    timer("DSL_Abox",1)
+    
+    while(perf()){
+        DSL_GWirelink:drawPixel(DSL_GI+DSL_GX,DSL_GJ+DSL_GY,DSL_GColor,DSL_GRes)
+        DSL_GI++
+        
+        if(DSL_GI > DSL_GH){
+            DSL_GJ++
+            DSL_GI = 0
+        }
+        
+        if(DSL_GJ > DSL_GW){
+            DSL_LTemp = DSL_GArray[DSL_GK,array]
+            DSL_GX = DSL_LTemp[1,number]
+            DSL_GY = DSL_LTemp[2,number]
+            DSL_GH = DSL_LTemp[3,number]
+            DSL_GW = DSL_LTemp[4,number]
+            DSL_GColor = DSL_LTemp[5,vector]
+            DSL_GI = DSL_GJ = 0
+            DSL_GK++
+        }
+        
+        if(DSL_GK > DSL_GArray:count()+1){
+            stoptimer("DSL_Abox")
+            timer("DSL_good",1)
+            DSL_good = "box_array_create"
+            break
+        }
+    }
+}
+
+
+if(clk("DSL_circle1")){
+    DSL_GJ = 0
+    DSL_GI++
+    timer("DSL_circle2",1)
+}
+
+if(clk("DSL_circle2")){
+    timer("DSL_circle2",1)
+    
+    while(perf()){
+    
+        if(DSL_GI <= DSL_GR*1.1){
+        
+            if(DSL_GJ <= DSL_GR*1.1){
+            
+                if(sqrt(DSL_GJ/DSL_GDiv)+sqrt(DSL_GI/DSL_GDiv) <= root(DSL_GR,2)){
+                    DSL_GWirelink:drawPixel(floor(DSL_GX+DSL_GJ/DSL_GDiv),floor(DSL_GY+DSL_GI/DSL_GDiv),DSL_GColor,DSL_GRes)
+                    DSL_GWirelink:drawPixel(floor(DSL_GX-DSL_GJ/DSL_GDiv),floor(DSL_GY+DSL_GI/DSL_GDiv),DSL_GColor,DSL_GRes)
+                    DSL_GWirelink:drawPixel(floor(DSL_GX+DSL_GJ/DSL_GDiv),floor(DSL_GY-DSL_GI/DSL_GDiv),DSL_GColor,DSL_GRes)
+                    DSL_GWirelink:drawPixel(floor(DSL_GX-DSL_GJ/DSL_GDiv),floor(DSL_GY-DSL_GI/DSL_GDiv),DSL_GColor,DSL_GRes)
+                }
+                DSL_GJ++
+                
+            }else{
+                stoptimer("DSL_circle2")
+                timer("DSL_circle1",1)
+                break
+            }
+            
+        }else{
+            DSL_good = "star_create"
+            timer("DSL_good",1)
+            stoptimer("DSL_circle2")
+            break
+        }
+    }
+}
+
+if(clk("DSL_circle3")){
+    timer("DSL_circle3",1)
+    
+    while(perf(30)){
+    
+        if(DSL_GY >= 0){
+            DSL_GWirelink:dsLine(vec2(DSL_GW+DSL_GX,DSL_GH+DSL_GY),vec2(DSL_GW+DSL_GX,DSL_GH-DSL_GY),DSL_GColor,DSL_GRes)
+            DSL_GWirelink:dsLine(vec2(DSL_GW-DSL_GX,DSL_GH-DSL_GY),vec2(DSL_GW-DSL_GX,DSL_GH+DSL_GY),DSL_GColor,DSL_GRes)
+            local Gap = 2 * (DSL_GDelta + DSL_GY) - 1
+            
+            if (DSL_GDelta < 0 && Gap <= 0){
+                DSL_GX++
+                DSL_GDelta += 2 * DSL_GX + 1
+                DSL_LStop = 1
+            }
+            
+            if(!DSL_LStop){
+            
+                if (DSL_GDelta > 0 && Gap > 0){
+                    DSL_GY--
+                    DSL_GDelta -= 2 * DSL_GY + 1
+                    DSL_LStop = 1
+                }
+                
+                if(!DSL_LStop){
+                    DSL_GX++
+                    DSL_GDelta += 2 * (DSL_GX - DSL_GY)
+                    DSL_GY--
+                }
+            }
+            
+        }else{
+            DSL_good = "circle_create"
+            timer("DSL_good",1)
+            stoptimer("DSL_circle3")
+            break
+        }
+    }
+}
+
+
+
+
+if(clk("DSL_ellipse")){
+    timer("DSL_ellipse",1)
+    
+    while(perf()){
+        
+        if(DSL_GI >= DSL_GH){
+            DSL_GI = 0
+            DSL_GJ++
+        }
+        
+        if(DSL_GJ >= DSL_GW){
+            DSL_good = "ellipse_create"
+            timer("DSL_good",1)
+            stoptimer("DSL_ellipse")
+            break
+        }
+        
+        if((DSL_GJ^2/DSL_GW^2)+(DSL_GI^2/DSL_GH^2) <= 1){
+            DSL_GWirelink:drawPixel(DSL_GJ+DSL_GX,DSL_GI+DSL_GY,DSL_GColor,DSL_GRes)
+            DSL_GWirelink:drawPixel(-DSL_GJ+DSL_GX,-DSL_GI+DSL_GY,DSL_GColor,DSL_GRes)
+            DSL_GWirelink:drawPixel(-DSL_GJ+DSL_GX,DSL_GI+DSL_GY,DSL_GColor,DSL_GRes)
+            DSL_GWirelink:drawPixel(DSL_GJ+DSL_GX,-DSL_GI+DSL_GY,DSL_GColor,DSL_GRes)
+        }
+        
+        DSL_GI++
+    }
+}
+
+
+

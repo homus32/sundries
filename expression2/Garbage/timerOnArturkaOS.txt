@@ -1,0 +1,89 @@
+@name timerOnArturkaOS
+
+if(first()){
+    noDuplications()
+
+    if(0){
+    #include "lib/arturOSLib_v2.0"
+    
+    CLK = TRGCLK = TRGRES = GetCode = CurretVersion = ""
+    CLKARG = TRGARG = array()
+    EGP = wirelink()
+    Data = table()
+    CLKID = 0}
+    
+    addLink(array("box",0,vec2(50,100),vec2(50),vec4(255),"gui/gmod_logo"),"timer") #link in desktop
+    
+    function void open_timer(){
+        local ID = windowCreate()                           #new window
+        local LData = Data["DataWindows",table][ID,table]   #local window data
+        
+        objectCreate(ID,array("rbox",1,vec2(0,25),vec2(80,60),vec4(40,40,40,255),5,"",2))
+        objectCreate(ID,array("box",2,vec2(256,166),vec2(80,20),vec4(70,70,70,255)))
+        objectCreate(ID,array("box",3,vec2(30,0),vec2(15,15),vec4(255),"gui/close_32",2))
+        LData["numberBlat",number] = objectCreate(ID,array("text",4,"Top timer",vec2(0,10),vec4(255),14,1,2))
+        objectCreate(ID,array("text",6,"turn on",vec2(0,33),vec4(255),14,1,2))
+        objectCreate(ID,array("box",5,vec2(0,40),vec2(70,20),vec4(70,70,70,255),"",2))
+        
+        addTrigger(ID,array(1,"OSAPI:focus"))
+        addTrigger(ID,array(2,"OSAPI:move"))
+        addTrigger(ID,array(3,"OSAPI:close"))
+        addTrigger(ID,array(5,"TIMER:start"))
+        
+        setFocus(ID)
+        egpRender()
+    }
+
+}
+
+###########---_CastomTrigger_---###########
+if(TRGCLK == "trigger"){
+    local API = TRGRES:matchFirst("([^:]*):")
+    local Func = TRGRES:matchFirst(":([^:]*)")
+    local Arg = TRGRES:matchFirst("[^:]*:[^:]*:([^:]*)"):explode("|")
+    
+    if(API == "TIMER"){
+        switch(Func){
+            case "start",
+                timer("timerTick|"+Arg[1,string],100)
+            break
+        }
+    }
+}
+
+###################---LoopTimer---###################
+if(CLK == "timerTick"){
+    timer(clkName(),100)
+    
+    local LData = Data["DataWindows",table][CLKID,table]
+    local Tick = LData["tick",number]
+    
+    if(!LData:count()){
+        stoptimer(clkName())
+        exit()
+    }
+    
+    LData["tick",number] = Tick+1
+    
+    EGP:egpSetText(LData["numberBlat",number],Tick/10+"")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

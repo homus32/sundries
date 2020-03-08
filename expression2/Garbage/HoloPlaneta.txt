@@ -1,0 +1,19 @@
+@name HoloPlaneta
+@persist [E O P]:entity
+@model models/props_c17/fountain_01.mdl
+interval(500)
+if(first()){
+    holoMaterial(0,"models/debug/debugwhite")
+    O=owner()
+    E=entity()
+    holoCreate(0 ,E:toWorld(vec()), vec(-15), ang(0),hsv2rgb(curtime()*100%640,1,1), "models/sprops/geometry/sphere_144.mdl") holoParent(0,E) holoMaterial(0,"models/debug/debugwhite")
+    holoCreate(1 ,E:toWorld(vec()), vec(15), ang(0),vec(255), "models/sprops/geometry/sphere_144.mdl") holoParent(1,E) holoMaterial(1,"phoenix_storms/ps_grass") 
+    P = propSpawn("models/hunter/plates/plate32x32.mdl",entity():toWorld(vec(0,0,-2)),1) P:parentTo(entity())
+    P1 = propSpawn("models/props_trainstation/bench_indoor001a.mdl",entity():toWorld(vec(0,0,18)),1) P1:parentTo(entity()) P1:setAng(ang(0,90,0))
+    P2 = propSpawn("models/props_trainstation/bench_indoor001a.mdl",entity():toWorld(vec(0,0,18)),1) P2:parentTo(entity())
+    P3 = propSpawn("models/props_trainstation/bench_indoor001a.mdl",entity():toWorld(vec(0,0,18)),1) P3:parentTo(entity())
+    P4 = propSpawn("models/props_trainstation/bench_indoor001a.mdl",entity():toWorld(vec(0,100,18)),1) P4:parentTo(entity())
+    P:setMaterial("phoenix_storms/ps_grass")
+}
+
+O:setPos(entity():toWorld(vec(0,200,0)))

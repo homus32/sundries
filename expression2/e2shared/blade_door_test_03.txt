@@ -1,0 +1,355 @@
+@name blade_door_test_03
+
+@inputs [Base]:entity
+
+@inputs [Door1 Valve1]:entity [Welder1]:wirelink
+@inputs [Door2 Valve2]:entity [Welder2]:wirelink
+
+@outputs 
+@persist [Doors_time]:number
+@persist [DoorsList]:table [Waiting Active]:table
+@persist [FindLockTime CheckLockTime]:number [FindPlayers]:array
+
+@trigger none
+
+
+switch(clkName()) {
+    default,
+        if(dupefinished() | first()) {
+            if(!changed(0)) {reset()}
+            
+            local List = table()
+            foreach(Door_i, Door_e:entity = array(Door1,Door2)) {
+                if(!Door_e) {continue}
+                List:pushTable(
+                    table(
+                        "name" = "door"+Door_i,
+                        "door" = Door_e,
+                        "valve" = select(Door_i, Valve1,Valve2),
+                        "welder" = select(Door_i, Welder1,Welder2)
+                    )
+                )
+            }
+            
+            
+            #include "lib/AddHolo_v01"
+            while(List:count()) { 
+                local Door_T = List:removeTable(1):merge(
+                    table(
+                    "cylinder_a" = array(),
+                    "credTall_a" = array(),
+                    "startPos_a" = array()
+                    )
+                )
+                local CredTall_a = Door_T["credTall_a", array]
+                local Cylinder_a = Door_T["cylinder_a", array]
+                local StartPos_a = Door_T["startPos_a", array]
+                
+                local Name = Door_T["name", string]
+                local Door_e = Door_T["door", entity]
+                
+                local Color1 = vec(255)
+                local Mater1 = ""
+                local Color2 = vec(200)
+                local Mater2 = ""
+                
+                local RectBase = Name
+                local CredShort = RectBase + "/CredShort"
+                local Valve = Name+"/valve"
+                Door_T["valveHolo", string] = Valve
+                
+                local BS = round(Door_e:boxSize()-0.5,1)
+                local BS2 = BS/2
+                local Z = BS2[3]
+                local Z2 = Z/2
+                local Z4 = Z/4
+                local Size = Z==1.5 ? 1 : 2
+                
+                addHolo(RectBase,vec(0,0,0),vec(0),ang(),Color1,"models/sprops/rectangles/size_4/rect_36x48x3.mdl",Mater1,"") addHolo_INTO(Door_e)
+                addHolo(CredShort,vec(0,0,3+Z),vec(1),ang(),Color1,"models/sprops/misc/fittings/cred_12_6_short.mdl",Mater1,RectBase)
+                addHolo("",vec(0,0,2),vec(1),ang(0,0,0),Color1,"models/sprops/cylinders/size_1/cylinder_1_5x3.mdl",Mater1,CredShort)
+                addHolo(Valve,vec(0,0,0),vec(1),ang(),Color1,"models/props_borealis/door_wheel001a.mdl","","") addHolo_INTO(Door_T["valve", entity])
+                
+                for(C = 1,6) {
+                    local F = C-1
+                    local CP = vec(C%3-1,1-(C>3)*2,0)
+                    local Pos = CP*(BS2-3.0-vec(0,0.75*!!CP[1],0))
+                    local Rad = Pos:length()
+                    local A = vec2(Pos):toAngle()
+                    
+                    local CredTall = CredShort + "/CredTall" + C
+                    local Cylinder = CredTall + "/Cylinder"
+                    local StartPos = vec(1.75-12,0,0)
+                    
+                    CredTall_a:pushString(CredTall)
+                    Cylinder_a:pushString(Cylinder)
+                    StartPos_a:pushVector(StartPos)
+                    
+                    addHolo(CredTall,Pos:setZ(-1.5),vec(1),ang(0,A,0),Color1,"models/sprops/misc/fittings/cred_3_1_5_tall.mdl",Mater1,CredShort)
+                    addHolo(Cylinder,StartPos,vec(1),ang(90,0,0),Color2,"models/sprops/cylinders/size_1/cylinder_1_5x24.mdl",Mater2,CredTall)
+                    CP[1]&addHolo("",vec(-9,0,0),vec(1),ang(0,0,0),Color1,"models/sprops/misc/fittings/cred_3_1_5_tall.mdl",Mater1,CredTall)
+                    addHolo("",vec(5.8-Rad,0,0),vec(1),ang(90,0,0),Color1,"models/sprops/misc/fittings/cred_3_1_5_tall.mdl",Mater1,CredTall)
+                }
+                
+                if(Size==1) {
+                    for(C = 1,4) {
+                        local A = 90*C-90
+                        local Length = (C%2 ? BS[2] : BS[1])
+                        local TPrism = RectBase+"/TPrism"+C
+                        addHolo(TPrism,(BS2+Z) * vec(1,0,0):rotate(0,A,0),vec(1),ang(0,A,0),Color1,"models/sprops/prisms/tri/size_1/tprism_3x"+Length+".mdl",Mater1,RectBase)
+                        addHolo("",vec(-Z2,Length/2+Z2,0),vec(1),ang(0,45,0),Color1,"models/sprops/prisms/tri/size_1/corner_3x3.mdl",Mater1,TPrism)
+                        addHolo("",vec(Z2*sqrt(2),0,-Z-Z2),vec(1),ang(0,-45,-90),Color1,"models/sprops/triangles_thin/right/size_0/t_rtri_3x3.mdl",Mater1,AddHolo_lastName)
+                        C%2&addHolo("",vec(0,0,-Z-Z2),vec(1),ang(0,90,0),Color1,"models/sprops/rectangles_thin/size_1/rect_3x36x1_5.mdl",Mater1,TPrism)
+                    }
+                    addHolo("",vec(0,0,-Z-Z2),vec(1),ang(),Color1,"models/sprops/rectangles_thin/size_4_5/rect_42x48x1_5.mdl",Mater1,RectBase)
+                }
+                elseif(Size==2) {
+                    for(C = 1,4) {
+                        local A = 90*C-90
+                        local Length = (C%2 ? BS[2] : BS[1])
+                        local TPrism = RectBase+"/TPrism"+C
+                        addHolo(TPrism,(BS2+Z) * vec(1,0,0):rotate(0,A,0),vec(1),ang(0,A,0),Color1,"models/sprops/prisms/tri/size_2/tprism_6x"+Length+".mdl",Mater1,RectBase)
+                        addHolo("",vec(-Z2,Length/2+Z2,0),vec(1),ang(0,45,0),Color1,"models/sprops/prisms/tri/size_2/corner_6x6.mdl",Mater1,TPrism)
+                        addHolo("",vec(Z2*sqrt(2),0,-Z-Z2),vec(1),ang(0,-45,-90),Color1,"models/sprops/triangles/right/size_0_5/rtri_6x6.mdl",Mater1,AddHolo_lastName)
+                        C%2&addHolo("",vec(0,0,-Z-Z2),vec(1),ang(0,90,0),Color1,"models/sprops/rectangles/size_1_5/rect_6x36x3.mdl",Mater1,TPrism)
+                    }
+                    addHolo("",vec(0,0,-Z-Z2),vec(1),ang(),Color1,"models/sprops/rectangles/size_5/rect_48x48x3.mdl",Mater1,RectBase)
+                }
+                addHolo_callFunc("doorInit", Door_T)
+            }
+            addHolo_start()
+            
+            function doorInit(Door_T:table) {
+                local Door_n = Door_T["name", string]
+                
+                DoorsList[Door_n, table] = Door_T:clone()
+                local Door_T = DoorsList[Door_n, table]
+                
+                local CredTall_a = Door_T["credTall_a", array]
+                local Cylinder_a = Door_T["cylinder_a", array]
+                foreach(C, CredTall:string = CredTall_a) {CredTall_a[C, entity] = AddHolo[CredTall+"/entity", entity]}
+                foreach(C, Cylinder:string = Cylinder_a) {Cylinder_a[C, number] = AddHolo[Cylinder+"/index" , number]}
+                Door_T["valveHolo", number] = AddHolo[Door_T["valveHolo", string]+"/index", number]
+                local Valve_e = Door_T["valve", entity]
+                Valve_e:setAlpha(0)
+                Waiting[Valve_e:creationID()+"", table] = Door_T
+                
+                if(!AddHolo_queye:count()) {
+                    stoptimer("AddHolo")
+                    timer("doors", 1)
+                    Doors_time = curtime()
+                }
+            }
+            function number doorAnim(Door_n:string, Anim:number) {
+                if(!DoorsList:exists(Door_n)) {return 0}
+                local Door_T = DoorsList[Door_n, table]
+                local Cylinder_a = Door_T["cylinder_a", array]
+                local StartPos_a = Door_T["startPos_a", array]
+                foreach(C, CredTall:entity = Door_T["credTall_a", array]) {
+                    holoPos(Cylinder_a:number(C), CredTall:toWorld(StartPos_a:vector(C)+vec(clamp(Anim,0,1)*4,0,0)))
+                }
+                return 1
+            }
+        }
+    break
+    
+    case "doors",
+        timer("doors", 50)
+        local Doors_lastTime = Doors_time
+        Doors_time = curtime()
+        local Interval = Doors_time-Doors_lastTime
+        
+        if(CheckLockTime < Doors_time) {
+            if(FindLockTime < Doors_time & findCanQuery()) {
+                FindLockTime = Doors_time + 0.5
+                findClearBlackList()
+                findClearWhiteList()
+                findIncludeClass("player")
+                findInSphere(Base:pos(),52.5*10)
+                FindPlayers = findToArray()
+            }
+            CheckLockTime = Doors_time + 0.2
+            foreach(C, Player:entity = FindPlayers) {
+                if(Player:keyUse()) {
+                    local AECID = Player:aimEntity():creationID()+""
+                    if(Waiting:exists(AECID)) {
+                        local Door_T = Waiting[AECID, table]
+                        Door_T["active", table] = table(
+                            "user" = Player
+                        )
+                        Active[Door_T["name", string], table] = Door_T
+                        Waiting:remove(AECID)
+                    }
+                }
+            }
+        }
+        
+        foreach(Door_n, Door_T:table = Active) {
+            local Active_T = Door_T["active", table]
+            local User = Active_T["user", entity]
+            
+            switch(User:keyUse() & User:isAlive()) {
+                case 1,
+                    local Valve = Door_T["valve", entity]
+                    local User_eye = User:eye()
+                    local User_shootPos = User:shootPos()
+                    local Valve_pos = Valve:boxCenterW()
+                    local DIF = Valve_pos-User_shootPos
+                    local DIF_n = DIF:normalized()
+                    local COS = User_eye:dot(DIF_n)
+                    if(acos(COS)<45 & DIF:length()<80) {
+                        local Door = Door_T["door", entity]
+                        #
+                        #- applyForce
+                        local Dist = vec2(DIF):length()
+                        local F_ = clamp((25-Dist)+(User:keyForward()-User:keyBack())*10,-10,10)
+                        local F = DIF_n*F_*10
+                        local F = (Base:vel()-Door:vel()+F)*10
+                        Door:applyForce(Door:mass()*Interval*F)
+                        #
+                        #- anim
+                        local Valve_F = Valve:forward()
+                        local Rotator_P = User_shootPos + User_eye*Valve_F:dot(DIF)/User_eye:dot(Valve_F) !holoEntity(123123) & holoCreate(123123,vec(),vec(0.3)) holoPos(123123,Rotator_P)
+                        local RealAng = Valve:toLocal(Rotator_P):rotate(-90,0,0):setZ(0):toAngle()[2]
+                        local LastAng = Active_T["lastAng", number]
+                        if(!Active_T:exists("lastAng")) {
+                            LastAng = Active_T["lastAng", number] = RealAng
+                            holoColor(Door_T["valveHolo", number], vec(255,50,50))
+                        }
+                        Active_T["lastAng", number] = RealAng
+                        local Rotator_r = Valve_pos:distance(Rotator_P)
+                        local Add = angnorm(RealAng-LastAng)/360/1.5*min(Rotator_r/6,1)^3
+                        local Anim = 0
+                        Anim = Door_T["anim", number] = clamp(Door_T["anim", number] + Add,0,1)
+                        changed(floor(Anim,2)) & doorAnim(Door_n, Anim)
+                        
+                        Door_T["welder", wirelink]["Activate", number] = Anim > 0.2
+                        
+                        break
+                    }
+                    continue
+                break
+                case 0,
+                    holoColor(Door_T["valveHolo", number], vec(255))
+                    Door_T:remove("active")
+                    local AECID = Door_T["valve", entity]:creationID()+""
+                    Waiting[AECID, table] = Door_T
+                    Active:remove(AECID)
+                    #soundStop("")
+                break
+            }
+        }
+    break
+    case "AddHolo", addHolo() break
+}
+
+setName("blade_door_test_03\nOPS: "+ops())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

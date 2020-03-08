@@ -1,0 +1,204 @@
+@name ENGINE
+@inputs Whl:array [Ch, Chair]:entity
+@outputs Eng:table
+@persist [Key, Eng]:table Arr:array RPM
+
+if(first()){  #[ - - - ]=====[ GENERAL SETTINGS ]=====[ - - - ]#
+
+ ##--------ENGINE---------##
+
+   Eng["Power",number] = 140
+  Eng["MaxRPM",number] = 8000
+  Eng["MinRPM",number] = 600
+
+ ##--------WHEELS---------##
+
+  Eng["WhlDir",array] = array( 1, -1, 1, -1 ) # 1 = Forward | -1 = Backward | 0 = Automatic sets Directions for wheels.. (1, -1, 1, -1)..
+
+ ##--------SOUNDS---------##
+
+     Eng["SndRunRPM",string] = "npc/antlion_grub/squashed.wav"
+    Eng["SndIdleRPM",table] = table( "vehicles/apc/apc_idle1.wav" , 10 ) # SoundLink , Volume 1 - 10
+    Eng["SndStarter",string] = "vehicles/apc/apc_start_loop3.wav"
+  Eng["SndGearShift",string] = "ambient/machines/gas_loop_1.wav"
+
+ ##-----TRANSMISSION------##
+
+  Eng["Gears",table] = table(-0.08, 0, 0.08, 0.16, 0.24, 0.32, 0.4) # -, 0, +, ..
+
+ ##------KEY-MAPPING------##
+
+  Key[   "Gas"   ,string] = "W"
+  Key[  "Start"  ,string] = "R"
+  Key["GasBoost" ,string] = "LSHIFT"
+  Key[ "Clutch"  ,string] = "LALT"
+  Key[ "GearUp"  ,string] = "MOUSE_LEFT"  # + Clutch!
+  Key["GearDown" ,string] = "MOUSE_RIGHT"  # + Clutch!
+
+ ##---------OTHER---------##
+
+  Eng["Interval",number] = 20
+  Eng["Debug",number] = 1
+
+ ##-------IMPORTANT OUTPUTS FROM [ Eng:table ]--------##
+ #                                                     #
+ # Eng["Power",number] = "Power of Engine"           
+ #  Eng["RPM",number] = Rotates Per Minute             #
+ #  Eng["MaxRPM",number] = Maximum Rotates Per Minute  #
+ #  Eng["MinRPM",number] = Minimum Rotates Per Minute  #
+ #  Eng["Throttle",number] = Level of Gas              
+ #  Eng["Clutch",number] = Level of Clutch             #
+ #  Eng["Gear",number] = Gear                          #
+ #  Eng["Starter",number] = Engine is on or off 0\1    #
+ #  And etc...                                         #
+ #                                                     #
+ ##---------------------------------------------------##
+
+ function number key(K:string){ return Chair:driver():keyPressed(Key[K,string]) }
+ function number chkN(){ return key("Clutch")|Eng["Gear",number]==0 }
+
+ for(I=1,Whl:count())
+ {
+    Eng["Whl"+I,entity] = Whl[I,entity]  Eng["WhlCount",number] = Whl:count()
+    
+    if(!Eng["WhlDir",array][I,number])
+    {
+        Eng["WhlDir",array][I,number] = (Ch:toLocal(Whl[I,entity]:pos()):y()>=0)-(Ch:toLocal(Whl[I,entity]:pos()):y()<0)
+    }
+ }
+    
+}elseif(duped()){reset()}else{  #[ - - - ]=====[ OTHER STUFF ]=====[ - - - ]#                                                                                                                                                                                                      
+    
+  #[ DEBUG STUFF ]#
+    
+    #if(Eng["Debug",number]){ Chair:printDriver(_HUD_PRINTCENTER, "RPM: " + floor(RPM):toString() + "\n" + "GEAR: " + Eng["Gear",number] + "\n" + "KMH: " + floor(toUnit("km/h",Ch:vel():length())):toString()) }
+    
+  #[ GEARBOX ]#
+
+    if(key("Clutch"))
+    {
+        if(changed(key("GearUp"))&key("GearUp")|changed(key("GearDown"))&key("GearDown"))
+        {
+            Eng["Gear",number] = clamp( Eng["Gear",number]+(key("GearUp")-key("GearDown")), -1, Eng["Gears",table]:count()-2 )
+            if(changed(Eng["Gear",number]))
+            {
+                Ch:soundPlay("SndGearShift",0.1,Eng["SndGearShift",string])
+                soundPitch("SndGearShift",150)
+                soundVolume("SndGearShift",0.3)
+            }
+        }
+    }
+    
+    if(key("Clutch")|Eng["Clutch",number]){ Eng["Clutch",number] = clamp(Eng["Clutch",number]-0.015+key("Clutch"), 0, 1) }
+    
+  #[ STARTER ]#
+
+    if(changed(key("Start"))&key("Start"))
+    {
+        if(!Eng["Starter",number]&chkN())
+        {
+            Eng["Starter",number] = 0.025
+            
+            Random = random( 75, 85 )
+            Ch:soundPlay("SndStarter",0,Eng["SndStarter",string])
+            soundPitch("SndStarter",Random)
+            soundVolume("SndStarter",0.5)
+            RPM = Random*10
+        }
+        else
+        {
+            Eng["Starter",number] = 0
+            soundStop("SndIdleRPM",0.2)
+            soundStop("SndRunRPM",0.2)
+        }
+    }
+    
+    if(key("Start")&Eng["Starter",number]&Eng["Starter",number]<1)
+    {
+        Eng["Starter",number] = Eng["Starter",number]+0.025
+        
+        if(Eng["Starter",number]>=1)
+        {
+            Ch:soundPlay("SndRunRPM",0,Eng["SndRunRPM",string])
+            Ch:soundPlay("SndIdleRPM",0,Eng["SndIdleRPM",table][1,string])
+            soundStop("SndStarter",0.5)
+            soundVolume("SndIdleRPM",0.3)
+            soundPitch("SndIdleRPM",60)
+        }
+        
+        if(!chkN())
+        {
+            Eng["Starter",number] = 0
+            soundStop("SndStarter")
+        }
+    }
+    
+    if(changed(!key("Start"))&!key("Start"))
+    {
+        soundStop("SndStarter",0.5)
+    }
+    
+  #[ ENGINE ]#
+
+    if(key("Gas")|Eng["Throttle",number]){ Eng["Throttle",number] = clamp(Eng["Throttle",number]-0.05+key("Gas")*0.15,0,1) }
+    
+    if(Eng["Starter",number]==1)
+    {
+        if(!chkN())
+        {
+            for(I=1,Eng["WhlCount",number])
+            {
+                if(Eng["Whl"+I,entity]){
+                    Arr[I,number] = (Eng["Whl"+I,entity]:angVel():pitch())*4*Eng["WhlDir",array][I,number]
+                }
+            }
+            
+            WRPM = (Arr:average()*(Eng["WhlCount",number]/Whl:count()))/(Eng["Gears",table][Eng["Gear",number]+2,number]*10)
+            
+            RPM += (clamp(WRPM,0,Eng["MaxRPM",number])-RPM)/9.6*(1-Eng["Clutch",number])
+            
+            MinOrMax = clamp(Eng["MinRPM",number]+Eng["MaxRPM",number]*(Eng["Throttle",number]*(0.5+key("GasBoost")/2)),0,Eng["MaxRPM",number])
+            
+            Force = RPM*(1-clamp((WRPM*2-MinOrMax)/MinOrMax,0,1))*(Eng["Power",number]*1.5)/(Eng["MaxRPM",number]/1000)/(Eng["Gears",table][Eng["Gear",number]+2,number]*5)
+            
+            for(I=1,Eng["WhlCount",number])
+            {
+                BWE = (-Eng["Whl"+I,entity]:angVel():pitch()*3/abs(Eng["Gears",table][Eng["Gear",number]+2,number]*10))*!Eng["Throttle",number]-Eng["Whl"+I,entity]:angVel():pitch()*(RPM>Eng["MaxRPM",number]*0.95)*10
+                
+                Eng["Whl"+I,entity]:applyTorque(vec(0,Force*Eng["WhlDir",array][I,number]+BWE,0))
+            }
+            
+            Ch:applyTorque(vec(0,-400000,0)*clamp(Eng["Throttle",number]*(0.5+key("GasBoost")/2)*(1-(WRPM/Eng["MaxRPM",number])*0.9),0,1)*((Eng["Gears",table][Eng["Gear",number]+2,number]>0)*2-1))
+        }
+        else
+        {
+            RPM = clamp( RPM-60+150*Eng["Throttle",number], Eng["MinRPM",number] ,Eng["MaxRPM",number] )
+        }
+        
+        if(changed(RPM))
+        {
+            soundVolume("SndRunRPM",clamp((RPM/Eng["MinRPM",number])-1,0,0.3+0.2*Eng["Throttle",number]*(1+key("GasBoost"))))
+            soundVolume("SndIdleRPM",clamp((3-(RPM/Eng["MinRPM",number]))/(10-Eng["SndIdleRPM",table][2,number]),0,1))
+            soundPitch("SndRunRPM",clamp((RPM/Eng["MaxRPM",number])*120+20,0,255))
+        }
+        
+        if(RPM<Eng["MinRPM",number]/2)
+        {
+            Eng["Starter",number] = 0
+            soundStop("SndIdleRPM")
+            soundStop("SndRunRPM")
+        }
+    }
+    elseif(RPM&(!key("Start")|!Eng["Starter",number]))
+    {
+        RPM = clamp(RPM-100,0,Eng["MaxRPM",number])
+    }
+    
+    Eng["RPM",number] = RPM
+    VelL = Ch:vel()
+    Eng["KMP",number] = (VelL:x()+VelL:y()+VelL:z())/14.582
+    
+}
+
+ interval( Eng["Interval",number] )
+

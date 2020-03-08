@@ -1,0 +1,82 @@
+@name TPAim 2.0
+@persist [O Seat Platform]:entity Pos:vector Sphere TP
+                                                                                                                                                                                    #[
+  ____          _   _                             _          _       
+ | __ ) _   _  | | | | ___  _ __ ___  _   _ _ __ | | ___   _| | ___  
+ |  _ \| | | | | |_| |/ _ \| '_ ` _ \| | | | '_ \| |/ / | | | |/ _ \ 
+ | |_) | |_| | |  _  | (_) | | | | | | |_| | | | |   <| |_| | | (_) |
+ |____/ \__, | |_| |_|\___/|_| |_| |_|\__,_|_| |_|_|\_\\__,_|_|\___/ 
+        |___/                                                        
+       
+                                                                                                                                                                                    ]#
+
+if(first()){ 
+    O = owner() 
+    runOnKeys(O,1) 
+    propSpawnUndo(0)
+     Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1)
+    
+Seat:setPos(vec(4045, -13148, 244.5)) Seat:setAlpha(0) 
+Platform = propSpawn("models/hunter/plates/plate075x075.mdl",1) Platform:setPos(vec()) Platform:setAlpha(0)
+printColor(vec(0,255,255),"Print console: ",vec(255,255,0),"[b]wire_expression2_concmd_whitelist +use,-use[/b]") 
+noCollideAll(Seat,0) 
+concmd("-use") 
+#noDuplications()
+} Sphere = findInSphere(Platform:pos(),2)
+ if(changed(O:keyPressed("T")) & O:keyPressed("T")){
+    Seat:setPos(O:pos()) 
+    Pos = O:aimPos()
+     TP = 1 concmd("+use")
+timer("timer",1000)
+} 
+
+if(O:inVehicle() & TP == 1){ 
+    Seat:setPos(Pos-vec(0,0,10))
+     noCollideAll(Seat,0) 
+    concmd("-use") 
+    timer("2",30) 
+    TP = 0}
+     if(clk("2")){ 
+        Seat:propDelete()
+        
+Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1)
+ Seat:setPos(vec(4045,-13148, 244.5))
+ Seat:setAlpha(0)
+ noCollideAll(Seat,0)
+ timer("3",300)
+}  
+
+if(clk("3")){
+Platform:setPos(O:pos()+vec(0,0,-10))
+} 
+
+if(changed(O:keyPressed("N")) & O:keyPressed("N")){
+     Seat:setPos(O:pos()) 
+    concmd("+use") 
+    timer("4",500)
+    } 
+    if(clk("4")){
+         Seat:setPos(vec()) 
+        noCollideAll(Seat,0) 
+        concmd("-use")
+timer("2",300)
+} 
+if( Sphere <=2){ 
+    Platform:setPos(vec())
+    } if(!Seat){
+     Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1)
+     Seat:setPos(vec(4045, -13148, 244.5))
+     
+Seat:setAlpha(0)
+ noCollideAll(Seat,0)
+} 
+
+if(!Platform){
+ Platform = propSpawn("models/hunter/plates/plate075x075.mdl",1) Platform:setPos(vec()) Platform:setAlpha(0)
+}
+if(clk("timer")){
+    concmd("-use") TP = 0 clk("2")
+}
+
+#Используеться технология "Я в машине"
+# XDDD

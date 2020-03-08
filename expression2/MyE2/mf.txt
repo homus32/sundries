@@ -1,0 +1,90 @@
+@name nan
+@persist Players:array P T A
+
+interval(50)
+
+if(first()){
+    timer("sampleTimer",2000)
+    runOnChat(1)
+    findByClass("player")
+    Players = findToArray()
+    P = 0
+    #printColor(vec(30,30,30),"[",vec(140,220,255),"WallHack",vec(30,30,30),"] ",vec(255,255,255),"Made by ",teamColor(findPlayerBySteamID64("76561197966251135"):team()),"mastopgunaf")
+}
+
+for(I = 1,Players:count()){
+
+    local E = Players:entity(P)
+    
+    if(first()){
+        holoCreate(I)
+        holoModel(I,"models/mechanics/solid_steel/sheetmetal_box_4.mdl")
+        holoScale(I,vec(0.8,1.6,0))
+        holoColor(I,teamColor(E:team()))
+        holoMaterial(I,"debug/debugportals")
+        holoVisible(I,Players,0)
+        holoVisible(I,owner(),1)
+    }
+    
+    holoAng(I,ang(0,owner():angles():yaw()+90,(owner():pos():z()-E:pos():z())+90))
+    holoAlpha(I,0)
+    
+    P++
+    
+    if(P > Players:count()){
+        P=1
+    }
+    
+    if(changed(E:pos())){
+        holoPos(I,E:pos()+vec(0,0,30))
+    }
+    
+    if(E == owner()){
+        holoDelete(I)
+    }
+}
+
+for(Q=Players:count()+1,Players:count()*2){
+
+    local Y = Players:entity(T)
+    
+    if(first()){
+        holoCreate(Q)
+        holoModel(Q,"models/sprops/cylinders/size_2/cylinder_3x480.mdl")
+        holoScale(Q,vec(1,1,32))
+        holoColor(Q,teamColor(Y:team()))
+        holoMaterial(Q,"debug/debugportals")
+        holoVisible(Q,Players,0)
+        holoVisible(Q,owner(),1)
+        holoAng(Q,ang(0))
+    }
+    holoAlpha(Q,0)
+    T++
+    
+    if(T>Players:count()){
+        T = 1
+    }
+    
+    if(changed(Y:pos())){
+        holoPos(Q,Y:pos()+vec(0,0,7776))
+    }
+    
+    if(Y==owner()){
+        holoDelete(Q)
+    }
+
+}
+
+#if(changed(players():count())){reset()}
+
+if(clk("sampleTimer")){
+    A = 1
+}
+
+if(A == 1){
+
+    for(C=1,70){
+        holoAlpha(C,255)
+    }
+}
+

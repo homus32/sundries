@@ -1,0 +1,19 @@
+@name Damag Tester
+@persist EGP:entity W:wirelink Sum
+if(first()){
+    #include "lib/Jlib"
+    runOnKeys(owner(),1,array("f7"))
+    if(!!!EGP){ EGP = spawnEGP("models/hunter/plates/plate2x2.mdl",entity():toWorld(vec(0,0,50)),ang(90,90,90),1) }
+    runOnDamage(1,EGP)
+    entity():parentTo(EGP)
+    W = EGP:wirelink()
+    W:centeredText(1,"0",vec2(250,200),vec(255),50)
+    W:centeredText(2,"0",vec2(250,280),vec(255),50)
+}
+Sum+= EGP:getDamage()
+W:egpSetText(1,EGP:getDamage()+"")
+W:egpSetText(2,Sum+"")
+if(changed(owner():keyPressed("F7"))&owner():keyPressed("F7")){
+    Sum = 0
+}
+

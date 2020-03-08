@@ -1,0 +1,12 @@
+@persist I
+interval(100)
+if(holoCanCreate()){
+I++
+holoCreate(I)
+holoPos(I,entity():pos()+vec(sin(I*10)*I,cos(I*10)*I,((I+I)/2))+I)
+holoColor(I,hsv2rgb(I*10%360,1,1))
+holoModel(I,"models/hunter/misc/sphere075x075.mdl")
+holoDisableShading(I,1)
+holoScale(I,vec(0.1+(I/80)))
+holoParent(I,entity())
+}

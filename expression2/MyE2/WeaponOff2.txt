@@ -1,0 +1,36 @@
+@name CheakWeapon3
+@persist T:table
+
+if(first()){
+    runOnKeys(owner(), 1)
+    holoCreate(100)
+    holoPos(1,entity():pos()+vec(0,0,35))
+    T = table(
+        "weapon_357",
+        "weapon_crowbar",
+        "weapon_pistol",
+        "weapon_rpg",
+        "weapon_stunstick",
+        "gmod_camera",
+        "weapon_medkit",
+        "weapon_physgun"
+    )
+    #Если в руке владельца пушка из списка выше, то 1, иначе 0.
+    function number checkWeapon(){
+        Find = 0
+        for (I = 0, T:count()){
+            if(owner():weapon():type() == T[I, string]){Find = 1 break}
+        }
+        return Find
+    }
+
+}
+
+if(changed(owner():keyAttack2())&owner():keyAttack2()){
+    if(checkWeapon() == 0){
+    holoPos(100,entity():pos()+vec(0,-50,35)) #
+
+}}
+if(owner():keyAttack1()){
+    holoPos(100,entity():pos()+vec(0,50,35))
+}

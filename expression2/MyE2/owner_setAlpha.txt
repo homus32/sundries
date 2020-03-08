@@ -1,0 +1,2 @@
+interval(600)
+foreach(I,E:entity = owner():weapons()){ E:setColor(vec4()) }

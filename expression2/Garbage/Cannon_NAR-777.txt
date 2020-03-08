@@ -1,0 +1,36 @@
+@name Cannon NAR-777
+@inputs Fire
+@persist E1 E1F N NF [Shells Vecs]:array 
+interval(100)
+if(first()){
+    E=entity()
+}
+
+if(Fire&E1==0){
+    timer("next",232)
+    E1 = 1 E1F = 1
+    N++
+    if(N>10){ N = 1 }
+    Shells[N,entity]:propBreak()
+    Shells[N,entity] = propSpawn("models/props_phx/amraam.mdl",E:toWorld(vec(0,0,200)),E:toWorld(ang(-90+randint(0,0),randint(0,0),randint(0,0))),0)
+    Shells[N,entity]:setAlpha(255)
+    Shells[N,entity]:setTrails(3,5333,3,"trails/smoke",vec(225,225,225),255)   
+    Shells[N,entity]:setMass(500000)    
+    Vecs[N,vector] = E:aimPos() - Shells[N,entity]:pos()
+    Shells[N,entity]:soundPlay(2,4,"thrusters/jet02.wav")
+}
+
+Shells[N,entity]:setdLight(Shells[N,entity]:pos(), vec(255,255,0), 5, 500, 0)
+
+if(clk("next")){ E1 = 0 }
+if(E1F){
+
+NF++
+if(NF>10){ NF = 1 }
+Shells[NF,entity]:applyForce(Shells[NF,entity]:forward()*100000000000)
+
+}
+
+Shells[N,entity]:propFreeze(0)
+Shells[N,entity]:propGravity(0)
+

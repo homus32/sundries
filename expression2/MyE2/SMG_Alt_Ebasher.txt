@@ -1,0 +1,41 @@
+@name SMG Alt Ebasher
+interval(100)
+if(first()){ findExcludePlayer(owner()) }
+findByClass("grenade_ar2")
+foreach(I,E:entity = findToArray()){
+    if(E:owner() == owner()){
+        local Aim = owner():aimPos()
+        if(owner():pos():distance(Aim) <= 4500){
+            findIncludeClass("player")
+            findInCone(Aim+vec(0,0,75),owner():eye(),5000,50)
+            Ply = findClosest(Aim)
+            if(findToArray():count() == 0){ 
+                findClearWhiteList() 
+            }else{
+                if(Ply:isAlive()){
+                    E:setPos(Ply:shootPos())
+                }else{
+                    findClipToEntity(Ply)
+                    Ply = findClosest(Aim)
+                    E:setPos(Ply:shootPos())
+                }
+                findClearWhiteList()
+            }
+        }else{
+            findByClass("player")
+            Ply = findClosest(Aim)
+            if(findToArray():count() == 0){ 
+                findClearWhiteList() 
+            }else{
+                if(Ply:isAlive()){
+                    E:setPos(Ply:shootPos())
+                }else{
+                    findClipToEntity(Ply)
+                    Ply = findClosest(Aim)
+                    E:setPos(Ply:shootPos())
+                }
+                findClearWhiteList() 
+            }
+        }
+    }
+}

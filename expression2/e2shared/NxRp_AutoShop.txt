@@ -1,0 +1,563 @@
+@name NxRp AutoShop
+@inputs [W1 W2 MP]:wirelink Ents:array
+@persist [Color ProfColor]:vector Mode [Btns Btnf SIS]:array SelectMode SellMenu [Data ShopIds]:table Summa LSC Donated MMode LastMoney
+interval(100)
+
+#[ 
+    Modes:
+    
+    -1 - screen update clk
+    0  - selecting items
+    1  - waiting for money
+]#
+
+if(dupefinished()) 
+{ 
+    reset()
+}
+
+if(first()) 
+{ 
+    entity():setSkin(1)
+    # Sell menues mode
+    # 0 = all, 1 = only food, 2 = only weapon
+    MMode = 1
+    
+    if(MMode == 1){
+ProfColor = vec(143, 31, 171)
+}
+
+    if(MMode == 2){
+ProfColor = vec(251, 141, 0)
+}
+
+    if(MMode == 0){
+ProfColor = vec(50, 60, 255)
+}
+
+    # Interface color
+    Color = ProfColor
+    
+    
+    
+    #[ Items ]#
+    Data = table(
+        # Food
+        table( 
+            array("Еда x1"              , 45), 
+            array("Еда x10"             , 450), 
+            array("Еда x100"            , 4500), 
+            
+            array("", 0), 
+            
+            array("Пиво*"               , 400), 
+            array("LSD*"                    , 550),
+            array("Сигареты*",350)
+        ), 
+        
+        # Weapons
+        table(
+            array("Glock 18",5000),
+            array("IMI Desert eagle",6000),
+            array("Five-Seven",5000),
+            array("CZ75",8700),
+            array("P250",5200),
+            array("Револьвер",6700),
+            array("",0),
+            array("Боевой нож DV2",600),
+            array("Мачете",1000),
+            array("",0),
+            array("RPG*",26500),
+            array("Граната M67*",3500),
+            array("Бомба С4*",11500),
+            array("Ракета для RPG*",10750),
+            array("",0),
+            array("H&K MP5",10300),
+            array("PP-19 Bizon",9300),
+            array("",0),
+            array("Глушитель",600)
+        ), 
+        
+        # Boxes
+        table( 
+            array("H&K MP5 x5",51500),
+            array("PP-Bizon x5",46500),
+            #array("",0),
+            array("AK-47 x5",46500),
+            array("M4A4 x5",50000),
+            array("G3SG1 x5",45000),
+            array("AUG x5",55500),
+            array("FAMAS x5",53500),
+            array("Galel AR x5",55000),
+          #  array("",0),
+            array("Glock 18 x5",25000),
+            array("IMI Desert eagle x5",30000),
+            array("Five-seven x5",25000),
+            array("CZ75 x5",43000),
+            array("P250 x5",26000),
+            array("Револьвер x5",33500),
+            #array("",0),
+            array("AWP x5",64000),
+            array("Scout x5",45000),
+           # array("",0),
+            array("Nova x5",39500)
+        )
+    )
+    
+    
+    if(max(Data[1, table]:count(), Data[2, table]:count(), Data[3, table]:count()) > 21) 
+    { 
+        print("В одном pазделе магазина не может быть >20 товаpов!")
+        
+        selfDestructAll()
+        exit()
+    }
+    
+    
+    #[ Functions ]#
+    function wirelink:text(Id, Text:string, Pos:vector2, Size, XAlign) 
+    { 
+        for(WT = 0, 1) 
+        { 
+            This:egpText(Id + WT, Text, Pos + WT * vec2(2, -2))
+            This:egpColor(Id + WT, WT ? vec(255) : (Color / 5))
+            
+            This:egpSize(Id + WT, Size)
+            This:egpAlign(Id + WT, XAlign, 1)
+        }
+    }
+    
+    function wirelink:button(Id, [Pos Size]:vector2, Text:string, TextSize, Action:string) 
+    { 
+        This:egpBox(Id, Pos, Size)
+        This:egpColor(Id, Color * 0.85)
+        
+        This:text(Id + 1, Text, Pos, TextSize, 1)
+        
+        Btns:pushNumber(Id)
+        Btnf:pushString(Action)
+    }
+    
+    function menu_select(Id) 
+    { 
+        if(MMode & (Id == 1 & MMode != 1 | Id > 1 & MMode != 2)) 
+        { 
+            return
+        }
+        
+        SellMenu = Id
+        
+        local Items = Data[Id, table]
+        
+        for(I = 1, 17) 
+        { 
+            local Name = Items[I, array]:string(1)
+            local Prce = Items[I, array]:number(2)
+            
+            W1:egpSetText(26 + I * 4, Name)
+            W1:egpSetText(27 + I * 4, Name)
+            
+            W1:egpSetText(28 + I * 4, Prce ? "" + Prce : "")
+            W1:egpSetText(29 + I * 4, Prce ? "" + Prce : "")
+        }
+    }
+    
+    function wirelink:prerender() 
+    { 
+        This:egpClear()
+        
+        This:egpBox(1, vec2(256), vec2(512))
+        This:egpColor(1, Color)
+        
+        This:egpBox(20, vec2(256, 40), vec2(512, 44))
+        This:egpColor(20, Color * 0.85)
+        
+        if(This == W1) 
+        { 
+            Btns:clear()
+            Btnf:clear()
+            
+            SellMenu = MMode ?: 1
+        }
+    }
+    
+    function resum_list() 
+    { 
+        Summa = 0
+        
+        if(!ShopIds:count()) 
+        { 
+            W1:egpAlpha(160, 0)
+            
+            W1:text(25, "Выбpанный товаp", vec2(377, 200), 13, 1)
+            W1:text(27, "Появится здесь", vec2(377, 212), 13, 1)
+            
+            W1:egpSetText(113, "0kr")
+            W1:egpSetText(114, "0kr")
+            
+            for(I = 1, 10) 
+            { 
+                W1:egpSetText(116 + I * 4, "")
+                W1:egpSetText(117 + I * 4, "")
+                
+                W1:egpSetText(118 + I * 4, "")
+                W1:egpSetText(119 + I * 4, "")
+            }
+            
+            return
+        }
+        
+        for(I = 1, 10) 
+        { 
+            local Dat = ShopIds[SIS:string(I), array]
+            local S   = Dat:number(3) ? Dat:string(1) + " (" + Dat:number(2) + ")" : ""
+            local Sum = Dat:number(2) * Dat:number(3)
+            
+            Summa += Sum
+            
+            W1:egpSetText(116 + I * 4, S)
+            W1:egpSetText(117 + I * 4, S)
+            
+            W1:egpSetText(118 + I * 4, Sum ? Sum + "" : "")
+            W1:egpSetText(119 + I * 4, Sum ? Sum + "" : "")
+        }
+        
+        W1:egpSetText(113, Summa + "kr")
+        W1:egpSetText(114, Summa + "kr")
+        
+        LSC = ShopIds:count()
+    }
+    
+    
+    #[ Button functions ]#
+    function btn_clear() 
+    { 
+        ShopIds:clear()
+        SIS:clear()
+        
+        resum_list()
+    }
+    
+    function btn_proccess() 
+    { 
+        if(!ShopIds:count()) 
+        { 
+            return
+        } 
+        
+        print("Новый заказ!")
+        
+        W1:prerender()
+        W2:prerender()
+        
+        Donated = 0
+        Mode    = 1
+        
+        W1:text(2, "Ожидание оплаты", vec2(256, 38), 36, 1)
+        
+        W1:text(7, "Внесено в манипот:", vec2(256, 212), 33, 1)
+        W1:text(9, "0 / " + Summa + "kr", vec2(256, 252), 51, 1)
+        
+        
+        W2:text(2, "Сделка", vec2(256, 38), 36, 1)
+        
+        W2:text(7, Ents:entity(1):name()  + " должен", vec2(256, 95), 21, 1)
+        W2:text(9, "0 / " + Summa + "kr", vec2(256, 121), 31, 1)
+        W2:text(11, "За товар(ы): ", vec2(256, 147), 21, 1)
+        
+        W2:egpBox(13, vec2(256, 293), vec2(210, 250))
+        W2:egpColor(13, Color * 0.85)
+        
+        for(I = 1, 10) 
+        { 
+            local Dat = ShopIds[SIS:string(I), array]
+            local S   = Dat:number(3) ? Dat:string(1) + " (" + Dat:number(2) + ")" : ""
+            local Sum = Dat:number(2) * Dat:number(3)
+            
+            W2:text(116 + I * 4, S, vec2(157, 163 + 20 * I), 16, 0)
+            W2:text(118 + I * 4, Sum ? Sum + "" : "", vec2(354, 163 + 20 * I), 16, 2)
+        }
+        
+        W2:button(44, vec2(256, 455), vec2(210, 50), "Закрыть", 30, "done")
+        
+        
+        W1:button(4, vec2(256, 344), vec2(210, 50), "Отменить", 30, "done")
+    }
+    
+    function btn_menu_1() 
+    { 
+        menu_select(1)
+    }
+    
+    function btn_menu_2() 
+    { 
+        menu_select(2)
+    }
+    
+    function btn_menu_3() 
+    { 
+        menu_select(3)
+    }
+    
+    function btn_done() 
+    { 
+        ShopIds:clear()
+        SIS:clear()
+        
+        W1:prerender()
+        W2:prerender()
+        
+        Donated = 0
+        Mode    = -1
+        
+        print("Заказ закpыт!")
+    }
+}
+
+if(clk("done")) 
+{ 
+    for(I = 1, 10) 
+    { 
+        W1:text(116 + I * 4, "", vec2(278, 130 + 20 * I), 16, 0)
+        W1:text(118 + I * 4, "", vec2(473, 130 + 20 * I), 16, 2)
+    }
+    
+    exit()
+}
+elseif(clk("done2")) 
+{ 
+    for(I = 1, 20) 
+    { 
+        local Ar = Data[SellMenu, table][I, array]
+        
+        W1:text(26 + I * 4, Ar:string(1), vec2(40, 111 + I * 18), 14, 0)
+        W1:text(28 + I * 4, Ar:number(2) ? Ar:number(2) + "" : "", vec2(232, 111 + I * 18), 14, 2)
+    }
+    
+    exit()
+}
+
+if(changed(MP) & MP) 
+{ 
+    LastMoney = MP["StoredAmount", number]
+}
+
+if(changed(W1) & W1 | Mode == -1) 
+{ 
+    ShopIds:clear()
+    SIS:clear()
+    
+    W1:prerender() 
+    Mode = Mode == -1 ? -1 : 0
+    
+    
+    # Main design customer
+    W1:text(2, "Выбоp товаpов", vec2(256, 40), 36, 1)
+    
+    
+    #[ Summ ]#
+    W1:button(4, vec2(322, 470), vec2(100, 40), "Отмена", 22, "clear")
+    W1:button(7, vec2(432, 470), vec2(100, 40), "ОК", 22, "proccess")
+    
+    W1:egpBox(21, vec2(377, 268), vec2(210, 268))
+    W1:egpColor(21, Color * 0.85)
+    
+    W1:egpBox(22, vec2(377, 108), vec2(210, 36))
+    W1:egpColor(22, Color * 0.85)
+    
+    W1:egpBox(160, vec2(377, 150), vec2(210, 20))
+    W1:egpColor(160, Color * 0.95)
+    
+    W1:text(23, "Коpзина", vec2(377, 108), 26, 1)
+    
+    W1:text(25, "Выбpанный товаp", vec2(377, 200), 13, 1)
+    W1:text(27, "появится здесь", vec2(377, 212), 13, 1)
+    
+    W1:text(111, "Итого", vec2(305, 426), 26, 1)
+    W1:text(113, "0kr", vec2(474, 426), 26, 2)
+    
+    timer("done", 100)
+    
+    
+    #[ Item list ]#
+    W1:button(10, vec2(68, 100), vec2(70, 20), "Еда", 16, "menu_1")
+    W1:button(13, vec2(138, 100), vec2(70, 20), "Оpужие", 16, "menu_2")
+    W1:button(16, vec2(208, 100), vec2(70, 20), "Ящики", 16, "menu_3")
+    
+    if(MMode == 1) 
+    { 
+        W1:egpColor(15, vec(120))
+        W1:egpColor(18, vec(120))
+    } 
+    elseif(MMode == 2) 
+    { 
+        W1:egpColor(12, vec(120))
+    }
+    
+    W1:egpBox(19, vec2(138, 300), vec2(210, 380))
+    W1:egpColor(19, Color * 0.85)
+    
+    W1:egpBox(115, vec2(138, 128), vec2(210, 18))
+    W1:egpColor(115, vec4(Color * 0.95))
+    
+    timer("done2", 200)
+}
+
+if(changed(W2) & W2 | Mode == -1) 
+{ 
+    W2:prerender()
+    Mode = 0
+    
+    
+    # Main design info seller panel
+    W2:text(2, "Ожидание заказа", vec2(256, 38), 36, 1)
+    
+    W2:text(4, "Подождите, пока кто-нибудь", vec2(256), 27, 1)
+    W2:text(6, "оставит заказ", vec2(256, 284), 27, 1)
+}
+
+
+# Buttons
+CurUsr = Ents:entity(1)
+Cursor = W1:egpCursor(CurUsr)
+Used1  = changed(CurUsr:keyUse()) & CurUsr:keyUse()
+Used2  = changed(owner():keyUse()) & owner():keyUse()
+
+foreach(I, N:number = Btns)
+{ 
+    local W = N == 44 ? W2 : W1
+    
+    local Pos  = W:egpPos(N)
+    local Size = W:egpSize(N)
+    
+    if(inrange(N == 44 ? W:egpCursor(owner()) : Cursor, Pos - Size / 2, Pos + Size / 2)) 
+    { 
+        W:egpColor(N, Color * 0.93)
+        
+        if(N == 44 ? Used2 : Used1) 
+        { 
+            soundPlay(1, 0.2, "buttons/button14.wav")
+            ("btn_" + Btnf:string(I))()
+        }
+    } 
+    else 
+    { 
+        W:egpColor(N, Color * (0.85 + 0.15 * (N > 9 & N < 17)))
+    }
+}
+
+if(Mode) 
+{ 
+    if(LastMoney != MP["StoredAmount", number]) 
+    { 
+        LastMoney = MP["StoredAmount", number]
+        local LA  = MP["LastAmount", number]
+        
+        if(LA > 0) 
+        { 
+            if(Donated < Summa) 
+            { 
+                local Text = (Donated + LA) + " / " + Summa + "kr"
+                
+                W1:egpSetText(9, Text)
+                W1:egpSetText(10, Text)
+                
+                W2:egpSetText(9, Text)
+                W2:egpSetText(10, Text)
+                
+                Donated += LA
+            }
+            
+            if(Donated >= Summa) 
+            { 
+                W1:prerender()
+                
+                W1:text(2, "Спасибо за покупку", vec2(256, 40), 36, 1)
+                
+                W1:text(4, "Подождите, пока " + owner():name(), vec2(256), 24, 1)
+                W1:text(6, "выносит ваш заказ", vec2(256, 280), 24, 1)
+                
+                Btns:pushNumber(44)
+                Btnf:pushString("done")
+            }
+        }
+    }
+} 
+else 
+{ 
+    for(I = 1, 3) 
+    { 
+        W1:egpColor(7 + I * 3, SellMenu == I ? Color * 0.85 : W1:egpColor(7 + I * 3))
+    }
+    
+    if(inrange(Cursor, vec2(33, 120), vec2(243, 480))) 
+    { 
+        local Id = ceil((Cursor:y() - 12) / 18) - 6
+        local Cn = Data[SellMenu, table][Id, array]
+        
+        W1:egpAlpha(115, 255 * (Cn:number(2) ? 1 : 0))
+        W1:egpPos(115, vec2(138, (Id + 6) * 18 + 2))
+        
+        if(Cn:number(2) & Used1) 
+        { 
+            soundPlay(1, 0.05, "buttons/button15.wav")
+            
+            if(!ShopIds:count()) 
+            { 
+                for(I = 25, 28) 
+                { 
+                    W1:egpRemove(I)
+                }
+            }
+            
+            if(ShopIds:exists(SellMenu + " " + Id)) 
+            { 
+                ShopIds[SellMenu + " " + Id, array][2, number] = ShopIds[SellMenu + " " + Id, array]:number(2) + 1
+            } 
+            elseif(ShopIds:count() < 10)
+            { 
+                ShopIds[SellMenu + " " + Id, array] = array(Cn:string(1), 1, Cn:number(2))
+                SIS:pushString(SellMenu + " " + Id)
+            }
+            
+            resum_list()
+        }
+    }
+    else 
+    { 
+        W1:egpAlpha(115, 0)
+    }
+    
+    
+    if(inrange(Cursor, vec2(272, 140), vec2(482, 396))) 
+    { 
+        local Id = ceil(Cursor:y() / 20) - 7
+        local Cn = ShopIds[SIS:string(Id), array]
+        
+        W1:egpAlpha(160, 255 * (Cn:number(2) ? 1 : 0))
+        W1:egpPos(160, vec2(377, (Id + 7) * 20 - 10))
+        
+        if(Cn:number(2) & Used1) 
+        { 
+            soundPlay(1, 0.05, "buttons/button15.wav")
+            
+            if(Cn:number(2) == 1) 
+            { 
+                ShopIds:remove(SIS:string(Id))
+                SIS:remove(Id)
+            } 
+            else 
+            { 
+                Cn[2, number] = Cn:number(2) - 1
+            }
+            
+            resum_list()
+        }
+    }
+    else 
+    { 
+        W1:egpAlpha(160, 0)
+    }
+}
+
+

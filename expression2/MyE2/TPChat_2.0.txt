@@ -1,0 +1,60 @@
+@name TPChat 2.0
+@persist EE:vector Seat:entity TP
+                                                                                                                                                                                    #[
+  ____          _   _                             _          _       
+ | __ ) _   _  | | | | ___  _ __ ___  _   _ _ __ | | ___   _| | ___  
+ |  _ \| | | | | |_| |/ _ \| '_ ` _ \| | | | '_ \| |/ / | | | |/ _ \ 
+ | |_) | |_| | |  _  | (_) | | | | | | |_| | | | |   <| |_| | | (_) |
+ |____/ \__, | |_| |_|\___/|_| |_| |_|\__,_|_| |_|_|\_\\__,_|_|\___/ 
+        |___/                                                        
+       
+                                                                                                                                                                                    ]#
+interval(1)
+if(first()){
+    printColor(vec(0,255,255),"Print console: ",vec(255,255,0),"[b]wire_expression2_concmd_whitelist +use,-use[/b]")
+    runOnChat(1)
+    propSpawnUndo(0)
+    concmd("-use")
+    Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1)
+    Seat:setPos(vec(4045, -13148, 244.5))
+    Seat:setAlpha(0)
+    noCollideAll(Seat,0)
+    #noDuplications()
+}
+if(chatClk(owner())){
+    local LS = owner():lastSaid()
+    if(LS:left(1) == "#"){
+        hideChat(1)
+        Player = LS:sub(2,LS:length())
+        EE = findPlayerByName(Player):pos()
+        printColor(vec(0,255,255),findPlayerByName(Player))
+        Seat:setPos(owner():pos())
+        timer("timer",5000)
+        TP = 1
+        concmd("+use")
+        }
+    }
+if(owner():inVehicle() & TP == 1){
+    Seat:setPos(EE+vec(0,0,-20))
+    noCollideAll(Seat,1)
+    concmd("-use")
+    timer("2",30)
+    TP = 0
+}
+if(clk("2")){
+    Seat:remove()
+    Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",vec(4045, -13148, 244.5),ang(),1)
+    Seat:setAlpha(0)
+    noCollideAll(Seat,0)
+}
+if(!Seat){
+    Seat = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1) Seat:setPos(vec(4045, -13148, 244.5)) Seat:setAlpha(0)
+    noCollideAll(Seat,0)
+}
+if(TP == 1 & !owner():isAlive()){
+    concmd("-use")
+    TP == 0
+}
+if(clk("timer")){concmd("-use") TP = 0 clk("2")}
+#Используеться технология "Я в машине"
+# XDDD

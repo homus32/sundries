@@ -1,0 +1,83 @@
+@name gui_zone_choose 
+
+if(first()){
+    function vector2 entity:getScrSize(){
+        local CastomSize = This["ScrSize",vector2]
+        local RealSize = egpScrSize(This)
+        
+        if(RealSize == vec2(-1)){
+            return CastomSize
+        }
+        return RealSize
+    }
+    
+    function void entity:zonePanel(Type:string){
+        local Pos = This:getScrSize()/2-vec2(145,67.5)
+        local Type = Type:lower()
+        
+        guiWindow(This,11,Pos-vec2(200),vec2(290,135))
+        
+        switch(Type){
+            case "start",
+                guiSetValue(11,"Box Settings")
+                guiResizeEnable(11,0)
+                guiMaximizeEnable(11,0)
+                guiMinimizeEnable(11,0)
+                guiButton(This,11.001,vec2(10),vec2(130,40))
+                guiSetValue(This,11.001,"privet")
+                guiParent(This,11.001,11)
+                guiButton(This,11.002,vec2(10*15,10),vec2(130,40))
+                guiSetValue(This,11.002,"privet2")
+                guiParent(This,11.002,11)
+                guiRichText(This,11.003,vec2(10,10*3),vec2(70))
+                guiInsertText(This,11.003,"112312323  123123")
+                guiParent(This,11.003,11)
+            break
+        }
+    }
+    
+    owner():zonePanel("start")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

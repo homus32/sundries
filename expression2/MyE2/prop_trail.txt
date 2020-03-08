@@ -1,0 +1,23 @@
+@name Trail   
+@persist E:entity Model:string Holo
+@model models/props_phx/construct/metal_plate2x2.mdl
+interval(1)
+if(first()){
+    E = entity()
+    Model = E:model()
+    Holo = -1
+    for(I=0,100){
+        holoCreate(I,vec(),vec(1),E:angles(),vec(255),Model)
+    }
+}
+
+Holo = (Holo+1)%(100+1)
+for(I=0,100){
+    # Holo - max
+    # I - index holo
+    local Oh = (255/Holo)
+    holoAlpha(I,I*Oh)
+}
+holoPos(Holo,E:pos())
+holoAng(Holo,E:angles())
+

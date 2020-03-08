@@ -1,0 +1,25 @@
+@name For MediaPlayer
+@persist On
+@inputs Entity:entity
+if(first()){
+    runOnTick(1)
+    runOnKeys(owner(),1)
+}
+if(Entity:isValid()&Entity:model() == "models/props_phx/rt_screen.mdl"){
+if(changed(owner():keyPressed("F8"))&owner():keyPressed("F8")){
+    On = !On
+    noCollideAll(Entity,1)
+}}elseif(Entity:isValid()&Entity:model() != "models/props_phx/rt_screen.mdl"){
+    printColor(vec(255,0,0),"Its not Media Player or invalid model!")
+    Entity:remove()
+    entity():remove()
+    exit()
+}
+    
+
+if(On){
+        Entity:setPos(owner():shootPos()+owner():eye()*70-vec(0,0,25))
+        Entity:setAng(ang(owner():eyeAngles():pitch()+180,owner():eyeAngles():yaw(),180))
+}else{
+    Entity:setPos(vec(0))
+}

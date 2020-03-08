@@ -1,0 +1,21 @@
+@name E2 Deleter on GUI
+@persist 
+
+if(first()){
+    runOnGUI(1)
+    runOnKeys(owner(),1)
+    runOnChat(1)
+    
+    function turnGUI(){
+        guiWindow(0,vec2(),vec2(480,450))
+        guiResizeEnable(0,0)
+        guiMaximizeEnable(0,0)
+        guiMinimizeEnable(0,0)
+        guiSetValue(0,entity():name())
+        print(entity():name())
+        SCR = egpScrSize(owner())
+        SCR = vec2(SCR:x()-500,-5)
+        guiPos(0,SCR)
+    }
+    turnGUI()
+}

@@ -1,0 +1,51 @@
+@name Jail Control
+@persist [O]:entity [Entity]:string [Num On Floor A C Cycle]:number 
+interval(100)
+if(first()){
+    runOnChat(1)
+    O = owner()
+    Cycle = 0
+}
+if(chatClk(O)){
+    local LS = O:lastSaid():explode(" ")
+    if(LS:string(1)=="!!jail" & LS:string(2)){
+    Entity = LS:concat(" ",2,LS:count()-1)
+    Num = LS[LS:count(),string]:toNumber()
+    On = 1
+    }
+} 
+if(Num < 120){
+    Floor = (Num/120)
+    A = floor(Floor)
+B = 120*A
+    C = Num-B
+    timer("cycle",100)
+}
+
+if(Cycle<Floor & clk("cycle")){
+    Cycle++
+    print(1)
+    timer("1",100)
+    timer("check",100)
+}elseif(Cycle==Floor & clk("check")){
+    timer("2",100)
+}
+    
+
+
+
+
+
+if(clk("1")){
+    concmd("say ulx jail "+Entity+" "+120)
+    timer("cycle",120*1030)
+}
+if(clk("2")){
+    concmd("say ulx jail "+Entity+" "+C)
+    Cycle = 0
+}
+
+
+#[if( curtime() - Time < 10){...} if( Q:isPlayer() & 
+O:keyReload()&&changed(O:keyReload())){ Time = curtime()}
+]#

@@ -1,0 +1,65 @@
+@persist [E O]:entity Players:array CountPlayers Scale Color:vector Model:string Deviation:vector  Distance T:table
+interval(1)
+if(first()){
+    T = table(
+    entity(), #   E
+    owner(),    #   O
+    players(),  # Players
+    players():count(),  # CountPlayers
+    0.0033,   #   Scale
+    vec(255,0,0), #   Color
+    "models/holograms/hq_cone.mdl",   #   Model
+    vec(0,0,40),    # Deviation
+    4.5   #   Distance
+    )
+    noDuplications()
+    runOnPlayerConnect(1)
+    runOnPlayerDisconnect(1)
+    E:setAlpha(0)
+    E:propDraw(0)
+
+    
+    for(I=1,T[4,number]){
+        holoCreate(I,E:toWorld(vec(0,0,20)),vec(Scale),ang(0,0,0),Color,Model)
+        holoDisableShading(I,1)
+        holoColor(I,teamColor(Players[I,entity]:team()))
+        if(O:isSteamFriend(Players[I,entity])){
+            holoColor(I,vec(255))
+        }
+        if(teamColor(Players[I,entity]:team()) == vec(70,70,70)){
+                    holoColor(I,vec(225))
+            }
+    }
+    
+} else {
+    for(II=1,CountPlayers){
+        if(Players[II, entity]!=O){
+        PlayerPos = Players[II, entity]:pos() + Deviation
+    
+        OPos = O:shootPos()
+    
+        HoloPos = (PlayerPos-OPos):normalized() * Distance + OPos
+        holoPos(II, HoloPos+O:vel()*0.135)
+        holoAng(II,ang(0,0,180))
+        }
+    }
+}
+
+if(first() | playerConnectClk() | playerDisconnectClk()){
+    holoDeleteAll()
+    timer("1",500)
+}
+if(clk("1")){
+    for(I=1,CountPlayers){
+        holoCreate(I,E:toWorld(vec(0,0,20)),vec(Scale),ang(0,0,0),Color,Model)
+        holoDisableShading(I,1)
+        holoColor(I,teamColor(Players[I,entity]:team()))
+        holoAng(I,ang(0,0,180))
+        if(O:isSteamFriend(Players[I,entity])){
+            holoColor(I,vec(255))
+        }
+         if(teamColor(Players[I,entity]:team()) == vec(70,70,70)){
+                    holoColor(I,vec(225))
+            }
+    }
+}

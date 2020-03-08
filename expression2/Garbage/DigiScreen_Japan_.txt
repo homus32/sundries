@@ -1,0 +1,29 @@
+@name DigiScreen Japan 
+@persist W:wirelink
+
+interval(1)
+#include "lib/DS_lib"
+if(first()){
+    W = entity():isWeldedTo():wirelink()
+    W:initScreen(512)
+    Array = table(
+        array(
+            0,
+            0,
+            512,
+            512,
+            vec(255,255,255)
+        )
+    )
+    W:dsBoxArray(Array,512)
+}
+
+if(clk("DSL_good")){
+    if(DSL_good == "box_array_create"){
+        W:dsCircle(256,256,100,vec(255,0,0),512.23)
+        print("circle")
+    }
+}
+if(clk("res")){
+    entity():remoteUpload("DSL_test.txt")
+}

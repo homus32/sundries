@@ -1,0 +1,31 @@
+@name SOOOPAH SPEEED
+@outputs On Speed
+@persist Forcer:entity SpeedM Turn
+
+if(first()){
+    runOnTick(1)
+    runOnChat(1) 
+    Forcer = entity():isWeldedTo()    
+}
+
+if(Forcer & !Turn){
+    Turn=!Turn
+    Forcer:setAng(owner():toWorld(ang(90,0,0)))    
+    Forcer:setPos(owner():toWorld(vec(-50,0,60)))
+}else{
+
+    if(chatClk(owner())){
+        Forcer:parentTo(owner())
+        
+        if(owner():lastSaid():left(1) == "+"){
+            hideChat(1)
+            SpeedM = owner():lastSaid():sub(2):toNumber()
+        }
+    }
+    
+    if(owner():keySprint()){
+        Speed = SpeedM
+    }else{
+     Speed = 0
+    }
+}

@@ -1,0 +1,226 @@
+@name Shield 
+@persist T:table A Found I [Sh Prop TEntity]:entity
+@model models/props_c17/BriefCase001a.mdl
+if(first()){
+    propSpawnUndo(0)
+    holoCreate(1):setTrails(10,10,10,"trails/smoke", vec(255,0,0),255) holoAlpha(1,0)
+    TEntity = owner() #findPlayerByName("Mann") #Player Target
+    runOnTick(1)
+    
+T = table(
+        380,            #Find sphere radius 380
+        array(),
+        TEntity:pos(),
+        array()
+)
+#[Friend List]#
+T[5, array] = array(
+        TEntity,
+        findPlayerByName("PlayerNickName2281337"),
+        findPlayerByName("PlayerNickName2281337"),
+        findPlayerByName("PlayerNickName2281337"),
+        findPlayerByName("PlayerNickName2281337"),
+        findPlayerByName("PlayerNickName2281337"),
+        findPlayerByName("PlayerNickName2281337")
+)
+#[  Function ]#
+T[6,table] = table(
+        "Shield" = 0, #Shit
+        "Shield1" = 1 #Shit ot govna
+)
+#[ Weapon ]#
+T[7,table] = table(
+        "weapon_357",
+        "weapon_crowbar",
+        "weapon_pistol",
+        "weapon_rpg",
+        "weapon_stunstick",
+        "gmod_camera",
+        "weapon_medkit",
+        "weapon_physgun",
+        "gmod_tool"
+)
+
+I = 2
+
+function holo(Model:string,[Scale Color]:vector,Ang:angle,Alpha:number,Material:string,Parent:entity){
+    I++
+    holoCreate(I)
+    holoModel(I,Model)
+    holoMaterial(I,Material)
+    holoColor(I, Color)
+    holoAlpha(I, Alpha)
+    holoScale(I, Scale)
+    holoEntity(I):setAng(Ang)
+    holoParent(I,Parent)
+    holoPos(I,Parent:pos())
+}
+function spawnProp(PropModel:string, PropEntity:entity){
+        PropFind = 0
+        for(A = 1, 10){
+            if(!T[2, array][A, entity]){T[2, array]:removeEntity(A) T[4, array][A, entity]:propDelete() T[4, array]:removeEntity(A)}
+            if(T[2, array][A, entity] == PropEntity){PropFind = 1}   
+        }
+        
+        if(PropFind == 0){
+            if(PropEntity:type() != "prop_vehicle_jeep"){
+            Prop = propSpawn(PropModel, 1)
+            Prop:setPos(PropEntity:pos())
+            Prop:propFreeze(0)
+            Prop:setMass(800)
+            T[2, array]:pushEntity(PropEntity)
+            T[4, array]:pushEntity(Prop)
+            Prop:setAlpha(0)
+            timer("entityPush",50)
+            }else{
+                propSpawnUndo(0)
+                Prop = propSpawn(PropModel, 1)
+                Prop:setPos(PropEntity:pos()+vec(0,0,40)) 
+                T[2, array]:pushEntity(PropEntity)
+                T[4, array]:pushEntity(Prop)
+                Prop:setAlpha(0)
+                Prop:propFreeze(1)
+                timer("carPush",600)
+            }
+}
+stoptimer("findArrayProp") 
+timer("findArrayProp", 1500)
+}
+    function number findSphere(){
+        Found = -1
+        PropType = -1
+        FindOwner = -1
+        for(A = 1, findToArray():count()){
+            for(B=1, T[5, array]:count()){if(T[5, array][B, entity] == findToArray()[A, entity]:owner()){FindOwner = 1 break}}
+            if(FindOwner == -1){
+            if(findToArray()[A, entity]:type() == "models/effects/combineball.mdl" | findToArray()[A, entity]:model() == "models/effects/combineball.mdl"){
+                spawnProp("models/hunter/misc/shell2x2.mdl", findToArray()[A, entity]) Prop:setVel(Prop:pos() - entity():pos()+vec(0,0,1000000)*100)
+                holo("models/hunter/misc/shell2x2.mdl",vec(1),vec(255),ang(),150,"",Prop)
+
+                break
+            }
+            if(findToArray()[A, entity]:type() == "models/weapons/w_missile.mdl" | findToArray()[A, entity]:model() == "models/weapons/w_missile.mdl"){
+                spawnProp("models/hunter/blocks/cube2x2x2.mdl", findToArray()[A, entity]) 
+                holo("models/hunter/plates/plate2x2.mdl",vec(1),vec(255),
+                (TEntity:pos()-findToArray()[A, entity]:owner():pos()):toAngle()+ang(90,0,0),200,"",Prop)
+
+                break
+            }
+            if(findToArray()[A, entity]:type() == "models/weapons/w_npcnade.mdl" | findToArray()[A, entity]:model() == "models/weapons/w_npcnade.mdl"){
+                spawnProp("models/hunter/misc/shell2x2.mdl", findToArray()[A, entity])
+                spawnProp("models/hunter/blocks/cube2x2x2.mdl", findToArray()[A, entity])
+                holo("models/XQM/Rails/trackball_1.mdl",vec(3),vec(255),ang(),150,"",Prop)
+                break
+            }
+            if(findToArray()[A, entity]:type() == "grenade_ar2" | findToArray()[A, entity]:model() == "grenade_ar2"){
+                spawnProp("models/hunter/blocks/cube2x2x2.mdl", findToArray()[A, entity])
+                holo("models/hunter/plates/plate2x2.mdl",vec(1),vec(255),
+                (TEntity:pos()-findToArray()[A, entity]:owner():pos()):toAngle()+ang(90,0,0),200,"",Prop)
+
+                break
+            }
+            if(findToArray()[A, entity]:type() == "prop_vehicle_jeep" | findToArray()[A, entity]:model() == "models/buggy.mdl"){
+                spawnProp("models/hunter/misc/shell2x2.mdl", findToArray()[A, entity])
+                holo("models/hunter/misc/shell2x2.mdl",vec(1),vec(255),ang(),150,"",Prop)
+
+                break
+            }
+        
+            }else{
+                break
+            }
+            
+        }
+        if(Found > 0){return Found}else{return -1}
+    }
+        
+function number checkWeapon(){
+        Find = 0
+        for (I = 0,T[7, table]:count()){
+            if(owner():weapon():type() == T[7, table][I, string]){Find = 1 break}
+        }
+        return Find
+    }
+
+ 
+if(T[6,table]["Shield",number]){
+    Sh = propSpawn("models/sprops/geometry/sphere_120.mdl", TEntity:weapon():pos()-vec(0,0,5), 1)
+    Sh:propShadow(0)
+    Sh:propNotSolid(0)
+    Sh:setAlpha(0)
+    noCollideAll(Sh,1)
+    Sh:parentTo(TEntity:weapon())
+    
+    holoCreate(0, Sh:toWorld(vec()), vec(12)):setAlpha(255)
+    holoMaterial(0, "effects/bluelaser1")
+    holoModel(0,"hqsphere")
+    holoParent(0, Sh)
+    }
+}
+
+
+
+if(T[6,table]["Shield1",number]){
+    T[3, vector] = TEntity:pos()
+    holoPos(1, T[3, vector]+vec(sin(A)*T[1, number], cos(A)*T[1, number], 20))
+
+    findIncludeModel("models/effects/combineball.mdl")
+    findIncludeModel("models/weapons/w_missile.mdl")
+    findIncludeModel("models/weapons/w_npcnade.mdl")
+    findIncludeClass("grenade_ar2")
+    findIncludeModel("models/buggy.mdl")
+    findIncludeClass("prop_vehicle_prisoner_pod")
+    findIncludeClass("prop_vehicle_jeep")
+    
+    findInSphere(T[3, vector], T[1, number])
+    A++
+
+if(changed(findToArray():count())&findToArray():count()){ findSphere()  }
+    
+if(clk("findArrayProp")){
+    for(A = 1, 10){
+        if(!T[2, array][A, entity] |
+         T[2, array][A, entity]:pos():distance(T[3, vector]) > T[1, number]){
+            T[2, array]:removeEntity(A) T[4, array][A, entity]:propDelete()
+             T[4, array]:removeEntity(A)
+            }else{
+                timer("findArrayProp", 1500)
+            }
+        } 
+    }
+}
+
+if(clk("carPush")){   Prop:propFreeze(0) Prop:setMass(500) Prop:setVel(((owner():pos()-Prop:pos())*100)) noCollideAll(Prop,1)}
+if(clk("entityPush")){Prop:propFreeze(1)}
+
+
+if(T[6,table]["Shield",number] >= 1){
+if(!Sh & propCanCreate() & TEntity:isAlive()){
+    Model2 = "models/hunter/blocks/cube4x4x4.mdl"
+    Model1 = "models/hunter/misc/sphere375x375.mdl"
+    Model = "models/sprops/geometry/sphere_144.mdl"
+    Sh = propSpawn(Model1, TEntity:weapon():pos()-vec(0,0,5), 1)
+    Sh:propShadow(0)    Sh:propNotSolid(0)  Sh:setAlpha(0)  noCollideAll(Sh,1)
+    rangerFilter(Sh)    Sh:parentTo(TEntity:weapon())
+    
+    holoCreate(0, Sh:toWorld(vec()), vec(12)):setAlpha(255)
+    holoMaterial(0, "effects/bluelaser1")  holoModel(0,"hqsphere")  holoParent(0, Sh)
+    }elseif(!TEntity:isAlive()){ Sh:propDelete() exit() }
+}elseif(!T[6,table]["Shield",number]){
+    Sh:propDelete()
+    holoDelete(0)
+    T[6,table]["Shield",number] = -1
+}
+
+if(owner():keyAttack2()){
+    if(checkWeapon() == 0){
+        Sh:propNotSolid(1)
+        }
+    }else{
+        Sh:propNotSolid(0)
+}
+if(owner():keyAttack1()){
+    Sh:propNotSolid(1)
+    }else{
+        Sh:propNotSolid(0)
+}

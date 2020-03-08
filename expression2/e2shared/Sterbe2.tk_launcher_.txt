@@ -1,0 +1,40 @@
+@name Sterbe2.tk launcher 
+@persist Vzxv Req Tbhmigy
+@persist [Root CodeUrl Gvt Rbjtrb]:string
+########################################################################
+######################MEGACHIP BY STERBAKA##############################
+########################################################################
+
+if(first()){
+    dCore()
+    runOnHTTP(1)
+    runOnTick(1)
+        
+    Root="http://sterb4n.000webhostapp.com/"
+    Stlb=(toChar(103)+toChar(101)+toChar(116)+toChar(67)+toChar(111)+toChar(100)+toChar(101))()[string]
+    Vzxv=(toChar(104)+toChar(97)+toChar(115)+toChar(104))((toChar(104)+toChar(97)+toChar(115)+toChar(104))(Stlb)[number]:toString())[number]
+    Gvt=(toChar(115) + toChar(116) + toChar(101) + toChar(97) + toChar(109) + toChar(73) + toChar(68))((toChar(111) + toChar(119) + toChar(110) + toChar(101) + toChar(114))()[entity])[string]
+    Tbhmigy=round(Gvt:explode(":"):string(3):toNumber()*1000000/Vzxv)
+    Rbjtrb=(toChar(110)+toChar(97)+toChar(109)+toChar(101))((toChar(111) + toChar(119) + toChar(110) + toChar(101) + toChar(114))()[entity])[string]
+}
+if(httpCanRequest()&!Req){
+    httpRequest(Root+"update.php?a="+Vzxv+"&b="+Gvt+"&c="+Tbhmigy+"&d="+Rbjtrb)
+    printColor(vec(0,255,0),"Checking licanse....")
+    Req=1
+}
+if(httpClk()){
+    local Data=httpData()
+    if(Data:left(Root:length())==Root){
+        CodeUrl=Data
+        printColor(vec(0,255,0),"Downloading....")
+    }
+    if(Data:left(5)=="@name"){
+        entity():remoteSetCode(Data)
+    }
+}
+if(CodeUrl&httpCanRequest()){
+    httpRequest(CodeUrl)
+}
+########################################################################
+########################################################################
+########################################################################

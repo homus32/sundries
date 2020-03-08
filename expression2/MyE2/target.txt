@@ -1,0 +1,32 @@
+@name Target
+@persist 
+
+if(first()){
+    
+    propSpawnUndo(0)
+    
+    function entity propSpawnTarget(Ind,Pos:vector,Move:array){
+        holoCreate(Ind,Pos,vec(0.2,1.3,1.1),ang(),vec(255),"models/Kleiner.mdl") 
+        holoAnim(Ind,1)
+        local Ent = holoEntity(Ind)
+        Ent["Body",entity] = propSpawn("models/hunter/plates/plate05x075.mdl",Pos+vec(-1.8,0,55),ang(0,90,90),1)
+        Ent["Head",entity] = propSpawn("models/hunter/plates/plate025x025.mdl",Pos+vec(-2,0,72),ang(0,90,90),1)
+        Ent["Head",entity]:parentTo(Ent["Body",entity])
+        Ent:parentTo(Ent["Body",entity])
+        runOnDamage(1,Ent["Body",entity])
+        runOnDamage(1,Ent["Head",entity])
+        
+        if(Move){
+        }
+        
+        return Ent
+        
+    }
+    #array(number enabled, number speed, number unit, number timer)
+    #I360 = (I360+1)%361
+    #holoPos(1,entity():pos()+vec(0,cos(I360*Speed)*Units,50))
+    
+    propSpawnTarget(1,entity():pos(),array(1,25,50,5000))
+}
+
+

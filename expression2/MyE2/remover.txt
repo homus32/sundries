@@ -1,0 +1,11 @@
+@name Remover
+
+if(first()){
+    runOnKeys(owner(),1)
+}
+
+if(owner():keyWalk()&keyClk(owner()) == 1){
+    local Ent = owner():aimEntity()
+    #Ent:remove()
+    print(Ent)
+}

@@ -1,0 +1,28 @@
+@name Jump Fly 
+@persist Owner:entity
+interval(40)
+if(first()){
+    runOnLast(1)
+    #Owner = owner()
+    
+    #Black List
+    local BL = array(
+    findPlayerByName("artur2003"),
+    findPlayerByName("VokGog"),
+    findPlayerByName("sans")
+    )
+
+    foreach(I,E:entity = BL){
+    E["BList",number] = 1
+    }
+}else{
+    foreach(K,Owner:entity = players()){
+    if(Owner:keyJump() & Owner["BList",number] == 0){
+        #Owner:setVel(vec(0,0,50)+vec(10*Owner:keyForward(),0,0):rotate(Owner:eyeAngles()))
+        Owner:setVel(vec(0,0,50)+Owner:forward()*((Owner:keyForward()*10)*Owner:keySprint()*2))
+    }
+    }
+}
+if(last()){
+    foreach(I,E:entity = players()){ E["BList",number] = 0 }
+}

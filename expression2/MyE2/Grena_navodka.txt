@@ -1,0 +1,26 @@
+@name Cheater
+interval(100)
+if(first()){ propSpawnUndo(0) findExcludePlayer(owner()) }
+findByClass("npc_grenade_frag")
+foreach(I,E:entity = findToArray()){
+    if(E:owner() == owner()){
+        if(!E["isParent?",number] & propCanCreate()){
+            findByClass("player")
+            if(findToArray():count() == 0){ exit() }
+            P = propSpawn(E:model(),E:pos(),E:angles(),0),E:parentTo(P),P:propDraw(0),P:removeOnDelete(E),P:propNotSolid(1),E:propNotSolid(1),E:propDraw(0)
+            E:setTrails(10,3,2,"trails/laser",vec(255,150,0),150)
+            E["Ent",entity] = P
+            E["Target",entity] = findClosest(owner():aimPos())
+            E["isParent?",number] = 1
+        }else{
+            if(E["Target",entity]:isAlive()){
+                E["Ent",entity]:propFreeze(0)
+                E["Ent",entity]:setVel(((E["Target",entity]:pos() - E:pos())*20)+vec(0,0,1100))
+            }else{
+                findByClass("player")
+                findClipToEntity(E["Target",entity])
+                E["Target",entity] = findClosest(E:pos())
+            }
+        }
+    }
+}

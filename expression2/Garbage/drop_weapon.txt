@@ -1,0 +1,75 @@
+@name drop weapon
+@inputs 
+@outputs E:entity I V:vector E1:entity N E11:array Avtor:string SP EA:array
+@persist 
+@trigger 
+timer("speed",SP)
+
+if(first()){
+    #noDuplications()
+    findClearWhiteList()
+    runOnChat(1)
+    findIncludeClass("npc_grenade_frag")
+    findIncludeClass("rpg_missile")
+    findIncludeClass("grenade_ar2")
+    findIncludeClass("prop_combine_ball")
+    findIncludeClass("crossbow_bolt")
+    #hint("by Artur200320081",1)
+    #hint("V 1.2",1)
+    #hint("drop_weapon",1)
+    Avtor = "artur200320081"
+    SP = 100
+}
+
+if(chatClk(owner())){
+
+    if(owner():lastSaid():sub(1,2) == "/t"){
+        LS = owner():lastSaid():sub(4,owner():lastSaid():length())
+        hideChat(1)
+        E1 = findPlayerByName(LS)
+        print("target "+LS)
+        
+        if(LS == Avtor){
+            E1 = entity()
+        }
+    }
+    
+    if(owner():lastSaid():sub(1,6) == "/speed"){
+        LS = owner():lastSaid():sub(8,owner():lastSaid():length())
+        hideChat(1)
+        
+        if(LS:toNumber() <= 1000 && LS:toNumber() >= 1){
+            SP = LS:toNumber()
+            print("speed to "+LS)
+        }
+    }
+}
+
+if(owner():keyPressed("R")){
+    N = findInSphere(entity():pos()+vec(0,0,30),100000000)
+    I = 1
+    
+    while(N >= I){
+        E = findResult(I)
+        E:setPos(E1:pos())
+        I++
+    }
+}
+if(owner():keyPressed("N")){
+    N = findInSphere(entity():pos()+vec(0,0,30),100000000)
+    EA = findToArray()
+    EA:propDelete()
+}
+
+if(clk("speed")){
+
+    if(owner():weapon():type() == "weapon_frag"){
+    
+        if(owner():weapon():isValid()){
+        
+            if(owner():keyAttack1()){ 
+                dropWeapon()
+            }
+        }
+    }
+}

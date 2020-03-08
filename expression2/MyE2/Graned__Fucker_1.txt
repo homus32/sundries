@@ -1,0 +1,29 @@
+@persist I
+if(first()){
+    runOnTick(1)
+    findIncludeClass("grenade_ar2")
+    findIncludeModel("models/crossbow_bolt.mdl")
+    findIncludeClass("prop_combine_ball")
+    findIncludeModel("models/weapons/w_missile.mdl")
+    findIncludeModel("models/weapons/w_npcnade.mdl")
+}
+
+findInSphere(vec(),10000000)
+if(findToArray():count() >= 1){
+    foreach(I,E:entity = findToArray()){
+#        if(E:type() == "prop_combine_ball"){
+            I++
+            E:setAlpha(0)
+            holoCreate(I)
+            holoAng(I,E:vel():toAngle()+ang(0,90,90))
+            holoModel(I,"models/props_phx/rocket1.mdl")
+            holoScale(I,vec(0.1))
+            holoParent(I,E)
+            holoPos(I,E:pos()-E:forward()*10)
+            #holoEntity(I):removeOnDelete(E)
+#        }else{
+#           #E:setModel("models/props_junk/watermelon01.mdl")
+#            E:setModel("models/props_phx/ww2bomb.mdl")
+#        }
+    }
+}

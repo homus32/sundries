@@ -1,0 +1,37 @@
+@name ModelMaker
+@persist Models:array
+interval(40)
+if(first()){
+Models = array(
+"models/dog.mdl",
+"models/gman_high.mdl",
+"models/Kleiner.mdl",
+"models/monk.mdl",
+"models/Zombie/Classic.mdl",
+"models/Combine_Strider.mdl",
+"models/Zombie/Poison.mdl",
+"models/antlion_guard.mdl",
+"models/Combine_Super_Soldier.mdl",
+"models/Humans/Charple02.mdl",
+"models/vortigaunt.mdl",
+"models/Humans/Group01/Male_01.mdl",
+"models/Eli.mdl",
+"models/Zombie/Classic_torso.mdl",
+"models/Humans/corpse1.mdl",
+"models/Combine_turrets/Floor_turret.mdl",
+"models/Zombie/Classic_legs.mdl",
+"models/Gibs/Fast_Zombie_Legs.mdl",
+"models/Humans/Group02/Male_01.mdl",
+"models/AntLion.mdl",
+"models/antlion_guard.mdl"
+)
+
+#for(I=1,players():count()){ players()[I,entity]:setModel(Models[randint(Models:count()),string]) }
+#Models[randint(Models:count()),string]
+
+}
+if(changed(owner():keyAttack1())&owner():keyAttack1()&owner():weapon():type() == "weapon_crowbar"){
+    local Ent = owner():aimEntity()
+    Ent:setModel(Models[randint(Models:count()),string])
+    Ent:setAlpha(255)
+}

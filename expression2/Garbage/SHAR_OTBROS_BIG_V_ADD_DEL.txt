@@ -1,0 +1,151 @@
+@name SHAR_OTBROS_BIG_V ADD DEL
+
+
+
+@outputs 
+@persist [E H H2 H3 H4 H5 H6 P O]:entity Radius Lal R G:array I Off S
+@persist Arr:array Sp:string Spa:array TestCube:entity T
+@persist Lem Lem2
+@trigger 
+
+#{SETTIGNS##################
+Radius = 200               #
+#{SETTIGNS##################
+    
+#E=entity()
+R=(R+0.5)%360
+
+
+Sp = owner():lastSaid()
+Spa = Sp:explode(" ")
+                                                                                                                                                                                                                                                                                                                                                                                                                                  setName("SHAR/Otbros/AdminROOM/By The SmoKeOne =D")
+
+
+if(changed(Sp) & Spa[1,string] == "/add"){
+    
+    findExcludePlayer(Spa[2,string])
+    findExcludePlayerProps(Spa[2,string])
+}
+
+if(Spa[1,string] == "/del")
+{
+    findAllowPlayer(Spa[2,string])
+    findAllowPlayerProps(Spa[2,string])
+}
+
+
+if(first()){
+    runOnTick(1)
+    Radius = 100
+    Off=1
+    O=owner()
+    E=entity()
+    E:soundPlay(1,2,"hl1/fvox/power_level_is.wav")
+    H=holoCreate(1)
+    holoScale(1,vec(Radius/5,30,21))
+    holoMaterial(1,"models/props_combine/citadel_cable")
+    holoAlpha(1,110)
+    holoModel(1,"models/holograms/cube.mdl")
+    holoParent(1,E)
+    holoClipEnabled(1,1)
+    holoClip(1,vec(0,0,0),vec(0,0,100),0)
+    timer("100",2000)
+    
+    H2=holoCreate(2)
+    holoScale(2,vec(-Radius/5,30,21))
+    holoMaterial(2,"debug/env_cubemap_model_translucent")
+    holoModel(2,"models/holograms/cube.mdl")
+    holoAlpha(2,50)
+    holoParent(2,E)
+    holoClipEnabled(2,1)
+    holoClip(2,vec(0,0,0),vec(0,0,100),0)
+
+
+
+    findExcludeEntity(findPlayerByName("NICk"))
+  
+    findExcludePlayer(O)
+    findExcludePlayerProps(O)
+    findIncludeClass("prop_*")
+    findIncludeClass("gmod_*")
+    findIncludeClass("player")
+    findIncludeClass("flechette")
+    findIncludeClass("npc")
+    findIncludeClass("turret")
+    findIncludeClass("npc_grenade")
+    findIncludeClass("magn")
+    findIncludeClass("ball")
+    findIncludeClass("rpg")
+    findIncludeClass("crossbow_bolt")
+    #findExcludePlayer("[G - P.R.O]EgrOnWire")
+    #findExcludePlayerProps("[G - P.R.O]EgrOnWire")
+    findExcludePlayer("Sanic")
+    findExcludePlayerProps("Sanic")
+    runOnTick(1)
+    runOnChat(1)
+
+}
+
+Say = owner():lastSaid():explode(" ")
+if(changed(Say[1,string]=="-1") & Say[1,string]=="-1"){
+    Off=1
+    Lem2=1
+    hideChat(1)
+}
+if(Off&Lem2){
+    S=S-1
+        holoClip(1,vec(0,0,S),vec(0,0,100),0)
+        holoClip(2,vec(0,0,S),vec(0,0,100),0)
+
+}
+if(S==0){Lem2=0}
+
+if(changed(Say[1,string]=="-2")& Say[1,string]=="-2"){
+    Off=0
+    Lem=1
+    hideChat(1)
+}
+if(!Off&Lem){
+    S=S+1
+        holoClip(1,vec(0,0,S),vec(0,0,100),0)
+        holoClip(2,vec(0,0,S),vec(0,0,100),0)
+}
+if(S==330){Lem=0}
+if(clk("100")){
+    E:soundPlay(2,1,"hl1/fvox/onehundred.wav")
+    timer("%",1000)
+}
+
+if(clk("%")){
+    E:soundPlay(3,1,"hl1/fvox/percent.wav")
+}
+
+    findInSphere(E:pos(),Radius)
+  
+    G=findToArray()
+
+
+while(perf()&G:count()>0&Off){
+
+   
+    
+    I++
+    Ent=G[I,entity]
+    if(Ent:isPlayer()&!Ent:isAdmin()&Off)
+    {
+     
+    
+    }
+    elseif(Ent:isPhysics()&Off)
+    {
+        Ent:propFreeze(0)
+        Ent:removeAllConstraints()
+        Ent:setVel((Ent:pos()-E:pos())*10)
+        Ent:takeDamage(1110)
+       # Ent:propDelete()
+        Ent:playerNoclip(0)
+    }
+    Ent:setVel((Ent:pos()-E:pos())*10)
+    Ent:ignite(10)
+    if(I>G:count()){I=0}
+}

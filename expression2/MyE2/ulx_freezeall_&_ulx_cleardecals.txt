@@ -1,0 +1,7 @@
+@name ulx freezeall & ulx cleardecals
+@model models/props_junk/Shovel01a.mdl
+entity():setMass(500000)
+entity():propFreeze(0)
+if(first() | clk("decals")){timer("decals",0.30*60000) concmd("ulx cleardecals")}
+if(first() | clk("freeze")){timer("freeze",6*60000) concmd("ulx freezeall")}
+

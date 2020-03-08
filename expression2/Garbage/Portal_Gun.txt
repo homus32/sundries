@@ -1,0 +1,41 @@
+@name Portal Gun
+@persist [Portal1 Portal2]:entity [Portal1W Portal2W]:entity [P1Pos P2Pos]:vector Relay RelayP
+
+if(dupefinished()){reset()}
+interval(0)
+if(first()){Portal1W=seatSpawn("models/hunter/tubes/tube1x1x2.mdl",entity():toWorld(vec(60,0,0)),ang(0,0,0),1) Portal2W=seatSpawn("models/hunter/tubes/tube1x1x2.mdl",entity():toWorld(vec(-60,0,0)),ang(0,0,0),1)                                                                                                                                                                                                                                                                                                                                                                                                                                                          #setName(entity():getName()+" by Oria")                                                                                                                                                                                                                                                                                                                              
+noCollideAll(Portal1W,1) noCollideAll(Portal2W,1) Portal2W:setAlpha(0) Portal1W:setAlpha(0)}
+
+if(first()){Portal1=propSpawn("models/hunter/plates/plate025.mdl",entity():toWorld(vec(60,0,0)),1) Portal2=propSpawn("models/hunter/plates/plate025.mdl",entity():toWorld(vec(-60,0,0)),1)}
+if(first()){holoCreate(1,Portal1:toWorld(vec(0,0,0)),vec(0.8,0.8,1),ang(0,0,0),vec(255,50,0),"models/hunter/tubes/tube1x1x2.mdl") holoParent(1,Portal1) holoMaterial(1,"models/debug/debugwhite") holoAlpha(1,50)} 
+if(first()){holoCreate(2,Portal2:toWorld(vec(0,0,0)),vec(0.8,0.8,1),ang(0,0,0),vec(0,50,255),"models/hunter/tubes/tube1x1x2.mdl") holoParent(2,Portal2) holoMaterial(2,"models/debug/debugwhite") holoAlpha(2,50) Portal2:setAlpha(0) Portal1:setAlpha(0) noCollideAll(Portal1,1) noCollideAll(Portal2,1)} 
+
+
+if(changed(Portal1W:driver()) & Relay==0){Relay=1 timer("Rela",100) P1Pos=Portal1W:pos() timer("P1S",30) timer("P1E",60) timer("P1B",90)}
+if(changed(Portal2W:driver()) & Relay==0){Relay=1 timer("Rela",100) P2Pos=Portal2W:pos() timer("P2S",30) timer("P2E",60) timer("P2B",90)}
+if(clk("P1S")){Portal1W:setPos(Portal2W:pos())}
+if(clk("P1E")){Portal1W:ejectPod()}
+if(clk("P1B")){Portal1W:setPos(P1Pos)}
+if(clk("P2S")){Portal2W:setPos(Portal1W:pos())}
+if(clk("P2E")){Portal2W:ejectPod()}
+if(clk("P2B")){Portal2W:setPos(P2Pos)}
+if(clk("Rela")){Relay=0}
+if(clk("RelaP")){RelayP=0}
+
+if(changed(owner():keyAttack1()) & owner():keyAttack1() & owner():weapon():type()=="weapon_physcannon"){Portal1:setPos(owner():aimPos()) Portal1W:setPos(owner():aimPos()+vec(0,0,0))}
+if(changed(owner():keyAttack2()) & owner():keyAttack2() & owner():weapon():type()=="weapon_physcannon"){Portal2:setPos(owner():aimPos()) Portal2W:setPos(owner():aimPos()+vec(0,0,0))}
+
+if(!!!Portal1){propDeleteAll() selfDestructAll()}
+if(!!!Portal2){propDeleteAll() selfDestructAll()}
+if(!!!Portal1W){propDeleteAll() selfDestructAll()}
+if(!!!Portal2W){propDeleteAll() selfDestructAll()}
+
+findIncludeModel("models/hunter/blocks/cube05x05x05.mdl")
+findIncludePlayer(owner())
+findByClass("prop_physics")
+Blocks=findToArray()
+for(I=1,Blocks:count()){if(Blocks:entity(I):pos():distance(Portal1W:pos())<50 & RelayP==0){RelayP=1 timer("RelaP",2000) Blocks:entity(I):setPos(Portal2W:pos()+vec(0,50,30))}
+                        if(Blocks:entity(I):pos():distance(Portal2W:pos())<50 & RelayP==0){RelayP=1 timer("RelaP",2000) Blocks:entity(I):setPos(Portal1W:pos()+vec(0,50,30))}}
+
+#if(owner():pos():distance(Portal1W:pos())<100 & RelayP==0){RelayP=1 timer("RelaP",1500) Portal1W:use() P1Pos=Portal1W:pos() timer("P1S",30) timer("P1E",60) timer("P1B",90)}
+#if(owner():pos():distance(Portal2W:pos())<100 & RelayP==0){RelayP=1 timer("RelaP",1500) Portal2W:use() P2Pos=Portal2W:pos() timer("P2S",30) timer("P2E",60) timer("P2B",90)}

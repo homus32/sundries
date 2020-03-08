@@ -1,0 +1,157 @@
+@name ChipGUIVizible
+@outputs List E2:table Cof
+
+if(first()){
+    #noDuplications()
+    
+    runOnGUI(1)
+    runOnKeys(owner(),1)
+    runOnChat(1)
+    
+    function guiStart(){
+        guiWindow(1,vec2(0),vec2(465,200))
+        guiResizeEnable(1,0)
+        guiMaximizeEnable(1,0)
+        guiMinimizeEnable(1,0)
+        guiList(2,vec2(5,0),vec2(150,200))
+        guiList(3,vec2(165,0),vec2(150,200))
+        guiList(4,vec2(325,0),vec2(50,200))
+        guiList(5,vec2(385,0),vec2(50,200))
+        guiList(6,vec2(435,0),vec2(25,200))
+        guiParent(2,1)
+        guiParent(3,1)
+        guiParent(4,1)
+        guiParent(5,1)
+        guiParent(6,1)
+        
+        for(ID=10,16){
+            guiTextbox(ID,vec2(0),vec2(15))
+            guiParent(ID,2)
+            guiButton(ID+1000,vec2(0),vec2(3))
+            guiParent(ID+1000,2)
+            guiTextbox(ID+2000,vec2(0),vec2(15))
+            guiParent(ID+2000,3)
+            guiButton(ID+3000,vec2(0),vec2(3))
+            guiParent(ID+3000,3)
+            guiTextbox(ID+4000,vec2(0),vec2(15))
+            guiParent(ID+4000,4)
+            guiButton(ID+5000,vec2(0),vec2(3))
+            guiParent(ID+5000,4)
+            guiTextbox(ID+6000,vec2(0),vec2(15))
+            guiParent(ID+6000,5)
+            guiButton(ID+7000,vec2(0),vec2(3))
+            guiParent(ID+7000,5)
+            if(ID != 10){
+                guiButton(ID+8000,vec2(0),vec2(18))
+                guiSetValue(ID+8000,"X")
+                guiParent(ID+8000,6)
+            }else{
+                guiButton(ID+8000,vec2(0),vec2(18))
+                guiParent(ID+8000,6)
+            }
+        }
+            guiButton(20,vec2(5,130),vec2(100,30))
+            guiButton(21,vec2(360,130),vec2(100,30))
+            guiTextbox(22,vec2(110,135),vec2(30,15))
+            guiTextbox(23,vec2(215,135),vec2(140,15))
+            guiTextbox(24,vec2(150,135),vec2(55,15))
+            guiSetValue(20,"<")
+            guiSetValue(21,">")
+            guiSetValue(22,"1")
+            guiSetValue(23,"all CPU:")
+            guiSetValue(24,"e2:")
+            guiParent(22,1)
+            guiParent(20,1)
+            guiParent(21,1)
+            guiParent(23,1)
+            guiParent(24,1)
+            guiSetValue(10,"------OwnerName------")
+            guiSetValue(2010,"---ChipName---")
+            guiSetValue(4010,"--OPS--")
+            guiSetValue(6010,"--CPU--")
+            SRC = egpScrSize(owner())
+            SRC = vec2(SRC:x()-480,-10)
+            guiPos(1,SRC)
+            timer("e2",1)
+        }
+    
+    function updataE2(){
+        SUM = 0
+        for(I=1,6){
+            Array = E2[List*6+I,array]
+            guiSetValue(I+10,Array[1,string])
+            guiSetValue(I+2010,Array[2,string])
+            if(Array[3,number]){
+                guiSetValue(I+4010,Array[3,number]:toString())
+            }else{
+                guiSetValue(I+4010,"")
+            }
+            if(Array[4,number]){
+                guiSetValue(I+6010,Array[4,number]:toString())
+            }else{
+                guiSetValue(I+6010,"")
+            }
+        }
+        
+        for(I=1,E2:count()){
+            SUM += E2[I,array][4,number]
+        }
+        
+        guiSetValue(23,"all CPU: "+SUM)
+        guiSetValue(24,"e2: "+E2:count())
+    }
+    
+    guiStart()
+} 
+
+if(chatClk(owner())){
+    if(owner():lastSaid() == "/guie2"){
+        hideChat(1)
+        guiStart()
+    }
+}
+
+if(guiClk(owner())){
+    ID = guiId()
+    if(ID == 20){
+        List--
+        if(List < 0){
+            List = 0
+        }
+        
+        guiSetValue(22,(List+1):toString())
+        updataE2()
+    }
+    
+    if(ID == 21){
+        List++
+        guiSetValue(22,(List+1):toString())
+        updataE2()
+    }
+    
+    if(ID > 8010 && ID <= 8016){
+        entity(E2[List*6+(ID-8010),array][5,number]):propDelete()
+        timer("e2",1)
+    }
+}
+    
+if(clk("e2")){
+    timer("e2",1000)
+    findByClass("gmod_wire_expression2")
+    E2 = table()
+    
+    foreach(K,E:entity = findToArray()){
+        E2[E2:count()+1,array] = array(E:owner():name(),E:getName(),E:ops(),floor(E:cpuUsage()*1000000),E:id())
+    }
+    
+    updataE2()
+}
+
+if(keyClk(owner())){
+    if(owner():keyWalk()){
+        guiEnableMouse(owner(),1)
+    }else{
+        guiEnableMouse(owner(),0)
+    }
+}
+

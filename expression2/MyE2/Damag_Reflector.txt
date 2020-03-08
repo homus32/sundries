@@ -1,0 +1,13 @@
+@name Damag Reflector 
+runOnHook("PlayerHurt",1)
+if(hookArgs():entity(1) == owner() & hookArgs():entity(2) != findPlayerByName("VIZIRII")){
+    local Att = hookArgs():entity(2)
+    local HP = hookArgs():number(4)
+    local MeHP = hookArgs():number(3)
+    local PlusHP = owner():maxHealth()-MeHP
+    if(hookArgs():entity(2) != owner()){
+        Att:takeDamage(HP,owner():getDamageType()),Att:playerNoclip(0),Att:propFreeze(0)
+        Att:setVel(vec(0,0,owner():getDamageType() == "blast" ? HP*1.4 : HP/2.5)-Att:eye()*7*HP)
+    }
+    owner():setHealth(owner():health()+PlusHP),owner():setArmor(255)
+}

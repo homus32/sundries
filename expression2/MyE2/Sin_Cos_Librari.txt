@@ -1,0 +1,178 @@
+
+#[@name 
+@persist I360 
+interval(100)
+I360 = (I360+1)%360
+holoCreate(I360)
+holoPos(I360,entity():pos()+vec(sin(I360)*200,cos(I360)*200,10))
+holoAng( I360 , holoEntity(I360):angles()+( entity():pos() - holoEntity(I360):pos() ):toAngle() )
+holoColor(I360,hsv2rgb(I360*10%360,1,1))
+]#
+
+#[@name 
+@persist I360 
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate(I360)
+holoPos(I360,entity():pos()+vec(sin(I360*20)*50,cos(I360*20)*50,I360))
+holoAng( I360 , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoColor(I360,hsv2rgb(I360*10%360,1,1))]#
+
+#[@name 
+@persist I360 
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate(I360)
+holoPos(I360,entity():pos()+vec(sin(I360*2)*(I360*2),cos(I360*2)*(I360*2),I360*3))
+holoAng( I360 , H:angles()+( entity():pos() - H:pos() ):toAngle() )]#
+
+#[
+@name 
+@persist I360 
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate(I360)
+holoPos(I360,entity():pos()+vec(sin(I360*2)*(I360*2),cos(I360*2)*(I360*2),I360))
+holoAng( I360 , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I360 , vec(I360/100) )]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*2)*(I360/10),cos(I360*2)*(I360/10),I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(I360/200) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*2)*50,cos(I360*2)*50,I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(I360/200) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*5)*50-I360,cos(I360*5)*50-I360,I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.1,0.4,0.6) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(60)
+I360++
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*5)*50,cos(I360*5)*50,I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*5)/(I360),cos(I360*5)/(I360),I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.1,0.4,0.6) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*5)*(I360/(I360*0.1)),cos(I360*5)*(I360/(I360*0.1)),I360/10))
+holoAng( I , ang(I360) )
+holoScale( I , vec(0.1,0.4,0.6) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*5)*20-I360,cos(I360*5)*20-I360,I360/10))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.1,0.4,0.6) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*10)*20,I360,0))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*10)*20,sin(I360*10)*20,50))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(sin(I360*10)*20,sin(I360*10)*20,50+cos(I360*10)*20))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(cos(I360*10)*20,sin(I360*10)*20,50+cos(I360*10)*20))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(cos(I360*10)*20,sin(I360*10)*20,50+sin(I360*10)*20))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+H = holoCreate( I )
+holoPos(I ,entity():pos()+vec(cos(I360*10)*20,cos(I360*10)*20,50+cos(I360*10)*20))
+holoAng( I , H:angles()+( entity():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.2) ) holoColor(I,hsv2rgb(I*10%360,1,1)) I++]#
+
+#[@name 
+@persist I360 I
+interval(100)
+I360 = (I360+1)%360
+if(first()){H = holoCreate( I )}
+holoPos(I ,owner():pos()+vec(cos(I360*10)*50,sin(I360*10)*50,50+sin(I360*10)*10))
+holoAng( I , H:angles()+( owner():pos() - H:pos() ):toAngle() )
+holoScale( I , vec(0.4) ) holoColor(I,hsv2rgb(I*10%360,1,1))]#
+
+
+
+
+
+
+
+
+
+
+
+
+
+

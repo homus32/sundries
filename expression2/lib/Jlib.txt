@@ -1,0 +1,138 @@
+@name Jlib
+@persist 
+#@interval 100
+#wndLIB
+noDuplications()
+if(first()|dupefinished()){
+    
+    # IF
+    
+    function number wirelink:mouseOver( Index ){
+        return inrange( This:egpCursor(owner()) , This:egpPos(Index) - This:egpSize(Index) / 2 , This:egpPos(Index) + This:egpSize(Index) / 2 )
+    }
+    
+    function number wirelink:click( Index ){
+        return changed(owner():keyUse())&owner():keyUse()&This:mouseOver(Index)
+    }
+    
+    
+    # TEXT
+    
+    function wirelink:text( Id , S:string , V:vector2 , C:vector , Size ){
+        This:egpText( Id , S , V ) 
+        This:egpSize( Id , Size )
+        This:egpColor( Id , C )  
+    }
+    
+    function wirelink:centeredText( Id , S:string , V:vector2 , C:vector , Size ){
+        This:egpText( Id , S , V ) 
+        This:egpColor( Id , C )
+        This:egpSize( Id , Size )
+        This:egpAlign( Id , 1 , 1 )   
+    }
+    
+    # BOX
+    
+    function wirelink:box( Id , P:vector2 , S:vector2 , C:vector ){
+        This:egpBox( Id , P , S )  
+        This:egpColor( Id , C )  
+    }
+    
+    function wirelink:boxOutline( Id , P:vector2 , S:vector2 , C:vector , Size ){
+        This:egpBoxOutline( Id , P , S )
+        This:egpColor( Id , C )
+        This:egpSize( Id , Size )    
+    }
+    
+    function wirelink:boxRounded( Id , P:vector2 , S:vector2 , C:vector ){
+        This:egpRoundedBox( Id , P , S )
+        This:egpColor( Id , C )  
+    }
+    
+    function wirelink:boxRoundedOutline( Id , P:vector2 , S:vector2 , C:vector , Size ){
+        This:egpRoundedBoxOutline( Id , P , S )
+        This:egpColor( Id , C )
+        This:egpSize( Id , Size )    
+    }
+    
+    function wirelink:boxMaterial( Id , P:vector2 , S:vector2 , C:vector , M:string ){
+        This:egpBox( Id , P , S )
+        This:egpColor( Id , C )
+        This:egpMaterial( Id , M ) 
+    }
+    
+    
+    function wirelink:boxButton( Id , P:vector2 , S:vector2 , C:vector , St:string , Ct:vector , Size ){
+        This:egpBox( Id , P , S )
+        This:egpColor( Id , C )
+        This:egpText( Id+1 , St , P ) 
+        This:egpSize( Id+1 , Size ) 
+        This:egpAlign( Id+1 , 1 , 1 )
+        This:egpColor( Id+1 , Ct )
+    }
+    
+    # CIRCLE
+    
+    function wirelink:circle( Id , P:vector2 , S:vector2 , C:vector ){
+        This:egpCircle( Id , P , S )
+        This:egpColor( Id , C )         
+    }
+    
+    function wirelink:circleOutline( Id , P:vector2 , S:vector2 , C:vector , Size ){
+        This:egpCircleOutline( Id , P , S )
+        This:egpSize( Id , Size )
+        This:egpColor( Id , C )        
+    }
+    
+    # TRIAGLE
+    
+    function wirelink:triangle( Id , P1:vector2 , P2:vector2 , P3:vector2 , C:vector ){
+        This:egpTriangle( Id , P1 , P2 , P3 )
+        This:egpColor( Id , C )         
+    }
+    
+    function wirelink:triangleOutline( Id , P1:vector2 , P2:vector2 , P3:vector2 , C:vector , Size ){
+        This:egpTriangleOutline( Id , P1 , P2 , P3 )
+        This:egpSize( Id , Size )
+        This:egpColor( Id , C )        
+    }
+    
+    # LINE
+    
+    function wirelink:line( Id , P1:vector2 , P2:vector2 , C:vector , Size ){
+        This:egpLine( Id , P1 , P2 )
+        This:egpColor( Id , C )    
+        This:egpSize( Id , Size )
+    }
+    
+    # FUNC
+    
+    function wirelink:border( Id , Size , C:vector ){
+        This:boxOutline( Id+2 , This:egpPos(Id) , This:egpSize(Id)+vec2(0,1) , C , Size )    
+    }
+    
+    function wirelink:visible( Ids:array , S:string ){
+        if( S=="show" ){
+            foreach( IS , I:number = Ids ){ if( I!=1 ){
+                This:egpAlpha( I , 255 )    
+            }} 
+        }elseif( S=="hide" ){
+            foreach( IS , I:number = Ids ){ if( I!=1 ){
+                This:egpAlpha( I , 0 )    
+            }} 
+        }
+    }
+    
+    function wirelink:alpha( Id , A:number ){
+        This:egpAlpha( Id , A )
+    }
+
+}
+
+
+
+
+
+
+
+

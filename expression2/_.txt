@@ -1,0 +1,11 @@
+@name NewSpawn
+@persist Ent:entity
+
+if(first()){
+    runOnHook("PlayerSpawn",1)
+}
+
+Ent = hookArgs():entity(1)
+if(Ent["spawn",number] == 0){
+    Ent:setPos(entity():pos()+vec(randint(-200,200),randint(-200,200),0))
+}

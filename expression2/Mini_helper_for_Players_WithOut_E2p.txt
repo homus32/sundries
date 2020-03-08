@@ -1,0 +1,139 @@
+@name Mini helper for Players without E2P
+@persist [ Timers BL ]:array Sec:table Command:string Advert
+
+if(first()){
+    runOnChat(1)
+    runOnLast(1)
+    runOnPlayerConnect(1)
+    #noDuplications()
+    
+    Command = "#"
+    Advert = 1
+    
+    Sec = table(
+        "god&ungod" = 80,
+        "noclip" = 60
+    )
+    
+    BL = array(
+        findPlayerBySteamID(""),
+        findPlayerBySteamID(""),
+        findPlayerBySteamID(""),
+        findPlayerBySteamID(""),
+        findPlayerBySteamID(""),
+        findPlayerBySteamID("")
+    )
+    FriendList = array(
+        findPlayerBySteamID("STEAM_0:0:184301941"), #Homus
+        findPlayerBySteamID("STEAM_0:0:212204050"), #Hachipurka
+        findPlayerBySteamID(""),
+        findPlayerBySteamID(""),
+        findPlayerBySteamID("")
+    )
+    
+    foreach(I,E:entity = FriendList){ E["FriendListMiniH",number] = 1 }
+    
+    foreach(I,E:entity = BL){ E["BL",number] = 1 }
+    if(Advert){ concmd("say [c 255,255,0]"+"Включена гребанная хрень на "+Command+"god и "+Command+"noclip[/c]") }
+    
+    function number check(Ent:entity,Timer:string){
+        if(Timers:count() == 0){
+            Timers:pushString(Timer)
+        }
+        foreach(I,S:string = Timers){
+            if(S == Timer){
+                break
+            }elseif(I == Timers:count()){
+                Timers:pushString(Timer)
+            }
+        }
+        
+        foreach(I,S:string = Timers){
+            if(S == Timer){
+                if(owner():team() <= Ent:team()){
+                    if(Ent["BL",number] == 0){
+                        if(Ent[Timer,number] == 0){
+                            return 1
+                        }else{
+                            hideChat(1)
+                            concmd("ulx psay \""+Ent:name()+"\" "+"\"[c 255,170,40]"+"Подождите "+Ent[Timer,number]+" second(s)"+"\"")
+                            return 0
+                        }
+                    }else{
+                        hideChat(1)
+                        concmd("ulx psay \""+Ent:name()+"\" "+"\"[c 255,170,40]"+"Ты в Черном Списке чипа!"+"\"")
+                        return 0
+                    }
+                }else{
+                        hideChat(1)
+                        concmd("ulx psay \""+Ent:name()+"\" "+"\"[c 255,170,40]"+"Иди нахуй :))))) XDDD"+"\"")
+                        return 0
+                }
+            }
+        }   
+    }
+    
+    function setTimer(Timer:string,Ent:entity){
+        foreach(I,S:string = Timers){
+            if(Timer == S){
+                Ent[S,number] =  Sec[S,number]
+                break
+            }
+        }
+    }
+}
+
+if(last()){
+if(Advert){ concmd("say [c 255,80,80]"+"ВЫКЛЮЧЕНА гребанная хрень на "+Command+"god и "+Command+"noclip") }
+foreach(I,E:entity = BL){ E["BL",number] = 0 }
+}
+if(playerConnectClk()){ foreach(I,E:entity = BL){ E["BL",number] = 1 } }
+if(chatClk()){
+    local LS = lastSpoke():lastSaid():lower():explode(" ")
+    local LSEnt = lastSpoke()
+    local Cheack  = LS:concat(" ",1,LS:count()):sub(1,Command:length()) == Command
+
+    if(Cheack){
+        LS = LS:concat(" ",1,LS:count()):replace(Command,""):explode(" ")
+        switch(LS:string(1)){
+            case "god",
+                if(check(LSEnt,"god&ungod")){
+                    if(LSEnt:inGodMode() == 0){
+                        concmd("ulx god \""+LSEnt:name()+"\"")
+                        if(LSEnt["FriendListMiniH",number] != 1){ setTimer("god&ungod",LSEnt) }
+                    }else{ hideChat(1) concmd("ulx psay \""+LSEnt:name()+"\" "+"\"[c 255,170,40]"+"Вы уже в GodMode!"+"\"") }
+                }
+            break
+            
+            case "noclip",
+                if(LSEnt:inNoclip()){
+                    concmd("ulx noclip \""+LSEnt:name()+"\"")
+                }elseif(check(LSEnt,"noclip")){
+                    concmd("ulx noclip \""+LSEnt:name()+"\"")
+                    if(LSEnt["FriendListMiniH",number] != 1){ setTimer("noclip",LSEnt) }
+                }
+            break
+            
+            case "ungod",
+                if(check(LSEnt,"god&ungod")){
+                    if(LSEnt:inGodMode() == 1){
+                        concmd("ulx ungod \""+LSEnt:name()+"\"")
+                        if(LSEnt["FriendListMiniH",number] != 1){ setTimer("god&ungod",LSEnt) }
+                    }else{ hideChat(1) concmd("ulx psay \""+LSEnt:name()+"\" "+"\"[c 255,170,40]"+"У вас нету GodMode!"+"\"") }
+                }
+            break
+        }
+    }
+}
+
+if(clk("tick") | first()){
+    timer("tick",1000)
+    foreach(K,S:string = Timers){
+        foreach(I,Pl:entity = players()){
+            if(Pl[S,number] > 0){
+                Pl[S,number] = Pl[S,number]-1
+            }
+        }
+    }
+}
+

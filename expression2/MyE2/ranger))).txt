@@ -1,0 +1,19 @@
+@name vel
+@inputs Ranger:entity
+
+if(first()){
+    runOnTick(1)
+    runOnKeys(owner(),1,array("f"))
+}
+
+if(Ranger & Ranger:owner():isPlayer() & Ranger:owner() != owner()){
+    local Ar = Ranger:getConstraints()
+    Ar:pushEntity(Ranger)
+    foreach(I,E:entity = Ar){
+        E:setPos(E:pos()+vec(0,0,30))
+    }
+}
+
+if(owner():keyPressed("f") & keyClk(owner()) == 1){
+    entity():isWeldedTo():propFreeze(!entity():isWeldedTo():isFrozen())
+}

@@ -1,0 +1,20 @@
+@name Ruletka
+@persist Mode [ Vec1 Vec2 ]:vector
+if(first()){
+    runOnKeys(owner(),1,array("lalt","r"))
+}
+
+if(changed(owner():keyWalk())&owner():keyWalk()){
+    Mode=!Mode
+    if(Mode){
+        Vec1 = owner():aimPos()
+    }else{
+        Vec2 = owner():aimPos()
+    }
+    print(Vec1:distance(Vec2))
+}
+if(changed(owner():keyReload())&owner():keyReload()){
+    Vec1 = vec()
+    Vec2 = vec()
+} 
+

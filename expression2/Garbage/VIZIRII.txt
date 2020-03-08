@@ -1,0 +1,8 @@
+@name 
+@inputs 
+@outputs 
+@persist Target:entity
+@trigger 
+
+ local Ang = (entity():pos() - Target:attachmentPos("chest") + vec( 0, 0, 15)):toAngle()
+Ang = !Target:isPlayer() ? (entity():pos() - Target:boxCenterW() + vec(0, 0, 15)):toAngle() : Ang

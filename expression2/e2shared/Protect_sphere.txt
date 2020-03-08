@@ -1,0 +1,177 @@
+@name Protect sphere 
+@persist Prop:entity Kara:entity Dist Excl:string Black:string
+                                                                                                                                                                                                                                                                                                                    #[
+
+  ____           ____       _       
+ |  _ \         / __ \     (_)      
+ | |_) |_   _  | |  | |_ __ _  __ _ 
+ |  _ <| | | | | |  | | '__| |/ _` |
+ | |_) | |_| | | |__| | |  | | (_| |
+ |____/ \__, |  \____/|_|  |_|\__,_|
+         __/ |                      
+        |___/ 
+              
+                                                                                                                                                                                               ]#
+interval(100)
+
+if(first()){
+    
+propSpawnUndo(0)
+
+entity():propNotSolid(1)
+
+Dist=600 #Size
+
+timer("kara",500)
+
+    Excl = "" 
+
+    Black = owner():steamID()
+
+holoCreate(1)
+
+holoModel(1,"models/hunter/blocks/cube4x4x4.mdl")
+
+holoParent(1,entity()) 
+
+holoPos(1,entity():pos())
+
+holoScaleUnits(1,vec(Dist)*2) 
+
+holoMaterial(1,"models/props_lab/cornerunit_cloud")
+
+
+holoCreate(2) 
+
+holoModel(2,"models/hunter/blocks/cube4x4x4.mdl") 
+
+holoParent(2,entity()) 
+
+holoPos(2,entity():pos()) 
+
+holoScaleUnits(2,vec(Dist+10)*2) 
+
+holoMaterial(2,"models/wireframe") 
+
+holoColor(2,vec(255,0,0))
+
+
+holoCreate(4) 
+
+holoModel(4,"models/hunter/blocks/cube4x4x4.mdl") 
+
+holoParent(4,entity()) 
+
+holoPos(4,entity():pos()) 
+
+holoScaleUnits(4,vec(Dist+10)*2) 
+
+holoMaterial(4,"models/wireframe") 
+
+holoColor(4,vec(0,255,0))
+
+
+holoCreate(3) 
+
+holoModel(3,"models/hunter/blocks/cube4x4x4.mdl") 
+
+holoParent(3,entity()) 
+
+holoPos(3,entity():pos()) 
+
+holoScaleUnits(3,-vec(Dist)*2) 
+
+holoMaterial(3,"models/wireframe") 
+
+holoColor(3,vec(0,255,0))
+
+}
+if(changed(players():count())){
+    
+    holoVisible(4,players(),0) 
+    
+    foreach(K,P:entity=players()){
+        
+        if(Excl:find(P:steamID())){
+            
+            holoVisible(2,P,0) 
+            
+            holoVisible(4,P,1)
+            
+        }
+     }
+}
+
+if(clk("kara")){
+    
+    timer("kara",500)
+    
+    foreach(K,P:string=Black:explode(",")){
+    
+        if(findPlayerBySteamID(P)){
+    
+            if(findPlayerBySteamID(P):aimPos():distance(entity():pos())<Dist){
+    
+    if(!!!Kara){
+        
+        Kara=propSpawn("models/hunter/plates/plate.mdl",1) 
+    
+        Kara:setMass(999999)
+    
+} 
+
+if(Kara:isFrozen()){
+    
+    Kara:propFreeze(0)
+    
+    } 
+    
+    Kara:setPos(findPlayerBySteamID(P):pos()+vec(0,0,100)) 
+    
+    Kara:setVel(-Kara:vel())
+    
+            }
+            
+        }
+        
+    }
+    
+}
+
+if(!Excl:find("*")){
+    
+    foreach(K,P:entity=players()){
+        
+        if(P:pos():distance(entity():pos())<Dist&!Excl:find(P:steamID())&!P:isVehicle()&!P:hasGodMode()&P:isAlive()){
+            
+        if(!!!Prop){
+            
+        Prop=propSpawn("models/props_junk/harpoon002a.mdl",1) 
+        
+        Prop:setModel("models/props_junk/Shoe001a.mdl") 
+            
+        Prop:setMass(999999)
+        
+}
+
+if(Prop:isFrozen()){
+    
+    Prop:propFreeze(0)
+    
+} 
+    Prop:setVel((P:pos()-Prop:pos()+vec(0,0,30-(P:isCrouch()*15)))*100)
+
+
+
+        }
+        
+    }
+    
+}
+
+if(Prop:pos():distance(entity():pos())>Dist){
+    
+    Prop:setPos(entity():toWorld(vec(0,0,Dist/10)))
+    
+}
+

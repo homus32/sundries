@@ -1,0 +1,93 @@
+@name TPChat 3.9.9
+@persist T:table S:entity Mode
+                                                                                                                                                                                                                                                                                                                                                                                                                                            #[
+  ____          _   _                             _          _       
+ | __ ) _   _  | | | | ___  _ __ ___  _   _ _ __ | | ___   _| | ___  
+ |  _ \| | | | | |_| |/ _ \| '_ ` _ \| | | | '_ \| |/ / | | | |/ _ \ 
+ | |_) | |_| | |  _  | (_) | | | | | | |_| | | | |   <| |_| | | (_) |
+ |____/ \__, | |_| |_|\___/|_| |_| |_|\__,_|_| |_|_|\_\\__,_|_|\___/ 
+        |___/                                                        
+       
+                                                                                                                                                                                                                                                                                                                                                                                                                                            ]#
+if(last()){ concmd("-use") }
+switch(Mode){
+    case 0,
+            Mode++
+                runOnChat(1)
+                noDuplications()
+                runOnLast(1)
+                #holoCreate(1,entity():pos()-vec(0,0,0.3),vec(7.8),ang(),vec(255),"models/bull/gates/processor.mdl") holoSkin(1,0) holoParent(1,entity()) entity():setSkin(1) EE = propSpawn("models/hunter/plates/plate1x1.mdl",entity():pos()+vec(0,0,2),ang(),1) entity():parentTo(EE) EE:propDraw(0) entity():setAlpha(0)
+                propSpawnUndo(0)
+                    concmd("-use")
+                            printColor(vec(0,255,255),"Print console: ",vec(255,255,0),"[b]wire_expression2_concmd_whitelist +use,-use[/b]")
+                            S = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1)
+                                    S:setPos(vec(inf()))
+                                    S:propDraw(0)
+                                        #noDuplications()
+    case 1,
+        if(S){
+            if(chatClk(owner())){
+                local LS = owner():lastSaid()
+                switch(LS){
+                    case "#"+LS:sub(2,LS:length()),
+                    if(LS:length() >= 2&findPlayerByName(LS:sub(2,LS:length())):isValid()&findPlayerByName(LS:sub(2,LS:length())) != owner()){
+                        hideChat(1)
+                            Mode++
+                            T["Return",vector] = owner():pos()
+                                T["EE",entity] = findPlayerByName(LS:sub(2,LS:length()))
+                                    T["TP",number] = 1
+                                        printColor(vec(40,0,170),"You ",vec(151,211,255),"teleported to ",teamColor(T["EE",entity]:team()),T["EE",entity]:name())
+                                            S:setPos(owner():pos())
+                                            timer("timeout",1000)
+                                                concmd("+use")
+                }elseif(LS:left(1) == "#"&LS:length() == 1){ hideChat(1) printColor(vec(255,170,40),"Say: #<player> - Goto Target")
+                        }elseif(findPlayerByName(LS:sub(2,LS:length())) == owner()){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 goto', argument #1: You cannot target this person")
+                                }elseif(LS:left(1) == "#"&LS:length() > 1){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 goto', argument #1: No target found!")}
+    break
+                    case "return#":sub(0,7),
+                        if(T["Return",vector] != vec(0)){
+                                Mode++
+                                    hideChat(1)
+                                        T["TP",number] = 2
+                                            printColor(vec(40,0,170),"You ",vec(151,211,255),"returned ",vec(40,0,170),"Yourself ",vec(151,211,255),"to their original position")
+                                                S:setPos(owner():pos())
+                                                    concmd("+use")
+                                                        timer("timeout",1000)
+                                                        }else{ hideChat(1) printColor(vec(255,170,40),owner():name()+" does not have any previous locations to send them to.")}
+    break
+                                } 
+            }
+        
+        }else{ hideChat(1) S = seatSpawn("models/hunter/blocks/cube4x4x4.mdl",1) S:setPos(vec(inf())) S:propDraw(0)}
+    break
+    case 2,
+        if(S:driver() == owner()&T["TP",number] == 1){
+            T["TP",number] = 0
+                S:setPos(T["EE",entity]:pos()-vec(0,0,100)+T["EE",entity]:forward()*50)
+                    noCollideAll(S,1)
+                        concmd("-use")
+                            timer("remove",30)
+                                }elseif(S:driver() == owner()&T["TP",number] == 2){
+                                            T["TP",number] = 0
+                                                S:setPos(T["Return",vector]-vec(0,0,100))
+                                                T["Return",vector] = vec(0) 
+                                                    concmd("-use")
+                                                        timer("remove",30)
+                                                                }elseif(S:driver() != owner()){S:killPod()}
+    
+        if(clk("timeout")){
+            T["TP",number] = 0
+            T["Timeout",number] = 0
+                 timer("remove",1)
+                    concmd("-use")
+
+    }
+    
+                if(clk("remove")){
+                        Mode = 1
+                            S:ejectPod()
+                                S:setPos(vec(inf()))
+                                    noCollideAll(S,0)
+            }
+    break
+}

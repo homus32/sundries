@@ -1,0 +1,1 @@
+interval(100),findIncludeClass("combine_ball"),findByClass("combine_ball"),findExcludePlayerProps(owner()),findInSphere(owner():pos(),300),find():propFreeze(1)

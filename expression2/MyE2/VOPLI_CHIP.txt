@@ -1,0 +1,86 @@
+@name VOPLI CHIP
+@persist Say:array Die:array Help:array Ent:entity
+
+if(first()){
+    runOnHook("PlayerHurt",1)
+    runOnHook("PlayerDeath",1)
+    setName("ЧИП НА КРИКИ ( ВОПЛИ )")
+    function upd(){
+        if(!Ent:isPlayer()){ Ent = Ent:owner() }
+        Say = array(
+            "ай",
+            "больно",
+            "нинадо "+Ent:name(),
+            "ууой",
+            "айайай",
+            "АОаооауоа",
+            "ООоо.. МММ))) больно",
+            Ent:name()+" гей",
+            "Оо,aaaaa",
+            "МмМ, ооа",
+            "Больше Боли... Ещо",
+            "мм, вкусное оружие",
+            "айбольна",
+            "ай, оо, а у тебя большое оружие, "+Ent:name()
+            )
+                    
+        Help = array(
+            "ААААА ПАМАГИТЕ",
+            "ПАМАГИТЕ, НАСЫЛОВАЦ "+Ent:name(),
+            "НАСИЛУЮт!!!!!!!!!!!!",
+            "помогите, кто-нибудь, ну пожалуйста",
+            "ПОМОГИТЕ, ПАЛАЖАЛУЙСТА НАСЫЛОВАЦ",
+            "АОАООАЫОпО ПАМАГИТЕ ПЭЖЕ",
+            "ПАМАГИТЕ "+Ent:name()+" МИНЯ ПОБИЛ",
+            "ЫОВАЫОАЫВОАЫВОАЫВО ОПАМАГИАТИЕ",
+            "БлЯЯЯ МЕНЯ НАСИЛУЮТ",
+            "ПОМОГИТЕ, "+Ent:name()+" ХОЧЕТ СДАТЬ МЕНЯ В АНАЛЬНОЕ РАБСТВО!",
+            "ПаМоГыДе",
+            "пажалуйста, памагите, я нихачу умырац",
+            "*крик о помощи*",
+            "я пёрнул Ha"+Ent:name(),
+            "всо нимагу больши"
+        )
+        Die = array(
+            "я кончил Ha "+Ent:name(),
+            "*сдох*",
+            "Я стал пажилим",
+            "БЛИН Я СДОХ",
+            "блин, подскользнулся",
+            "Помо... А, неважно",
+            "Какой жестокий мир",
+            "Я сделал suicide, это не ты меня убил, лашпек",
+            "Ок "+Ent:name()+", ты меня побил, поздравляю",
+            "Ай, прям в зад",
+            "Умер от спида",
+            "( ͡° ͜ʖ ͡°)"
+        )
+    }
+}
+
+if(hookClk("PlayerDeath") & hookArgs():entity(1) == owner()){
+    stopAllTimers()
+    timer("die",1000)
+}
+
+if(hookClk("PlayerHurt") & hookArgs():entity(1) == owner() & !(hookArgs():number(3) <= 0)& hookArgs():entity(2) != owner()){
+    local Rand = randint(0,6)
+    Ent = hookArgs():entity(2)
+    upd()
+    #Ent:print(owner():name()+" - "+Say[randint(1,Say:count()),string])
+    concmd("say "+Say[randint(1,Say:count()),string])
+    #print(owner():name()+" - "+Say[randint(1,Say:count()),string])
+    if(Rand == 1 & owner():getDamage() >= 30){
+        timer("help",3000)
+    }
+}
+
+if(clk("die")){
+    #Ent:print(owner():name()+" - "+Die[randint(1,Die:count()),string])
+    concmd("say "+Die[randint(1,Die:count()),string])
+    #print(owner():name()+" - "+Die[randint(1,Die:count()),string])
+}
+
+if(clk("help")){
+    #Ent:print(owner():name()+" - "+Help[randint(1,Help:count()),string])
+}

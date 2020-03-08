@@ -1,0 +1,9 @@
+interval(1)
+owner():setColor(hsv2rgb(curtime()*100%360,1,1)),owner():setMaterial("models/debug/debugwhite")
+A = owner():aimEntity()
+if(owner():keyWalk()){
+A:propDraw(1)
+A:setAlpha(255)
+A:setColor(hsv2rgb(curtime()*100%360,1,1))
+A:setMaterial("models/debug/debugwhite")
+}

@@ -1,0 +1,34 @@
+@name Propspawn array
+@persist EntX:array EntY:array Size:array X Y Amp Prop
+interval(100)
+if(first()){
+propSpawnUndo(0)
+    Size = array(1,2)
+    X = 94
+    Y = 94
+    
+    for(I=1,Size:number(2)){
+        Amp=!Amp 
+        for(I=0,Size:number(1)-1){
+            if(Amp){
+                EntX:pushNumber(I*X)
+            }else{
+                EntX:pushNumber((X*(Size:number(1)-1))-X*I)
+            }
+        }
+    }
+    
+    for(I=0,Size:number(2)-1){
+        local YCount = Y*I
+        for(I=1,Size:number(1)){
+            EntY:pushNumber(YCount)
+        }
+    }
+}
+
+
+if(Prop < Size:number(1)*Size:number(2) & propCanCreate()){
+    Prop++
+    P = propSpawn("models/hunter/blocks/cube2x2x1.mdl",entity():pos()+vec(EntX[Prop,number],EntY[Prop,number],100),ang(),1)
+}
+

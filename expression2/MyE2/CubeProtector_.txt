@@ -1,0 +1,8 @@
+@name CubeProtector 
+@persist
+@inputs 
+if(first()){
+    runOnTick(1)
+    propSpawnUndo(0)
+}
+

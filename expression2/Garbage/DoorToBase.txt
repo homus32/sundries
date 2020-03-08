@@ -1,0 +1,124 @@
+@name DoorToBase
+@inputs 
+@outputs 
+@persist Door:entity [OpenedVec DoorPos]:vector Opened MaxDisOpen Speed SpeedInc Status TimeOut WhiteListEnabled WhiteList:array
+@trigger 
+
+if(first()|dupefinished()){
+
+############config##########
+
+MaxDisOpen = 189    #дистанция открытия двери
+Speed = 10          #В миллиСекундах
+SpeedInc = 0.01     #кол-во прибавляймых юнитов на скорость
+Side = "down"       #сторона (up,down,left,right,forward,back)
+ToWorld = 0         #считать относительно пропа?
+TimeOut = 1         #Время автоЗакрытия двери (0 -- некогда)
+WhiteListEnabled = 1#включение белого списка
+White = "
+STEAM_0:0:126517552
+STEAM_0:1:120984849
+STEAM_0:0:135878794"    #SteamId через новую строку
+
+#########endconfig##########
+
+hint("by Artur200320081",1)
+hint("V 1.12",1)
+hint("DoorToBase",1)
+
+function number string:in_array(Array_lib:array){
+foreach(K_lib,S_lib:string = Array_lib){
+if(S_lib == This){
+return 1}}
+return 0}
+
+Door = entity():isWeldedTo()
+DoorPos = Door:pos()
+
+runOnUse(Door,1)
+runOnChat(1)
+
+if(ToWorld){
+switch(Side){
+case "up", OpenedVec = Door:toWorld(vec(0,0,MaxDisOpen)) break
+case "down", OpenedVec = Door:toWorld(vec(0,0,-MaxDisOpen)) break
+case "right", OpenedVec = Door:toWorld(vec(0,MaxDisOpen,0)) break
+case "left", OpenedVec = Door:toWorld(vec(0,-MaxDisOpen,0)) break
+default,printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"выбрана не верная сторона!") break
+}}else{
+switch(Side){
+case "up", OpenedVec = Door:pos()+vec(0,0,MaxDisOpen) break
+case "down", OpenedVec = Door:pos()+vec(0,0,-MaxDisOpen) break
+case "right", OpenedVec = Door:pos()+vec(0,MaxDisOpen,0) break
+case "left", OpenedVec = Door:pos()+vec(0,-MaxDisOpen,0) break
+case "forward", OpenedVec = Door:pos()+vec(MaxDisOpen,0,0) break
+case "back", OpenedVec = Door:pos()+vec(-MaxDisOpen,0,0) break
+default,printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"выбрана не верная сторона!") break
+}}
+
+WhiteList = White:explode("
+")
+
+}
+
+if(clk("open")){
+Door:propFreeze(1)
+timer("open",Speed)
+Door:setPos(DoorPos+(OpenedVec-DoorPos)*Status)
+if(Status >= 1){
+stoptimer("open")}
+Status += SpeedInc
+}
+
+if(clk("close")){
+Door:propFreeze(1)
+timer("close",Speed)
+Door:setPos(DoorPos+(OpenedVec-DoorPos)*Status)
+if(Status <= 0){
+stoptimer("close")}
+Status -= SpeedInc
+}
+
+if(clk("autoclose")){
+Opened = 0
+if(TimeOut != 0){
+timer("close",1)}}
+
+if(useClk()){
+if(!useEntClk():inUseBy():steamID():in_array(WhiteList) && WhiteListEnabled){
+Door:soundPlay("no",1,"buttons/button10.wav")
+exit()}
+Door:soundPlay("no",1,"buttons/button9.wav")
+if(Opened){
+Opened = 0
+stopAllTimers()
+timer("close",1)}else{
+Opened = 1
+stopAllTimers()
+timer("open",1)
+if(TimeOut != 0){
+timer("autoclose",TimeOut*1000)}}}
+
+if(chatClk(owner())){
+LS = owner():lastSaid():explode(" ")
+
+if(LS[1,string] == "!dr"){
+hideChat(1)
+if(LS[2,string] == "op"){
+Opened = 1
+stopAllTimers()
+timer("open",1)
+if(TimeOut != 0){
+timer("autoclose",TimeOut*1000)}
+printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"Дверь открывается")
+}elseif(LS[2,string] == "cl"){
+Opened = 0
+stopAllTimers()
+timer("close",1)
+printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"Дверь закрывается")
+}elseif(LS[2,string] == "restart"){
+printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"Перезапуск...")
+reset()
+}else{
+printColor(vec(30),"[",vec(255,0,0),"DoorToBase",vec(30),"] ",vec(255,255,0),"Не возможно выполнить действие!")
+}}}

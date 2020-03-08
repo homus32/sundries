@@ -1,0 +1,37 @@
+@name SpawnPoint Static
+@persist [Seat O E]:entity Alive
+interval(100)
+if(first()){
+    runOnChat(1)
+    O = owner()
+    E = entity()
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+}
+
+if(chatClk(O)){
+    local LS = O:lastSaid()
+    if(LS == "###"){
+        hideChat(1)
+        Seat:setPos(O:pos())
+        print("set")
+}}
+
+if(!O:isAlive()){
+    Alive = 1
+}
+
+if(O:isAlive() & Alive == 1){
+    Seat:use()
+    timer("1",40)
+    Alive = 0
+}
+
+if(clk("1")){
+    Seat:propDelete()
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+}
+

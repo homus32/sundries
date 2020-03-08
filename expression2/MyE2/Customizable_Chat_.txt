@@ -1,0 +1,163 @@
+@name Customizable Chat 
+@persist Ow:entity [ Nick Team LastSaid ]:string [ TeamColor NickColor ]:vector
+interval(500)
+if(first()){
+    #include "lib/hlib"
+    runOnChat(1)
+    runOnGUI(1)
+    noDuplications()
+    
+    Ow = owner()
+    
+    Nick = Ow:name()
+    Team = Ow:team():teamName()
+    
+    NickColor = vec(255)
+    TeamColor = teamColor(Ow:team())
+    
+    function test(){
+        local C = Ow[Ow:steamID(),vector]
+        Ow:printColorF(array(vec(255),"(SILENT) ",C,"[",TeamColor,Team,C,"] ",NickColor,Nick,vec(255),": "+LastSaid))
+    }
+}
+
+
+if(chatClk(Ow)){
+    hideChat(1)
+    local LS = Ow:lastSaid():explode(" ")
+    LastSaid = LS:concat(" ",1,LS:count())
+    switch(LS:string(1)){
+        case "/nick",
+            Nick = LS:concat(" ",2,LS:count())
+            test()
+        break
+        
+        case "/team",
+            Team = LS:concat(" ",2,LS:count())
+            test()
+        break
+        
+        case "/teamcolor",
+            if(LS:string(2):sub(1,1) == "t"){
+                local S = LS:string(2):replace("t",""):toNumber()
+                TeamColor = teamColor(S)
+            }elseif(LS:string(2):sub(1,1) == "e"){
+                local S = entity(LS:string(2):replace("e",""):toNumber())
+                TeamColor = teamColor(S:team())
+            }else{
+                local S = LS:concat(" ",2,4):explode(" ")
+                TeamColor = vec(S:string(1):toNumber(),S:string(2):toNumber(),S:string(3):toNumber())
+            }
+            test()
+        break
+        
+        case "/nickcolor",
+            if(LS:string(2):sub(1,1) == "t"){
+                local S = LS:string(2):replace("t",""):toNumber()
+                NickColor = teamColor(S)
+            }elseif(LS:string(2):sub(1,1) == "e"){
+                local S = entity(LS:string(2):replace("e",""):toNumber())
+                NickColor = teamColor(S:team())
+            }else{
+                local S = LS:concat(" ",2,4):explode(" ")
+                NickColor = vec(S:string(1):toNumber(),S:string(2):toNumber(),S:string(3):toNumber())
+            }
+            test()
+        break
+        
+        case "/cosplay",
+            local Ent = entity(LS:string(2):toNumber())
+            Nick = Ent:name()
+            Team = Ent:team():teamName()
+            TeamColor = teamColor(Ent:team())
+            NickColor = vec(255)
+            test()
+        break
+        
+        case "/reset",
+            Nick = Ow:name()
+            Team = Ow:team():teamName()
+            
+            NickColor = vec(255)
+            TeamColor = teamColor(Ow:team())
+            test()
+        break
+        
+        case "/randcosplay",
+            local Ent = entity(randint(1,players():count()+1))
+            Nick = Ent:name()
+            Team = Ent:team():teamName()
+            TeamColor = teamColor(Ent:team())
+            NickColor = vec(255)
+            test()
+        break
+        
+        case "/teamcosplay",
+            local T = LS:string(2):toNumber()
+            TeamColor = teamColor(T)
+            Team = T:teamName()
+            test()
+        break
+    }
+    
+    foreach(I,E:entity = players()){
+        local C = E[E:id():toString(),vector]
+        E:printColorF(array(C,"[",TeamColor,Team,C,"] ",NickColor,Nick,vec(255),": "+LastSaid))
+        #E:printColor(C,"[",TeamColor,Team,C,"] ",NickColor,Nick,vec(255),": "+LastSaid)
+    }
+}
+
+if(changed(players():count())){
+    foreach(I,E:entity = players()){
+        guiRequestChatColors(E)
+    }
+}
+
+if(guiClk()){
+    local Ent = guiGetPlayer()
+    local C = guiGetColors()["border",vector4]
+    Ent[Ent:id():toString(),vector] = vec(C:x(),C:y(),C:z())
+    
+}
+
+#[
+
+Владелец - 21	=	[0,130,200]
+
+Зам. Владельца - 22	=	[0,70,150]
+
+Гл. Администратор - 23	=	[70,25,195]
+
+Кодер - 24	=	[95,50,200]
+
+Администратор - 25	=	[255,30,40]
+
+Модератор - 26	=	[180,120,240]
+
+Вип - 27	=	[220,230,25]
+
+Генерал - 28	=	[70,70,70]
+
+Майор - 29	=	[110,210,60]
+
+Капитан - 30	=	[180,180,20]
+
+Лейтенант - 31	=	[210,30,80]
+
+Сержант-Майор - 32	=	[230,110,50]
+
+Мастер-Сержант - 33	=	[30,70,180]
+
+Штаб-Сержант - 34	=	[150,150,40]
+
+Сержант - 35	=	[160,220,40]
+
+Капрал - 36	=	[110,190,30]
+
+Рядовой - 37	=	[20,200,110]
+
+Рекрут - 38	=	[30,210,200]
+
+Минг - 39	=	[230,110,255]
+
+]#

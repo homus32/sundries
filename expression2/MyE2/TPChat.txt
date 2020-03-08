@@ -1,0 +1,33 @@
+@name TPChat
+@inputs 
+@outputs 
+@persist EE:vector Seat:entity
+interval(300)
+if(first()){
+    runOnChat(1)
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:setAlpha(0)
+    Seat:propNotSolid(1)
+}
+if(chatClk(owner())){
+    local LS = owner():lastSaid()
+    if(LS:left(1) == "#"){
+        hideChat(1)
+        Seat:use()
+        Player = LS:sub(2,LS:length())
+        EE = findPlayerByName(Player):pos()
+        Seat:setPos(EE+vec(0,0,10))
+        print(Player)
+        timer("1",40)
+}}
+
+if(clk("1")){
+    Seat:propDelete()
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:setAlpha(0)
+    Seat:propNotSolid(1)
+}
+    
+
+
+

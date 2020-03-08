@@ -1,0 +1,8 @@
+@name PAMATYNIK
+O = entity()
+holoCreate(1,O:pos(),vec(10),ang(),vec(255),"models/child.mdl")
+holoCreate(2,holoEntity(1):attachmentPos("head"),vec(4),ang(0,50,0),vec(255),"models/hunter/misc/sphere075x075.mdl")
+holoMaterial(2,"sprops/trans/misc/ls_m1")
+holoAnim(1,4)
+holoParent(2,O)
+holoParentAttachment(2,holoEntity(1),"head")

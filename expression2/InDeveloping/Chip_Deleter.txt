@@ -1,0 +1,101 @@
+@name Chip Deleter
+@persist Tb:table Mode
+switch(Mode){
+    case 0,
+    Mode++
+    runOnChat(1)
+    noDuplications()
+    case 1,
+        if(chatClk(owner())){
+            findIncludeClass("gmod_wire_expression2")
+            findByClass("gmod_wire_expression2")
+            local T = findToArray()
+            local LS = lastSaid():lower():explode(" ")  
+            local Num = 0
+            if(LS:string(1) == "/e2"){
+                hideChat(1)
+                if(LS:string(1)&!LS:string(2)){
+                    for(I=2,T:count()){
+                        print(I-1+" - "+T[I,entity]:getName():sub(1,30)+" - "+T[I,entity]:owner():name())
+                    }
+                }elseif(findPlayerByName(LS:concat(" ",2,LS:count()))){
+                    Ent = findPlayerByName(LS:concat(" ",2,LS:count()))
+                    for(I=2,T:count()){
+                        if(findToArray()[I,entity]:owner() == Ent){
+                            print(I-1+" - "+T[I,entity]:getName():sub(1,30)+" - "+T[I,entity]:owner():name())
+                        }
+                    }
+                }
+            }
+            
+            if(LS:string(1) == "/e2del" & !LS:string(2)){
+                hideChat(1)
+                Mode++
+                for(I=2,T:count()){
+                    if(I == 2){
+                        print("Choose chip")
+                    }
+                    print(I-1+" - "+T[I,entity]:getName():sub(1,30)+" - "+T[I,entity]:owner():name()+" - "+(I-1))
+                    Tb:pushArray(array(T[I,entity]))
+                    if(I == T:count()){
+                        print(" Say Number Chip ")
+                        print(" Exemple - "+randint(1,Tb:count()))
+                    }
+                }   
+            }
+            
+            if(LS:string(1) == "/e2del" & findPlayerByName(LS:concat(" ",2,LS:count())) & LS:string(2) ){
+            hideChat(1)
+            local Ent = findPlayerByName(LS:concat(" ",2,LS:count()))
+            Mode++
+            for(I=2,T:count()){
+                if(I == 2){
+                    print("Choose chip")
+                }
+                if(findToArray()[I,entity]:owner() == Ent){
+                    print(I-1+" - "+T[I,entity]:getName():sub(1,30)+" - "+T[I,entity]:owner():name())
+                    Tb:pushArray(array(T[I,entity]))
+                    if(I == T:count()){
+                        print(" Say Number Chip ")
+                    }
+                }
+            } 
+        }
+            if(LS:string(1) == "/owdelete"){
+                hideChat(1)
+                for(I=1,T:count()){
+                    if(T[I,entity]:owner() == findPlayerByName(LS:string(2))){
+                        T[I,entity]:remove()
+                        Num = 1
+                    }
+                    if(I == T:count() & Num == 1){ print("All Chip Deleted!") Num = 0}elseif(I == T:count() & Num == 0){ print("Chips arent deleted! Chips arent Founded!") }
+                }
+            }
+        }
+    break
+    case 2,
+        if(chatClk(owner())){
+            local LS = lastSaid():lower():explode(" ")
+            local Count = 1
+                hideChat(1)
+                for(I=1,Tb:count()){
+                    if(LS:count() >= 2){
+                        for(I=1,Tb:count()+LS:count()){
+                            if(LS:string(Count) == I+""){
+                            Mode = 1
+                            Count++
+                            Tb[I,array][1,entity]:remove()
+                            print(Tb[I,array][1,entity]:isValid() ? "Well Done! Name: "+Tb[I,array][1,entity]:getName():sub(1,30)+" - "+Tb[I,array][1,entity]:owner():name() : "Chip deleted....")
+                            if(I == LS:count()){ Tb:clear() break }
+                            }elseif(LS:string(Count):toNumber() >= Tb:count()){  }              
+                        }
+                    }elseif(LS:string(1) == I+""){
+                        Mode = 1
+                        print(Tb[I,array][1,entity]:isValid() ? "Well Done! Name: "+Tb[I,array][1,entity]:getName():sub(1,30)+" - "+Tb[I,array][1,entity]:owner():name() : "Chip deleted....")
+                        Tb[I,array][1,entity]:remove()
+                        Tb:clear()
+                        break
+                    }elseif(I == Tb:count()){ print("Chip Not Founded. Try Again") }
+        }    
+    }
+}

@@ -1,0 +1,396 @@
+@name arturOS_v2.0
+@inputs Button_Reset KeyBord_Memory
+@persist [MaxObjects MaxWindows] [CurretVersion]:string
+@persist EGP:wirelink Save:gtable [GetCode]:string [Data ChipData]:table
+
+#[ ---images---
+https://i.imgur.com/8OUpIFP.png
+
+https://i.imgur.com/ZS5LePW.png
+https://i.imgur.com/b6uiQJX.png
+https://i.imgur.com/pnIPgEV.png
+https://i.imgur.com/tI0oxcH.png
+
+#menu
+https://i.imgur.com/rPZEj2h.png
+
+#crash
+https://i.imgur.com/j300wFS.png
+]#
+
+#-заменить интервал на ранОнТик
+#-передавать аргументы в таймер триггера
+#-модифицировать экран загрузки (добавить текст текущей стадии загрузки)
+#-диалог ошибки (поверх всех окон)
+
+#создание сервера для обработки/управления информацией
+#работа с 3D приложениями
+#доработать forceError переносом строки
+#функция переноса текста
+#магазин приложений(сохранение в файлик названия модулей в von'е)
+#работа с еммиторами
+
+#vgui/hud/icon_check - материал галочки
+#vgui/hud/icon_complete - материал галочки
+
+##############---_Struct_---##############
+#T Data:
+#T Windows
+#T  Object (1,2,3)
+#A   array (data object)
+
+#T DataWindows
+
+#T Triggers
+#A  array(Index,Trigger)
+
+#A BlockedObjectID
+
+#A BlockedWindowID
+##############---_End_Struct_---##############
+
+if(first()){
+    Save = gTable("arturOSsaveTable",1)
+    Data = Save["loadingStatus_"+owner():id(),table]:clone()
+    GetCode = getCode()
+}
+
+##############---_Reset_---##############
+if(~Button_Reset & Button_Reset){
+entity():remoteUpload("arturOS_v2.0.txt")
+#reset()
+}
+
+##############---_KeyBord_Trigger_---##############
+if(inputClkName() == "KeyBord_Memory"){
+if((KeyBord_Memory >= 20 && KeyBord_Memory <= 127) || KeyBord_Memory == 10){
+timer("keybord|"+KeyBord_Memory,0)}}
+
+##############---_CrashCheck_---##############
+if(Data["IsCrash",number]){ exit() }
+
+###########---_CastomTimers_---###########
+CLKARG = clkName():explode("|")
+CLKID = CLKARG:string(2):toNumber()
+CLK = CLKARG:string(1)
+
+###########---_CastomTriggers_---###########
+TRGARG = clkName():explode(":")
+TRGCLK = TRGARG:string(1)
+TRGRES = TRGARG:concat(":",2)
+
+##############---_Include_---##############
+#include "lib/arturOSLib_v2.0"
+##include "test/timerOnArturkaOS"
+#[autoInclude]#
+##############---_First_---##############
+if(first()){
+    #noDuplications()
+    
+    ##########---Vars---##########
+    CurretVersion = "1 alpha"    #
+    MaxObjects = 300             #
+    MaxWindows = 50              #
+    ##########---Vars---##########
+    
+    runOnTick(1)
+    runOnHTTP(1)
+    runOnFile(1)
+    
+    EGP = entity():isWeldedTo():wirelink()
+    
+    ChipData["siteDomen",string] = "https://foul11.000webhostapp.com/"
+    ChipData["pathForModules",string] = "script/arturOSstore.php"
+    
+    if(Save["loadingStatus_"+owner():id(),table]:count()){
+        timer("FILEReq|arturOS/modules.txt",1)
+    }else{
+        hint("by Artur200320081",1)
+        hint("V "+CurretVersion,1)
+        hint("arturOS_v2.0",1)
+    
+        Data["Windows",table] = table()
+        Data["Triggers",table] = table()
+        Data["DataWindows",table] = table()
+        Data["BlockedObjectID",array] = array()
+        Data["BlockedWindowID",array] = array()
+        
+        for(I=1,MaxObjects){ Data["BlockedObjectID",array][I,number] = 0 }
+        for(I=1,MaxWindows){ Data["BlockedWindowID",array][I,number] = 0 }
+        
+        addLink(array("box",0,vec2(50,150),vec2(50),vec4(255),"expression 2/cog"),"store") #store link in desktop
+        load()
+        #forceError("not find your anus")
+        #forceError("dont touch me")
+        #Data["loaded",number] = 1
+        #open_explorer()
+    }
+}
+
+##############--FILE--######################
+if(fileClk("arturOS/modules.txt")){
+    ChipData["loadModules",array] = vonDecode(fileRead())
+    ChipData["reqModules",array] = array()
+    
+    local LoadedModules = Save["modules",table]
+    local ReqModules = ChipData["reqModules",array]
+    local Load = table()
+    
+    
+    foreach(K,Module:string = ChipData["loadModules",array]){
+        if(!isModuleValid(Module)){
+            ReqModules:pushString(Module)
+        }
+    }
+    
+    if(!ReqModules:count()){
+        timer("loadOS|"+Data["LoadID",number]+"|50|loading...",1)
+        exit()
+    }
+    
+    foreach(K,S:string = ReqModules){
+        if(LoadedModules:exists(S)){
+            Load[S,string] = LoadedModules[S,string]
+            ReqModules:unset(K)
+        }
+    }
+    
+    Save["loadingStatus_"+owner():id(),table] = Data:clone()
+    
+    if(Load:count()){
+        addProgramInChip(Load)
+    }
+    
+    if(ReqModules:count()){
+        timer("HTTPReq|"+ChipData["siteDomen",string]+ChipData["pathForModules",string]+"?modules="+ReqModules:concat(","),100)
+        timer("loadOS|"+Data["LoadID",number]+"|10|request_files",1)
+    }
+}
+
+###################---FirstHttpReq---###################
+if(httpClk()){
+    if(httpRequestUrl():find(ChipData["siteDomen",string]+ChipData["pathForModules",string]) & !Data["loaded",number]){
+        local URL = httpRequestUrl()
+        local ID = URL:matchFirst("%&windowID%=([0-9]*)"):toNumber()
+        
+        if(URL:find("?get")){
+            ChipData["getModules",table] = jsonDecode(httpData())
+        }
+        
+        if(URL:find("?modules=")){
+            local Error = httpData():matchFirst("^error request app%: [^%%]*")
+            
+            if(Error){
+                errorExit(Error:replace(" ","_"))
+            }
+            
+            local Modules = jsonDecode(httpData())
+            
+            Save["modules",table] = Save["modules",table]:add(Modules)
+
+            addProgramInChip(Modules)
+        }
+    }
+}
+
+##############--Requests--######################
+if(CLK == "HTTPReq"){
+    if(httpCanRequest()){
+        httpRequest(CLKARG[2,string])
+    }else{
+        timer(clkName(),100)
+    }
+}
+
+if(CLK == "FILEReq"){
+    if(fileCanLoad()){
+        fileLoad(CLKARG[2,string])
+    }else{
+        timer(clkName(),100)
+    }
+}
+
+##############--TickClick--######################
+if(tickClk() & Data["loaded",number]){
+    local LastUser = ChipData["LastUser",entity]
+    local User = EGP["User",entity]
+    
+    if(User & User != LastUser){ #нажатие
+        local ExitLevel = 0
+        local Orders = getOrders()
+        local RevOrders = table()
+        
+        foreach(K:number,A:array = Orders){
+            RevOrders:unshiftArray(A)
+        }
+        
+        foreach(K:number,Windows:array = RevOrders){
+            for(I=1,Windows:count()){
+                local Index = Windows:maxIndex()
+                local ID = Windows[Index,number]
+                local RevTriggers = table()
+                
+                Windows:unset(Index)
+                
+                foreach(K:number,A:array = Data["Triggers",table][ID,table]){
+                    RevTriggers:unshiftArray(A)
+                }
+                
+                foreach(K:number,A:array = RevTriggers){
+                    local Index = A[1,number]
+                    local Parent = getParent(ID,Index)
+                    local Object = Data["Windows",table][ID,table][Index,array]
+
+                    local Pos = Parent ? Object[3,vector2] + Data["Windows",table][ID,table][Parent,array][3,vector2] : Object[3,vector2]
+                    local Size = EGP:egpSize(Object[2,number])/2
+                    
+                    if(inrange(EGP:egpCursor(User),Pos-Size,Pos+Size)){
+                        local API = A[2,string]:matchFirst("([^:]*):")
+                        local Func = A[2,string]:matchFirst(":([^:]*)")
+                        local Arg = A[2,string]:matchFirst("[^:]*:[^:]*:([^:]*)"):explode("|")
+                        
+                        #print(ID,Index,API,Func,Arg,A[2,string])
+                        
+                        if(API == "OSAPI"){
+                            switch(Func){
+                                case "close",
+                                    windowDelete(ID)
+                                    egpRender()
+                                    exit()
+                                break
+                                
+                                case "focus",
+                                    setFocus(ID)
+                                    egpRender()
+                                    #printTable(getOrders())
+                                    ExitLevel = 1
+                                break
+                                
+                                case "open",
+                                    local Function = "open_"+Arg[1,string]
+                                    
+                                    if(isFuncValid(Function)){
+                                        (Function)()
+                                    }else{
+                                        errorExit("Non_existent_application: \""+Arg[1,string]+"\"")
+                                    }
+                                    
+                                    ExitLevel = 1
+                                break
+                                
+                                case "move",
+                                    Data["LocMoving",vector2] = Object[3,vector2]-EGP:egpCursor(User)
+                                    Data["movingOID",vector2] = vec2(ID,Index)
+                                    Data["moving",number] = Object[2,number]
+                                    
+                                    ExitLevel = 1
+                                break
+                            }
+                        }else{
+                            local ExitCheck = A[2,string]:matchFirst("[^:]*:[^:]*:[^:]*:([^:]*)")
+                            
+                            timer("trigger:"+A[2,string]+":"+ID+"|"+Index+"|"+Arg:concat("|"),0)
+                            
+                            switch(ExitCheck){
+                                case "exitlevel",
+                                    ExitLevel = 1
+                                break
+                                
+                                case "exit",
+                                    exit()
+                                break
+                                
+                                case "",
+                                break
+                                
+                                default,
+                                    errorExit("trigger: not four argument: "+ExitCheck)
+                                break
+                            }
+                        }
+                    }
+                }
+                if(ExitLevel){ break }
+            }
+            if(ExitLevel){ break }
+        }
+        
+        ChipData["LastUser",entity] = User
+    }
+    
+    if(LastUser:keyUse() & LastUser){ #удержание
+        local Moving = Data["moving",number]
+        
+        if(Moving){
+            local LocalMoving = Data["LocMoving",vector2]
+            local Cursor = EGP:egpCursor(LastUser)
+            local Size = EGP:egpSize(Moving)
+            local Pos = vec2()
+            
+            if(Cursor != vec2(-1)){
+                Pos = Cursor+LocalMoving
+                Data["LastCursore",vector2] = Cursor
+            }else{
+                Pos = Data["LastCursore",vector2]+LocalMoving
+            }
+            
+            if(Pos:y() <= 22+Size:y()){
+                Pos = Pos:setY(22+Size:y())
+            }
+            
+            EGP:egpPos(Moving,Pos)
+            Data["toMove",vector2] = Pos
+        }
+    }
+    
+    if(!LastUser:keyUse() & LastUser & !User){ #отпускание
+        
+        
+        if(Data["moving",number]){
+            local ObjectID = Data["movingOID",vector2]
+            
+            Data["Windows",table][ObjectID:x(),table][ObjectID:y(),array][3,vector2] = Data["toMove",vector2]
+            
+            Data:unset("moving")
+            Data:unset("toMove")
+            Data:unset("movingOID")
+            Data:unset("LocMoving")
+            Data:unset("LastCursore")
+            
+            egpRender()
+        }
+        
+        ChipData["LastUser",entity] = noentity()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

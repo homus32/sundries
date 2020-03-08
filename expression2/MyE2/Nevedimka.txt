@@ -1,0 +1,14 @@
+@name Material Nevedimka
+@inputs 
+@outputs 
+@persist 
+@trigger 
+runOnTick(1)
+holoCreate(0,owner():toWorld(vec(0,0,40)), vec(0.55), ang(0),vec(255), "models/hunter/misc/sphere375x375.mdl")
+#holoParent(0,owner())
+holoMaterial(0,"engine/writez")
+owner():drawShadow(0)
+holoEntity(0):drawShadow(0)
+
+holoVisible(0,players(),1)
+holoVisible(0,owner(),0)

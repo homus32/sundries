@@ -1,0 +1,52 @@
+@name What??? Whats this!?!?
+@inputs 
+@outputs 
+@persist I
+@trigger 
+
+runOnTick(1)
+
+I += 5
+
+timer("JIZ",1000)
+
+if(first())
+{
+    ##Body##
+    holoCreate(1)
+    holoPos(1, entity():pos() + entity():up()*150)
+    holoScale(1, vec(3,3,10))
+    holoModel(1, "hqsphere")
+    holoColor(1, vec(255,100,0))
+    
+    ##Ball 1##
+    holoCreate(2)
+    holoPos(2, holoEntity(2):pos() + holoEntity(2):up()*100 + holoEntity(2):right()*13)
+    holoScale(2, vec(3,3,3))
+    holoModel(2, "hqsphere")
+    holoParent(2, holoEntity(1))
+    holoColor(2, vec(255,110,0))
+    
+    ##Ball 2##
+    holoCreate(3)
+    holoPos(3, holoEntity(3):pos() + holoEntity(3):up()*100 + holoEntity(3):right()*-13)
+    holoScale(3, vec(3,3,3))
+    holoModel(3, "hqsphere")
+    holoParent(3, holoEntity(1))
+    holoColor(3, vec(255,110,0))
+    
+    ##Tip##
+    holoCreate(4)
+    holoPos(4, holoEntity(4):pos() + holoEntity(4):up()*198)
+    holoModel(4, "hqsphere")
+    holoScale(4, vec(2,2,2))
+    holoColor(4, vec(255,0,0))
+    holoParent(4, holoEntity(1))
+}
+holoPos(1, entity():pos() + vec(0,0,sin(I)*50))
+
+if(clk("JIZ"))
+{
+    runOnTick(1)
+    holoPos(5, holoEntity(6):pos() + holoEntity(5):up()*2)
+}

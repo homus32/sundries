@@ -1,0 +1,272 @@
+@name super-puper graber
+@persist O:entity Phys
+
+if(first()){
+
+    O = owner()
+    propSpawnUndo(0)
+    runOnHook("PhysgunPickup",1)
+    runOnHook("PhysgunDrop",1)
+    runOnKeys(O,1,array("mouse_left","r"))
+    noDuplications()
+    
+    function entity createMyProp(Ent:entity){
+        stopAllTimers()
+        propDeleteAll()
+        local MyProp = propSpawn(Ent:model(),Ent:pos(),Ent:angles(),1)
+        MyProp:setAlpha(0)
+        MyProp:removeOnDelete(Ent)
+        O["Ent",entity] = Ent
+        O["MyProp",entity] = MyProp
+        MyProp["Ent",entity] = Ent
+        Ent:propNotSolid(1)
+        Ent:propFreeze(1)
+        #print("CreateProp")
+        return MyProp
+    }
+    
+    function entity createMyPropPly(Ent:entity){
+        stopAllTimers()
+        propDeleteAll()
+        local MyProp = propSpawn("models/sprops/cuboids/height48/size_1/cube_48x84x48.mdl",Ent:pos(),ang(90,0,180),1)
+        MyProp:setPos((Ent:boxCenterW()-MyProp:boxCenter()))
+        Ent:setPos(vec())
+        MyProp:setAlpha(0)
+        O["Ent",entity] = Ent
+        O["MyProp",entity] = MyProp
+        MyProp["Ent",entity] = Ent
+        return MyProp
+    }
+    
+    function entity createMyPropJeep(Ent:entity){
+        stopAllTimers()
+        propDeleteAll()
+        local MyProp = propSpawn("models/sprops/cuboids/height96/size_1/cube_96x192x96.mdl",Ent:pos()+vec(0,0,40)-Ent:forward()*20,Ent:angles()+ang(0,90,0),1)
+        MyProp:setColor(vec4())
+        O["Ent",entity] = Ent
+        O["MyProp",entity] = MyProp
+        MyProp["Ent",entity] = Ent
+        Ent:parentTo(MyProp)
+        return MyProp
+        
+    }
+    
+    function entity createMyPropNPC(Ent:entity){
+        stopAllTimers()
+        propDeleteAll()
+        local Pos = Ent:pos()
+        Ent:setPos(vec())
+        local MyProp = propSpawn("models/sprops/cuboids/height48/size_1/cube_48x84x48.mdl",Pos,ang(90,0,180),1)
+        MyProp:setPos((Ent:boxCenterW()-MyProp:boxCenter()))
+        #MyProp:setAlpha(0)
+        O["Ent",entity] = Ent
+        O["MyProp",entity] = MyProp
+        MyProp["Ent",entity] = Ent
+        return MyProp
+    }
+    
+    function entity createMyPropEntity(Ent:entity){
+        stopAllTimers()
+        propDeleteAll()
+    }
+      
+}else{
+    
+        if(hookClk("PhysgunPickup")){ 
+    
+            local Ent = hookArgs():entity(2)
+
+            if(hookArgs():entity(1) == O & Ent:owner() != O ){
+                
+                if(Ent:isPlayer() & Ent:type() != "prop_vehicle_jeep" ){ 
+                    print("PickUpHookPlayer")
+                    local Prop = createMyPropPly(Ent)
+                    if(Ent:isNPC()){ Prop:setPos(O:aimPos()) }
+                    timer("setPosPly",1)    
+                                    
+                }elseif((!Ent:isPlayer() & !Ent:isNPC()) & Ent:type() != "prop_vehicle_jeep" & Ent:type() != "prop_dynamic" & Ent:model():left(1) != "*"){ 
+                    print("PickUpHook")
+                    createMyProp(Ent)
+                    timer("setPos",1)
+                    
+                }elseif(Ent:type() == "prop_vehicle_jeep"){
+                    print("PickUpHookJeep")
+                    createMyPropJeep(Ent)
+                    
+                }elseif(Ent:isNPC()){ 
+                    print("PickUpHookNPC")
+                    createMyPropNPC(Ent)
+                    timer("SetPosNPC",1)
+                }elseif(Ent:type() == "prop_dynamic" & Ent:model():left(1) != "*"){
+                    print("PickUpHook Entity")
+                }
+            }
+            
+        }elseif(!hookClk("PhysgunPickup") & O:aimEntity() & O:keyAttack1() & keyClk(O) == 1 & Phys & O:aimEntity():owner() != O) {
+            
+            local Ent = O:aimEntity()
+
+            if((!Ent:isPlayer() & !Ent:isNPC()) & Ent:model():left(1) != "*" & Ent:type() != "prop_dynamic"){
+                    print("PickUpAim Entity")
+                    createMyProp(Ent)
+                    timer("setPos",1)
+            }
+            
+     }elseif((keyClk(O) == -1 & Phys) & !O:keyAttack1()){
+        #print("keyClk == -1")
+        
+        local Ent = O["MyProp",entity]
+        local Parent = Ent["Ent",entity]
+        
+        #print("MyProp - ",Ent,"Ent - ",Parent)
+        
+        if(Parent & (!Parent:isPlayer() & !Parent:isNPC() & Parent:type() != "prop_vehicle_jeep") ){
+            #print("DropEntity")
+            Parent:propNotSolid(0)
+            Parent:setPos(Ent:pos())
+            Parent:setAng(Ent:angles())
+            Parent:propFreeze(Ent:isFrozen())
+            Parent:setVel(Ent:vel())
+            O["MyProp",entity] = noentity()
+            O["Ent",entity] = noentity()
+            Ent["Ent",entity] = noentity()
+            stopAllTimers()
+            propDeleteAll()
+            
+        }elseif(Parent & Parent:isPlayer() & Parent:type() != "prop_vehicle_jeep"){
+            print("DropPlayer")
+            Parent:setPos(Ent:boxCenterW()-Parent:boxCenter())
+            Parent:setVel(Ent:vel())
+            O["MyProp",entity] = noentity()
+            O["Ent",entity] = noentity()
+            Ent["Ent",entity] = noentity()
+            
+            if(Parent:isPlayer()){
+            
+                Parent:playerNoclip(0)
+                if(Ent:isFrozen()){ Parent:playerFreeze()  Parent:playerNoclip(1) }else{ Parent:playerUnFreeze() }
+                
+            }else{
+                Parent:propNotSolid(0)
+            }
+            stopAllTimers()
+            propDeleteAll()
+            
+        }elseif(Parent & Parent:type() == "prop_vehicle_jeep"){
+            #print("DropJeep")
+            Parent:deparent()
+            Parent:propNotSolid(0)
+            Parent:setVel(Ent:vel())
+            O["MyProp",entity] = noentity()
+            O["Ent",entity] = noentity()
+            Ent["Ent",entity] = noentity()
+            stopAllTimers()
+            propDeleteAll()
+            
+        }elseif(Parent & Parent:isNPC()){
+            print("DropNPC")
+            Parent:setVel(Ent:vel())
+            O["MyProp",entity] = noentity()
+            O["Ent",entity] = noentity()
+            Ent["Ent",entity] = noentity()
+            stopAllTimers()
+            propDeleteAll()
+            
+        }elseif(Parent & 0){
+            print("DropEntity2")
+        }
+        
+    }elseif(O:keyReload() & Phys & O:aimEntity():owner() != O & O:aimEntity()){
+    
+        local AimEnt = O:aimEntity()
+        local GetConstr = AimEnt:getConstraints()
+        
+        GetConstr:pushEntity(AimEnt)
+        
+        if(GetConstr:count() == 1){
+        
+            if(AimEnt:isPlayer()){ AimEnt:playerUnFreeze() AimEnt:playerNoclip(0) hint("Unfroze player",2) }else{ AimEnt:propFreeze(0) hint("Unfroze 1 object",2) }
+            O:soundPlay(1,0.5,"items/medshot4.wav")
+            
+        }else{
+        
+            local UnFreezeCount = array()
+            
+            foreach(I,E:entity = GetConstr){
+                if(E:isFrozen()){
+                    UnFreezeCount:pushEntity(E)
+                }
+            }
+            
+
+                foreach(I,E:entity = UnFreezeCount){
+                    E:propFreeze(0)
+                }
+                hint("Unfroze "+UnFreezeCount:count()+" objects",2)
+                O:soundPlay(1,0.5,"items/medshot4.wav")
+        } 
+    
+    }else{
+        Phys = owner():weapon():type() == "weapon_physgun"
+    }
+    
+    if(clk("setPos")){
+        timer("setPos",1)
+        
+        local Ent = O["Ent",entity]
+        local MyProp = O["MyProp",entity]
+        
+        Ent:setPos(MyProp:pos())
+        Ent:setAng(MyProp:angles())
+        
+        if(!Ent){ stoptimer("setPos") }
+        
+        if(MyProp["PropNotSolid",number] == 0){
+            timer("PropNotSolid",40)
+            MyProp["PropNotSolid",number] = 1
+        }
+        
+    }elseif(clk("PropNotSolid")){
+        #print("PropNotSolid") 
+        O["MyProp",entity]:propNotSolid(1)
+        
+    }elseif(clk("setPosPly")){
+        timer("setPosPly",1)
+        
+        local Ent = O["Ent",entity]
+        local MyProp = O["MyProp",entity]
+
+        Ent:setPos((MyProp:boxCenterW()-Ent:boxCenter()))
+        
+        if(!Ent:inNoclip() & Ent:isPlayer()){
+            #print("PlayerNoclip")
+            Ent:playerNoclip(1)
+        }
+        
+        if(MyProp["PropNotSolid",number] == 0){
+            timer("PropNotSolid",40)
+            MyProp["PropNotSolid",number] = 1
+        }
+        
+        if(!Ent){ stoptimer("setPosPly") }
+        
+    }elseif(clk("SetPosNPC")){
+        timer("SetPosNPC",1)
+        
+        local Ent = O["Ent",entity]
+        local MyProp = O["MyProp",entity]
+        
+        Ent:setPos((MyProp:boxCenterW()-Ent:boxCenter()))
+        Ent:setAng(MyProp:angles()-ang(90,0,180))
+        
+        if(MyProp["PropNotSolid",number] == 0){
+            timer("PropNotSolid",40)
+            MyProp["PropNotSolid",number] = 1
+        }
+    
+    }elseif(clk("SetPosEnt")){
+    
+    }
+}
+
+

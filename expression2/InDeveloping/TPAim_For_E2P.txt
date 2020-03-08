@@ -1,0 +1,4 @@
+@name TPAim For E2P
+if(first()){ runOnKeys(owner(),1,array("t","n")) }
+if(changed(owner():keyPressed("T"))&owner():keyPressed("T")){ owner():setPos(owner():aimPos()) }
+if(changed(owner():keyPressed("N"))&owner():keyPressed("N")){ owner():setPos(vec()) }

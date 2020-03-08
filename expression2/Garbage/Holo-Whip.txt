@@ -1,0 +1,46 @@
+@name Holo-Whip
+@persist T Kinks KLength Thick Bend
+@model models/hunter/plates/plate025x025.mdl
+interval(150)
+
+if(first()){
+
+    Kinks = 50
+    KLength = 1
+    Thick = 0.5
+    Bend = 3
+    
+    for(I=1,50){
+        holoCreate(I)
+        holoModel(I,"hqcylinder2")
+        holoScale(I,vec(Thick,Thick,KLength))
+    }
+}
+
+for(I=1,Kinks){
+    
+    if(I == 1){
+        local Pos = entity():pos()+entity():up()*6
+        holoPos(I,Pos)
+        local Ang = (holoEntity(I+1):pos()-entity():pos()):toAngle()+ang(90,0,0)
+        holoAng(I,Ang)
+        
+    }elseif(I == Kinks){
+        local Pos = holoEntity(I-1):pos()+holoEntity(I-1):up()*KLength*12
+        holoPos(I,Pos)
+        local Ang = (holoEntity(I-1):pos()-holoEntity(I):pos()):toAngle()+ang(90,0,0)
+        holoAng(I,Ang)
+        
+    }else{
+        local Pos = holoEntity(I-1):pos()+holoEntity(I-1):up()*KLength*12
+        holoPos(I,Pos)
+        local Ang = (holoEntity(I+1):pos()-holoEntity(I-1):pos()):toAngle()+ang(90,0,0)
+        holoAng(I,Ang)
+    }
+    
+    local P = holoEntity(I):angles():pitch()/360*255
+    local Y = holoEntity(I):angles():yaw()/360*255
+    local R = holoEntity(I):angles():roll()/360*255
+    
+    holoColor(I,vec(P,Y,R))
+} 

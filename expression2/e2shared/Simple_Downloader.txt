@@ -1,0 +1,56 @@
+@name Simple Downloader
+@persist Chekin DData:table Savin Saving:string Dload
+                                                                                                                                                                                                                                                                                                                    #[
+.
+  ____           ____       _       
+ |  _ \         / __ \     (_)      
+ | |_) |_   _  | |  | |_ __ _  __ _ 
+ |  _ <| | | | | |  | | '__| |/ _` |
+ | |_) | |_| | | |__| | |  | | (_| |
+ |____/ \__, |  \____/|_|  |_|\__,_|
+         __/ |                      
+        |___/ 
+.                                                                                                                                                                                                              ]#
+
+if(first()){
+runOnHTTP(1)
+runOnChat(1)
+runOnTick(1)
+httpRequest("http://oriachip.000webhostapp.com/Downloads/") Chekin=1
+}
+if(httpClk()&Chekin==1){
+Chekin=0
+print("Downloads loaded! print \"/list %page%\" (/list 1) for get it")
+DData:clear()
+local Data=httpData():gmatch("<a class=\"wb_button\" href=\"http://oriachip.000webhostapp.com/E2/[A-z0-9%-]+.txt\"><span>[A-z0-9%- ]+<\/span><\/a>")
+for(K=1,Data:count()){
+DData[K,array]=array(K,Data[K,array][1,string]:explode("href=\"")[2,string]:explode("\">")[1,string],Data[K,array][1,string]:explode("<span>")[2,string]:explode("</span>")[1,string])
+}
+}
+if(chatClk(owner())){
+if(lastSaid():left(5)=="/list"){
+hideChat(1)
+local Page=lastSaid():sub(7,lastSaid():length()):toNumber()
+local Page=(Page==0 ? 1 : Page)
+for(H=1,5){
+if(DData[H+(Page-1)*5,array][2,string]){
+print(DData[H+(Page-1)*5,array][1,number]+" - "+DData[H+(Page-1)*5,array][3,string])}}
+print("print\"/dl %file%\" (/dl 5) for download")
+}elseif(lastSaid():left(3)=="/dl"){
+hideChat(1)
+Dload=lastSaid():sub(5,lastSaid():length()):toNumber()
+if(DData[Dload,array][2,string]){
+if(httpCanRequest()){
+#print(DData[Dload,array][2,string])
+Chekin=4 httpRequest(DData[Dload,array][2,string])}else{print("try later")}}else{
+print("file error")}
+
+}}
+if(httpClk()&Chekin==4){
+Chekin=0 Savin=1
+Saving=httpData()
+#print(Saving)
+}
+if(Savin==2){if(fileCanLoad()){Savin=0 entity():remoteUpload("/e2shared/"+DData[Dload,array][3,string]+".txt")}}
+if(clk("save")){Savin=2}
+if(fileCanWrite()&Savin==1){Savin=666 fileWrite(">e2shared/"+DData[Dload,array][3,string]+".txt",Saving) print("loading chip...") timer("save",2000) }

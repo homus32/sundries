@@ -1,0 +1,45 @@
+@name sdgsdgsdfh
+
+@persist I H S E:entity Count Color T
+E=entity()
+Count=60
+T++
+interval(100)
+while(I < Count & perf(1))
+{   
+    H = 100
+    S = 0.5
+    
+    I++
+    holoCreate(I)
+    holoColor(I,hsv2rgb(Color,1,1))
+    holoScale(I,vec(H,S,S))
+    holoParent(I,E)
+    #holoModel(I,"models/sprops/cuboids/height12/size_1/cube_12x480x12.mdl")
+    holoDisableShading(I, 1 )
+    holoMaterial(I,"lights/white") 
+    holoAng(I, ang(90, (360 / Count) * (Count - I), 0))
+    #holoScale(1,vec(S,S,T))
+    holoCreate(-1,E:toWorld(vec()),vec(1.18,0,1.18),E:toWorld(ang(0,0,90)),vec(30,30,30),"models/sprops/geometry/fdisc_144.mdl")
+    holoMaterial(-1,"lights/white")
+    holoDisableShading(-1,1)
+    holoParent(-1,E)
+    
+    holoCreate(-2,E:toWorld(vec(0,0,0.05)),vec(9,9,9),E:toWorld(ang(0)),vec(143,228,255),"cplane")
+    holoMaterial(-2,"expression 2/cog_prop")
+    holoDisableShading(-2,1)
+    holoParent(-2,E)
+    Color=Color-360/60
+}
+for(ID = 0,60)
+{
+    FFT = E:soundFFT("FFT")
+    S = FFT:number(ID)*0.5                          # * koefficent.
+    N = S*1+1
+    
+    Radius = 90
+    Sin = sin((360/60)*ID)*Radius
+    Cos = cos((360/60)*ID)*Radius
+    holoPos(ID,E:toWorld(vec(Sin,Cos,-295+N)))
+    holoAng(-2,E:toWorld(ang(0,T%360,0)))
+}

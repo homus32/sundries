@@ -1,0 +1,20 @@
+@name grena pizdelka
+@persist Num [ O ]:entity
+interval(Num)
+O = owner()
+runOnChat( 1 )
+if(owner():keyAttack1()){
+    dropWeapon()
+findIncludeClass("weapon_frag") 
+findInSphere(vec(0),9999999999) 
+find():setMass(100000)
+}
+if(chatClk(O)){
+local LS=owner():lastSaid()
+if(LS:left(2) == "!n"){
+    hideChat(1)
+Num = LS:sub(4,LS:length()):toNumber()
+Num = Num
+print(Num)
+}}
+

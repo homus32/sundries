@@ -1,0 +1,27 @@
+@name PropMetalka
+@persist Prop:entity V:vector  Props:array
+interval(350)
+if(first()){
+    propSpawnUndo(0)
+    Props = array(
+    "models/props_phx/mk-82.mdl",
+    "models/props_phx/torpedo.mdl",
+    "models/props_phx/ww2bomb.mdl",
+    "models/props_phx/amraam.mdl"
+    )
+    
+}
+Model = Props[floor(mod(random(0,999),Props:count()))+1,string]
+
+Prop:setTrails(30, 10, 10, "trails/smoke", vec(255), 200)
+
+Prop = propSpawn(Model,entity():toWorld(vec(random(-2000,2000),random(-3000,3000),6000)),ang(90,0,0),0)
+Prop:propFreeze(0)
+Prop:drawShadow(0)
+Prop:setMass(100000)
+Prop:remove(11)
+
+
+Prop:setVel(vec(random(0,0),random(0,0),0)*40)
+#entity():soundPlay(1,0,"Flesh.Break") 
+ 

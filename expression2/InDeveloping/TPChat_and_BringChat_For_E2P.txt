@@ -1,0 +1,90 @@
+@name TPChat & BringChat For E2P
+@persist T:table [ Command Return Br RetBr TP]:string
+if(first()){
+    runOnChat(1)
+    Command = "#"
+    Br = "!#"
+    TP = "tp#"
+    RetBr = "return!#"
+    Return = "return#"
+    #noDuplications()
+    T["Table",table] = table()
+}
+if(chatClk(owner())){
+    local LS = lastSaid():lower()
+    local CL = Command:length()+1
+    local BrL = Br:length()+1
+    local TPL = TP:length()+1
+    local TabAr = T["Table",table]:count()
+        if(LS:sub(1,CL-1) == Command){
+            if(LS:length() >= CL & findPlayerByName(LS:sub(CL,LS:length())):isValid() & findPlayerByName(LS:sub(CL,LS:length())) != owner()){
+                hideChat(1)
+                    T["Return",vector] = owner():pos()
+                        T["EE",entity] = findPlayerByName(LS:sub(CL,LS:length()))
+                            owner():setPos(T["EE",entity]:pos()+T["EE",entity]:forward()*40)
+                            printColor(vec(40,0,170),"You ",vec(160,220,255),"teleported to ",teamColor(T["EE",entity]:team()),T["EE",entity]:name())
+                            T["EE",entity]:printColor(teamColor(owner():team()),owner():name()+" ",vec(151,211,255),"teleported to ",vec(40,0,170),"You")
+            }elseif(LS:length() < CL){ hideChat(1) printColor(vec(255,170,40),"Say: "+Command+"<player> - Goto Target")
+                }elseif(findPlayerByName(LS:sub(CL,LS:length())) == owner()){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 goto', argument #1: You cannot target this person")
+                    }elseif(findPlayerByName(LS:sub(CL,LS:length())):isValid() == 0){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 goto', argument #1: No target found!")}
+        }else{
+            if(LS:explode(" "):string(1) == Return){
+                if(T["Return",vector] != vec()){
+                    hideChat(1)
+                        owner():setPos(T["Return",vector])
+                        T["Return",vector] = vec()
+                        printColor(vec(40,0,170),"You ",vec(151,211,255),"returned ",vec(40,0,170),"Yourself ",vec(151,211,255),"to their original position")
+                            }else{ hideChat(1) printColor(vec(255,170,40),owner():name()+" does not have any previous locations to send them to.") }
+                }
+            }
+        if(LS:sub(1,BrL-1) == Br){
+            if(LS:length() >= BrL & findPlayerByName(LS:sub(BrL,LS:length())):isValid() & findPlayerByName(LS:sub(BrL,LS:length())) != owner()){
+                hideChat(1)
+                    for(I=1,TabAr){
+                        if(T["Table",table][I,array][1,entity] == T["Table",table][TabAr,array][1,entity]){
+                            T["Table",table]:removeArray(I)
+                            break
+                        }
+                    }
+                    T["EE",entity] = findPlayerByName(LS:sub(BrL,LS:length()))
+                    T["Table",table]:pushArray(array(T["EE",entity],T["EE",entity]:pos()))
+                    T["EE",entity]:setPos(owner():pos()+owner():forward()*50)
+                    printColor(vec(40,0,170),"You ",vec(160,220,255),"brought ",teamColor(T["EE",entity]:team()),T["EE",entity]:name())
+                    T["EE",entity]:printColor(teamColor(owner():team()),owner():name()+" ",vec(151,211,255),"brought ",vec(40,0,170),"You")
+                }elseif(LS:length() <= BrL){ hideChat(1) printColor(vec(255,170,40),"Say: "+Br+"<player> - Bring Target")
+                }elseif(findPlayerByName(LS:sub(BrL,LS:length())) == owner()){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 bring', argument #1: You cannot target this person")
+                }elseif(!findPlayerByName(LS:sub(BrL,LS:length())):isValid()){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 bring', argument #1: No target found!") }
+            }else{
+                if(LS:explode(" "):string(1) == RetBr & TabAr >= 1){
+                        hideChat(1)
+                        T["Table",table][TabAr,array][1,entity]:setPos(T["Table",table][TabAr,array][2,vector])
+                        if(T["Table",table][TabAr,array][1,entity] == owner()){
+                        printColor(vec(40,0,170),"You ",vec(151,211,255),"returned ",vec(40,0,170),"You ",vec(151,211,255),"to their original position")
+                        }else{
+                        printColor(vec(40,0,170),"You ",vec(151,211,255),"returned ",teamColor(T["Table",table][TabAr,array][1,entity]:team()),T["Table",table][TabAr,array][1,entity]:name()+" ",vec(151,211,255),"to their original position")
+                        T["Table",table][TabAr,array][1,entity]:printColor(vec(40,0,170),owner():name()+" ",vec(151,211,255),"returned ",vec(40,0,170),"Yourself ",vec(151,211,255),"to their original position")
+                        }
+                        T["Table",table]:removeArray(T["Table",table]:count())
+                }elseif(LS:explode(" "):string(1) == RetBr & TabAr <= 1){ hideChat(1) printColor(vec(255,170,40),"Someone does not have any previous locations to send them to.") }
+            }
+        
+        if(LS:sub(1,TPL-1) == TP){
+            hideChat(1)
+            if(findPlayerByName(LS:sub(TPL,LS:length())):isValid()){
+            if(T["EE",entity] != owner()){
+                for(I=1,TabAr){
+                    if(T["Table",table][I,array][1,entity] == T["Table",table][TabAr,array][1,entity]){
+                        T["Table",table]:removeArray(I)
+                        break
+                    }
+                }}
+            T["EE",entity] = findPlayerByName(LS:sub(TPL,LS:length()))
+            T["Table",table]:pushArray(array(T["EE",entity],T["EE",entity]:pos()))
+            T["EE",entity]:setPos(owner():aimPos())
+            if(T["EE",entity] != owner()){
+                printColor(vec(40,0,170),"You ",vec(160,220,255),"teleported ",teamColor(T["EE",entity]:team()),T["EE",entity]:name())
+                T["EE",entity]:printColor(teamColor(owner():team()),owner():name()+" ",vec(151,211,255),"teleported ",vec(40,0,170),"You")
+            }
+            }elseif(!findPlayerByName(LS:sub(BrL,LS:length())):isValid()){ hideChat(1) printColor(vec(255,170,40),"Command 'expression2 bring', argument #1: No target found!") }
+        }   
+}

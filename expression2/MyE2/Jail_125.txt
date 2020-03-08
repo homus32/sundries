@@ -1,0 +1,160 @@
+@name Jail_125
+@persist Created On TIME F [E O T]:entity
+@model models/mechanics/wheels/wheel_speed_72.mdl
+
+interval(100)
+#noDuplications()
+
+if(first()){
+    propSpawnUndo(0)
+    E = entity()
+    O = owner()
+    Col = vec(255,255,255)
+    Created = 0
+    On = 0
+    E:setColor(vec(156))
+    runOnChat(1)
+    E:setPos(vec(0,0,0))
+    }
+    
+F = findInSphere(entity():pos(),55)
+
+E:propFreeze(1)
+E:setAng(ang(0,0,0))
+
+if(chatClk(owner())){
+Last = owner():lastSaid():explode(" ")
+
+if(Last:string(1)=="!!unjail"){
+hideChat(1)
+
+#printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"Stop jailing...")
+On = 0
+TIME = 0
+Created = 0
+propDeleteAll()
+E:setPos(vec(0,0,0))
+reset()
+}
+
+if(Last:string(1)=="!!kill" & On == 1){
+hideChat(1)
+propSpawn("models/props_phx/cannonball_solid.mdl", E:pos()+vec(0,0,0), 1):propBreak()
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"Player exploded succefully!")
+}
+
+Position = "1STEAM_0:0:135878794"
+
+if(Last:string(1)=="!!jail" & Last:string(2)){
+    if( On == !1){
+TIME = 0
+hideChat(1)
+T = findPlayerByName(Last:concat(" ",2,Last:count()-1))
+
+if(Last[Last:count(),string]:toNumber() != 1 & On == 0){
+    TIME = inf()
+}
+
+if(Last[Last:count(),string]:toNumber() != 0){ TIME = Last[Last:count(),string]:toNumber() }
+
+if (T:steamID()!= Position){
+if (Created == 0){
+timer("NeedCreate",10)}
+
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",vec(255),"You jail: ",teamColor(T:team()),T:name(),
+vec(255,255,255)," (",teamColor(T:team()),teamName(T:team()),vec(255,255,255),") for ",vec(178,255,36),TIME,vec(255)," seconds")
+timer("end",TIME*1000)
+#[foreach(K,EE:entity = players()){
+EE:printColor(vec(156),"[",vec(222),"Jail",vec(156),"] ",teamColor(O:team()),O:name(),vec(255)," (",teamColor(O:team()),
+teamName(O:team()),vec(255),") ","jailed ",teamColor(T:team()),T:name(),vec(255)," (",teamColor(T:team()),
+teamName(T:team()),vec(255),") ",vec(255),"for ",vec(178,255,36),TIME,vec(255)," seconds")}]#
+
+}else{
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] "
+,vec(255),"You can't jail this player!"), owner():soundPlay(7,5,"buttons/button2.wav")
+reset()
+}
+}else{
+hideChat(1)
+printColor(vec(156),"[",vec(222),"Jail",vec(156),"] "
+,vec(255),"Someone is in jail. Please register ",vec(178,255,36),"!!unjail"), owner():soundPlay(8,5,"buttons/button8.wav")
+
+}
+}}
+
+if(clk("NeedCreate")){
+On = 1
+Jail4 = propSpawn("models/props_phx/construct/windows/window_angle360.mdl",E:pos()+vec(0,0,95),0)
+Jail4:parentTo(E)
+
+Jail3 = propSpawn("models/props_phx/construct/windows/window_angle360.mdl",E:pos()+vec(0,0,4),0)
+Jail3:parentTo(E)
+
+Jail2 = propSpawn("models/mechanics/wheels/wheel_speed_72.mdl",E:pos()+vec(0,0,102),0)
+Jail2:parentTo(E)
+
+Jail1 = propSpawn("models/props_phx/construct/windows/window_curve360x2.mdl",E:pos()+vec(0,0,4),0)
+Jail1:parentTo(E)
+Created = 1
+NeedColor = 1
+findIncludeEntity(T)
+findIncludeClass("player")
+
+}
+
+if(NeedColor==1){
+    
+NeedColor = 0
+
+Jail3:propFreeze(1)
+Jail3:setMaterial("models/player/shared/ice_player")
+Jail3:setColor(vec(255,0,0))
+
+Jail4:propFreeze(1)
+Jail4:setMaterial("models/player/shared/ice_player")
+Jail4:setColor(vec(255,0,0))
+
+Jail1:setAng(ang(0,0,0))
+Jail1:propFreeze(1)
+Jail1:setColor(Col)
+Jail1:setMaterial("models/props_combine/citadel_cable")
+
+Jail2:setAng(ang(0,0,0))
+Jail2:propFreeze(1)
+Jail2:setColor(vec(156))
+}
+if(clk("end")){ 
+On = 0
+Created = 0
+propDeleteAll()
+E:setPos(vec(0,0,0))  
+TIME = 0
+reset()
+}
+
+if(On == 1 & F <=0){
+
+E:setPos(T:pos()+vec(0,0,-7))
+}
+
+
+
+
+    
+    
+        
+#print(TIME)
+#print(F)
+#print(Jail4)
+#print(Jail1:isValid())
+
+#[
+
+                                                                      
+,--.  ,--.                                 ,--.           ,--.        
+|  '--'  | ,---. ,--,--,--.,--.,--.,--,--, |  |,-.,--.,--.|  | ,---.  
+|  .--.  || .-. ||        ||  ||  ||      \|     /|  ||  ||  || .-. | 
+|  |  |  |' '-' '|  |  |  |'  ''  '|  ||  ||  \  \'  ''  '|  |' '-' ' 
+`--'  `--' `---' `--`--`--' `----' `--''--'`--'`--'`----' `--' `---'  
+                                                                      
+]#

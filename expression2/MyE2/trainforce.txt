@@ -1,0 +1,11 @@
+@name coastertrain4
+@persist [ Ent E Seat ]:entity
+
+if(first()){
+    E = entity()
+    Seat = E:isWeldedTo()
+}else{
+    if(Seat){
+        
+    }
+}

@@ -1,0 +1,21 @@
+@name Builder
+@persist P:entity Ent:entity
+
+interval(1)
+
+if(first()){
+    propSpawnUndo(0)
+    noDuplications()
+    P = propSpawn("models/hunter/blocks/cube4x4x4.mdl",vec(200),ang(0),1)
+    P:propDraw(0)
+    Ent = findPlayerBySteamID("")
+    noCollideAll(P,1)
+    setName("Builder Ent_id: "+entity():id())
+}
+
+P:setPos(Ent:pos()+vec(0,0,5))
+
+if(!!!P){
+    P = propSpawn("models/hunter/blocks/cube4x4x4.mdl",vec(200),ang(0),1) P:propDraw(0)
+}
+    

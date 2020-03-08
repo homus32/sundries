@@ -1,0 +1,201 @@
+@name HoverScooter
+@inputs Pod:wirelink Active_p
+@outputs Light:vector W A S D
+@persist E:entity R1_dist W_i START Active Active_i E_speed H_i R_E:array Warning_bip W_active M1
+@trigger 
+@model models/hunter/blocks/cube05x105x05.mdl
+
+interval(20)
+
+if(first()| dupefinished())
+    {
+    timer("bip",100)
+    soundPlay(0,0,"ambient/tones/garage.wav")
+    soundPlay(1,0,"npc/manhack/mh_engine_loop1.wav") 
+    soundPlay(2,0,"weapons/airboat/airboat_gun_loop2.wav")
+       
+    E=entity()
+    E:setMass(300)
+    E:setAlpha(0)
+    R_E=E:getConstraints()
+    
+           holoCreate(0,E:toWorld(vec(10,13,0)),vec(0.5,0.5,3))
+            
+    holoModel(0,"models/props_combine/combine_mine01.mdl")
+    holoParent(0,E)
+    
+           holoCreate(1,E:toWorld(vec(-10,13,0)),vec(0.5,0.5,3))
+            
+    holoModel(1,"models/props_combine/combine_mine01.mdl")
+    holoParent(1,E)
+    holoCreate(2,E:toWorld(vec(0,8,-14)),vec(0.5,1,1))
+    holoAlpha(2,0)
+    holoParent(2,E)
+    
+    holoCreate(3,E:toWorld(vec(-5,8,-10)),vec(0.5,1,1))
+    holoModel(3,"models/Weapons/w_rocket_launcher.mdl")
+    holoParent(3,2)
+    
+    holoCreate(4,E:toWorld(vec(0,5,0)),vec(0.7,1.5,0.2),E:toWorld(ang(0,0,0)))
+    holoColor(4,vec(30,30,140))
+    holoModel(4,"models/Effects/vol_light64x256.mdl")
+    holoParent(4,E)
+    
+        holoCreate(5,E:toWorld(vec(10,-14,-4)),vec(0.15,0.3,0.1),E:toWorld(ang(-45,0,0)))
+        holoColor(5,vec(100,100,255))
+    holoModel(5,"models/Effects/vol_light128x128.mdl")
+    holoParent(5,E)
+    
+            holoCreate(6,E:toWorld(vec(-10,-14,-4)),vec(0.15,0.3,0.1),E:toWorld(ang(45,0,0)))
+        holoColor(6,vec(100,100,255))
+    holoModel(6,"models/Effects/vol_light128x128.mdl")
+    holoParent(6,E)
+    
+            holoCreate(7,E:toWorld(vec(0,28,-15)),vec(0.15,0.3,0.1),E:toWorld(ang(0,0,0)))
+        holoColor(7,vec(100,100,255))
+    holoModel(7,"models/Effects/vol_light128x128.mdl")
+    holoParent(7,E)
+    
+            holoCreate(8,E:toWorld(vec(0,-40,4)),vec(1,1,1),E:toWorld(ang(0,-90,180)))
+        holoColor(8,vec(100,100,100))
+    holoModel(8,"models/props_wasteland/light_spotlight01_lamp.mdl",1)
+    holoParent(8,E)
+    
+                holoCreate(9,E:toWorld(vec(0,-48,1)),vec(0.5,0.5,0.5)*0.4,E:toWorld(ang(0,0,-90)))
+        holoColor(9,vec(100,100,255))
+    holoModel(9,"models/Effects/vol_light128x128.mdl")
+    holoParent(9,E)
+    holoAlpha(9,0)
+    
+    holoCreate(10,E:toWorld(vec(0,-36,30)),vec(0.7,1.5,1.5)*0.4,E:toWorld(ang(180,90,0)))  
+    holoModel(10,"models/props_trainstation/mount_connection001a.mdl")
+    holoParent(10,E)
+    
+    }
+
+W=Pod["W",number]
+A=Pod["A",number]
+S=Pod["S",number]
+D=Pod["D",number]
+BEA=Pod["Bearing",number]
+ELE=Pod["Elevation",number]
+M1=Pod["Mouse1",number]
+START=Pod["R",number]
+DRIVER=Pod["Entity",entity]
+if(START & $START)
+    {
+    Active=Active==0
+    if(Active)
+        {
+        soundPlay(6,0,"ambient/machines/thumper_startup1.wav")
+        soundStop(5)
+        soundPlay(7,2,"hl1/fvox/activated.wav")
+        }
+    else
+        {
+        soundPlay(5,0,"ambient/machines/thumper_shutdown1.wav")
+        soundStop(6)
+        soundPlay(8,2,"hl1/fvox/deactivated.wav")
+        }
+    }
+Active_i+=-0.012+(Active>Active_i)*0.02
+W_i=W
+if($W)
+    {
+    if(W)
+        {
+        holoAlpha(9,255)
+        holoSkin(8,0)
+        soundPlay(4,0,"ambient/machines/turbine_loop_2.wav")
+        }
+    else
+        {
+        holoAlpha(9,0)
+        holoSkin(8,1)
+        soundStop(4)
+        }
+    }
+
+SHIFT=Pod["Shift",number]
+Light=vec(100,100,255)*Active
+E_vel=E:vel()
+E_speed=E_vel:length()
+R1_dist_set=60-min(E_vel:z()/2,0)
+if($E_speed<-(50+Active*250) )
+    {
+    if(Active)
+        {
+    #fx("explosion",E:pos(),1)
+    soundPlay(9,0,"hl1/fvox/hev_general_fail.wav")
+    }
+    Active=0
+    Active_i=0
+    #Pod["Damage Health",number]=E_speed/20
+    soundPlay(6,0.8,"vehicles/v8/vehicle_impact_heavy"+randint(1,4):toString()+".wav")
+
+        
+    }
+rangerFilter(R_E)
+R1=rangerOffset(R1_dist_set,E:toWorld(vec(0,35,-10)),-vec(0,0,1))
+rangerFilter(R_E)
+R1_2=rangerOffset(R1_dist_set,E:toWorld(vec(0,-35,-10)),-vec(0,0,1))
+rangerFilter(R_E)
+R2=rangerOffset(E:pos(),E:pos()+E:vel()*3)
+R1_dist=R1:distance()
+R2_dist=R1_2:distance()
+E_velL=E:velL()
+Force=(8+(R1_dist_set-(R1_dist+R2_dist)/2)/3-$R1_dist*3*R1:hit()-E_velL:z()/300 +E_velL:y()/1200)
+
+#Force=(10+SHIFT*6+(80-R1_dist)/3-$R1_dist*3*R1:hit())
+S_i=abs(E_velL:y())/5
+H_i+=(S_i/10+6)*Active_i
+holoAng(0,E:toWorld(ang(H_i,0,90)))
+holoAng(1,E:toWorld(ang(-H_i,0,90)))
+
+soundPitch(0,(Force*3 +S_i/2)*Active_i)
+soundPitch(1,(40+S_i/2)*Active_i)
+soundPitch(2,Active*10+(20+S_i/4)*Active_i)
+soundPitch(4,(200+S_i/10)*Active_i)
+E:applyForce((-E:forward()*E_velL:x()*vec(1,1,-0.7)*10+E:up()*Force*400 -E:right()*(W-S)*4000 +E_vel)*Active_i)
+#E:applyAngForce((-ang(E_velL:x()*2 -(D-A)*100,(-A+D)*500,+min(max(-E_velL:y()+(W-S)*100000,-400),400+E_velL:y()/2))/20-E:angles()*ang(1,0,1)-E:angVel()/2)*500)
+E:applyAngForce(((-ang(+min(max(E_velL:x()*2 -(D-A)*100,-70000000000000),70000000),(-A+D)*500,(R1_dist-R2_dist)*120+(W-S)*600 +50- E_velL:y()*((Active_p==0)*10-0.5+SHIFT*1.6) )/20-E:angles()*ang(1,0,1)-E:angVel()*ang(0.5,0.5,1))*500)*Active_i)
+
+holoAng(2,ang(-ELE,BEA,0)+ang(180,0,0))
+if(M1 & $M1)
+    {
+    #Missile=spawnEntity("rpg_missile",E:pos()-E:up()*35,ang(-ELE,BEA,0),0)
+    
+    }
+if(clk("bip"))
+    {
+    timer("bip",500)
+    if(R2:hit() & Active)
+        {
+        Dist_i=(E:pos()-R2:position()):length()
+        if(((E_vel:length()*3)/Dist_i)>3)
+            {
+            soundPlay(8,0,"hl1/fvox/warning.wav")
+            soundPitch(8,100)
+            timer("bip",1000)
+            }
+        else
+            {
+            soundPlay(8,0,"buttons/button17.wav")
+            soundPitch(8,50+8000/Dist_i)
+            timer("bip",300)
+            }
+        }
+    
+    }
+if(abs(E:angles():pitch())>70 & E_speed<3)
+    {
+    E:applyAngForce(-E:angles()*ang(1,0,1)*8000)
+    E:soundPlay(12,0,"npc/roller/mine/rmine_blip3.wav")
+    }
+
+holoAlpha(5,(0.4+random(1))*Active_i)
+holoAlpha(6,(0.4+random(1))*Active_i)
+holoAlpha(7,(0.4+random(1))*Active_i)
+holoAlpha(4,(0.4+random(1))*Active_i)
+
+

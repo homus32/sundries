@@ -1,0 +1,24 @@
+@name SpawnPoint Dinamic
+@persist [Seat O E]:entity Alive
+interval(100)
+if(first()){
+    O = owner()
+    E = entity()
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+}
+
+if(!O:isAlive()){
+    Seat:setPos(O:pos())
+    Alive = 1
+}
+
+if(O:isAlive() & Alive == 1){
+    Seat:use()
+    Seat:propDelete()
+    Seat = seatSpawn("",vec(0,0,0),ang(0,0,0),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+    Alive = 0
+}

@@ -1,0 +1,23 @@
+@name WireMAn CONTROLE!!!
+@persist WireMan:array Sound
+
+interval(500)
+
+if(first()){
+    findIncludePlayerProps(owner())
+    findByModel("models/bull/various/subwoofer.mdl")
+    
+    WireMan = findToArray()
+    
+    foreach(I,E:entity = WireMan){
+        E:propFreeze(0)
+        foreach(I,E:entity = E:getConstraints()){
+            E:propFreeze(0)
+        }
+    }
+}
+
+
+foreach(I,E:entity = WireMan){
+}
+

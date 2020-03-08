@@ -1,0 +1,73 @@
+@name Nubs Tesla huyna
+@persist Num T:entity Can
+
+# Customizing options #
+Secondary = vec(255)
+Orbs = vec(0,150,255)
+Range = 500
+# DO NOT CHANGE BELOW THIS #
+
+interval(1)
+
+function holo(Mod:string,Mat:string,Alph:number,Scl:vector,Col:vector,Pos:vector,Ang:angle){
+    Num++
+    holoCreate(Num)
+    holoModel(Num,Mod)
+    holoMaterial(Num,Mat)
+    holoAlpha(Num,Alph)
+    holoScale(Num,Scl)
+    holoColor(Num,Col)
+    holoPos(Num,entity():toWorld(Pos))
+    holoAng(Num,entity():toWorld(Ang))
+    holoParent(Num,entity())   
+}
+if(first()|duped()){Can = 1}
+findExcludePlayer(owner())
+findExcludePlayer("name")
+if(first()|duped()){
+    propSpawnUndo(0)
+    holo("models/holograms/hq_cubinder.mdl","models/shiny",255,vec(2),vec(50),vec(0,0,10),ang(0))
+    holo("","models/shiny",255,vec(2),vec(50),vec(0,15,7.25),ang(0,0,-15))
+    holo("","models/shiny",255,vec(2),vec(50),vec(0,-15,7.25),ang(0,0,15))   
+    holo("","models/shiny",255,vec(2),vec(50),vec(15,0,7.25),ang(15,0,0))   
+    holo("","models/shiny",255,vec(2),vec(50),vec(-15,0,7.25),ang(-15,0,0))
+    holo("models/holograms/hq_cubinder.mdl","models/shiny",255,vec(2.05,2.05,1.5),Secondary,vec(0,0,29),ang(0))
+    holo("models/holograms/hq_cylinder.mdl","models/shiny",50,vec(2.05),vec(50),vec(0,0,50),ang(0))
+    holo("models/holograms/icosphere2.mdl","models/shiny",255,vec(1.5),Orbs,vec(0,0,50),ang(0))
+    holo("models/holograms/hq_cylinder.mdl","models/shiny",255,vec(2.05),vec(50),vec(0,0,73),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,67.5),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),vec(50),vec(0,0,70),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,72.5),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),vec(50),vec(0,0,75),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,77.5),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),vec(50),vec(0,0,80),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,82.5),ang(0))
+    holo("models/holograms/icosphere2.mdl","models/shiny",255,vec(1.5),vec(255,50,0),vec(0,0,95),ang(0))
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,95),ang(0))   
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,95),ang(0,0,90))   
+    holo("models/holograms/hq_torus_thin.mdl","models/shiny",255,vec(2.5),Secondary,vec(0,0,95),ang(0,90,90))   
+}
+if(Can == 1){
+    holoColor(17,vec(127,255,127))
+    if(findCanQuery()) {
+        findIncludeClass("player")
+        findInSphere(entity():pos()+vec(0,0,95),Range)
+        if(findToArray():count() > 0) {
+            T = findClosest(entity():pos())
+            propSpawn("models/props_c17/oildrum001_explosive.mdl",T:shootPos(),1):propBreak()
+            timer("can",1000)
+            Can = 0
+        }
+    }
+}
+else{holoColor(17,vec(255,50,0))}
+if(clk("can")){
+    Can = 1   
+
+}
+holoAng(8,ang(curtime()*100))
+holoAng(17,ang(curtime()*125))
+
+
+
+

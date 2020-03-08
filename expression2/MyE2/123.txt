@@ -1,0 +1,64 @@
+@name AimBot
+
+@persist O:entity [Aim Ent]:entity
+
+if(first()){
+    O = owner()
+    runOnKeys(O,1,array("lalt"))
+    noDuplications()
+    
+    function entity entity:findEyePlayer(Min:number){
+    
+        if(This:aimEntity():isPlayer()){
+            return This:aimEntity()
+        }
+        
+        local Targets = array()
+        local Target = noentity()
+        local Eye = This:eye()
+        local ShootPos = This:shootPos()
+        
+        foreach(I,Player:entity = players()){
+        
+        local Ang = acos((Player:boxCenterW()-ShootPos):normalized():dot(Eye))
+        local R = rangerOffset(O:pos(),Player:pos())
+            
+        if(R:hit()){ continue }
+        if(Player == owner()){ continue }
+        if(Ang < Min){
+            Targets:pushEntity(Player)
+        }
+        
+        }
+        
+        local MinDist = inf()
+        local Pos = This:pos()
+        
+        foreach(I,Player:entity = Targets){
+            
+            local Dist = Player:pos():distance(Pos)
+            
+            if(Dist < MinDist){
+                MinDist = Dist
+                Target = Player
+            }
+        }
+        
+        return Target
+    }
+}
+
+if(O:keyPressed("lalt") & keyClk(O) == 1){
+
+    rangerFilter(players())
+    findByClass("prop")
+    rangerFilter(findToArray())
+    
+    Aim = O:findEyePlayer(50)
+    print(Aim)
+    interval(1)   
+}elseif(O:keyWalk() & Aim){
+    interval(1)
+    local HeadPos = Aim:attachmentPos("chest")
+    O:setEyeAngles(((HeadPos+vec(0,0,5))-O:shootPos()):toAngle())
+}

@@ -1,0 +1,191 @@
+@name JBL
+@persist [E,O]:entity [Names Comp Jsons Holoc]:table Num Hn Hc Vol [Find CurName]:string AntiSS RequestList:array End Play 
+@model models/props_junk/PopCan01a.mdl
+if(first()){
+    runOnChat(1)
+    runOnHTTP(1)
+    Holoc=table()
+    runOnGUI(1)   
+    dsSetScope(2)
+   # noDuplications()
+    E = entity()
+    O = owner()
+    E:setName("SterbPlayer")
+    entity():setAlpha(0)
+    Vol=100
+    function number entity:true128(){
+    #ifdef dCore()
+			   return This:steamID64()*2
+		  #else
+			   return This:steamID64():toNumber()*2
+		  #endif
+	}
+    function httpRequestFix(St:string){
+        RequestList:pushString(St)
+    }
+    function jsonPlay(N){
+        httpRequestFix("http://zaycev.net"+Jsons[N,array]:string(1))
+		E:setName("SterbPlayer: "+CurName)
+    }
+    function string comNorm(N){
+        return Comp[N,array][1,string]:explode("\">"):string(2):explode("<\/a>"):string(1)
+    }
+    function string nameMorm(N){
+        return Names[N,array]:string(1):replace("ndash;",""):replace("\"></i>","")
+    }
+    function string showName(N){
+        local Show=comNorm(N)+"-"+nameMorm(N)
+        if(Show:length()>70){
+            Show=Show:left(70)+"..."
+        }
+        return Show   
+    }
+    function showGUY(){
+        guiPanel(0,vec2(500,100),vec2(400,500))
+        guiSetValue(0,"SterbPlayer, FIND: "+Find)
+        guiEnableMouse(1)
+        guiButton(2,vec2(300,5),vec2(95,20))
+        guiSetValue(2,"Закрыть")
+        guiParent(2,0)
+        guiList(1,vec2(10,30),vec2(380,460))
+        guiParent(1,0)
+        guiRichText(3,vec2(10,10),vec2(300,20))
+        guiInsertText(3,"FIND: "+Find)
+        guiParent(3,0)
+        for(I=1,Num){
+            guiPanel(I+1100,vec2(0),vec2(380,30))
+            
+            guiParent(I+1100,1)
+            
+            guiRichText(I+2100,vec2(0),vec2(380,30))
+            guiInsertColor(I+2100,vec(50,255,255))
+            guiInsertText(I+2100,showName(I))
+
+
+            guiParent(I+2100,I+1100)
+            
+            guiButton(I+3100,vec2(0),vec2(380,30))
+            guiAlpha(I+3100,130)
+            guiParent(I+3100,I+1100)
+        }
+    }
+    
+    Holoc:pushArray(array("hq_tube_thin",vec(0),vec(0.5,0.5,1),ang(90,0,0),vec(120,190,100),""))
+    Holoc:pushArray(array("",vec(0,2.5,1.5),vec(0.1,0.1,0.4),ang(90,0,0),vec(20,100,0),""))
+    
+    Holoc:pushArray(array("right_prism",vec(1.3,3,1.5),vec(0.04,0.04,0.04),ang(45,0,0),vec(0,0,0),""))
+    
+    Holoc:pushArray(array("",vec(-1,3,1.5),vec(0.06,0.06,0.06),ang(0,0,0),vec(0,0,0),""))
+    
+    Holoc:pushArray(array("",vec(0.25,3,1.3),vec(0.06,0.06,0.025),ang(0,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(0.25,3,1.7),vec(0.06,0.06,0.025),ang(0,0,0),vec(0,0,0),""))
+    
+    Holoc:pushArray(array("",vec(2,3,1.55),vec(0.03,0.03,0.005),ang(35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(2,3,1.35),vec(0.03,0.03,0.005),ang(-35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(1.8,3,1.55),vec(0.03,0.03,0.005),ang(35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(1.8,3,1.35),vec(0.03,0.03,0.005),ang(-35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(-2,3,1.55),vec(0.03,0.03,0.005),ang(-35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(-2,3,1.35),vec(0.03,0.03,0.005),ang(35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(-1.8,3,1.55),vec(0.03,0.03,0.005),ang(-35,0,0),vec(0,0,0),""))
+    Holoc:pushArray(array("",vec(-1.8,3,1.35),vec(0.03,0.03,0.005),ang(35,0,0),vec(0,0,0),""))
+    
+    
+    Holoc:pushArray(array("hq_tube_thin",vec(3.5,0,0),vec(0.53,0.53,0.3),ang(90,0,0),vec(100,200,100),"models/props_combine/metal_combinebridge001"))
+    Holoc:pushArray(array("hq_tube_thin",vec(-3.5,0,0),vec(0.53,0.53,0.3),ang(90,0,0),vec(100,200,100),"models/props_combine/metal_combinebridge001"))
+
+    Holoc:pushArray(array("models/killa-x/speakers/speaker_small.mdl",vec(4.8,0,0),vec(0.5),ang(90,0,0),vec(255,255,255),""))
+    Holoc:pushArray(array("models/killa-x/speakers/speaker_small.mdl",vec(-4.8,0,0),vec(0.5),ang(-90,0,0),vec(255,255,255),""))
+    
+    
+    
+    Hc=Holoc:count()
+    print("print \"/find \" to find sound")
+    print("print \"/V \" to set volume")
+    print("print \"/ASS \" to togle ANTI-STOPSOUND sistem")
+    print("print \"/stop \" to stop music")
+    
+}
+if(Hn<Hc){
+    interval(1)
+    if(holoCanCreate()&perf()){
+        Hn++
+        holoCreate(Hn,entity():toWorld(Holoc[Hn,array][2,vector]),Holoc[Hn,array][3,vector],entity():toWorld(Holoc[Hn,array][4,angle]),Holoc[Hn,array][5,vector],Holoc[Hn,array][1,string])
+        holoMaterial(Hn,Holoc[Hn,array][6,string])
+        holoParent(Hn,entity())
+    }
+}
+#if(dsClk("SterbPlayer")){if(dsGetArray():number(1)==owner():true128()){runCode(dsGetArray():string(2))}}
+if(httpClk()){
+    if(httpRequestUrl():find("http://zaycev.net/musicset/play")){
+        Jdata=jsonDecode(httpData())
+        URL=Jdata["url",string]
+        soundURLload("Sound",URL,Vol/100,0,entity())
+        print("Play: "+CurName)
+        Play=1
+    }   
+    if(httpRequestUrl():find("http://zaycev.net/search.html?query_search=")){
+        Data = httpUrlDecode(httpData():replace("&quot;", "\""):replace("&amp;", "&"):replace("&lt;", "<"):replace("&gt;", ">")):explode("</a></div></div><div class=\"artist-item-info"):string(1)
+        fileWrite("debug.txt",Data)
+        Jsons = Data:gmatch("/musicset\/play\/[^\.]*\.json")
+        Names=Data:gmatch("ndash;\[^\.]*<\/i>")
+        Comp=Data:gmatch("\/artist\/[^\.]*<\/a>")
+        Num=Jsons:count()
+        showGUY()
+    }
+}
+if(chatClk(O)){
+    local CMD=O:lastSaid()
+    if(CMD:left(5) == "/find"){
+        hideChat(1)
+        Find=CMD:explode("/find "):string(2)
+        httpRequestFix("http://zaycev.net/search.html?query_search="+httpUrlEncode(Find)+"/")
+    }
+    if(CMD:left(2):lower()=="/v"){
+        hideChat(1)
+        Vol=CMD:explode(" "):string(2):toNumber()
+        soundURLvolume("Sound",Vol/100)
+    }
+    if(CMD:lower()=="/ass"){
+        hideChat(1)
+        AntiSS=!AntiSS
+        if(AntiSS){
+            print("ANTI-STOPSOUND enable")
+        }else{
+            print("ANTI-STOPSOUND disable")
+        }   
+    }   
+    if(CMD:lower()=="/stop"){
+        hideChat(1)
+        soundURLPurge()
+        Play=0
+        print("Stop Playing: "+CurName)
+        E:setName("SterbPlayer")
+    }    
+}
+if(Play&AntiSS){
+    timer("ass",1000)
+}
+if(clk("ass")){
+    soundURLplay("Sound")
+}
+if(guiClk()){
+    for(I=1,Num){
+        if(guiClk(I+3100)){
+            soundURLPurge()
+            jsonPlay(I)
+            CurName=showName(I)
+            guiClearAll()
+            guiEnableMouse(0)
+        }
+    }
+    if(guiClk(2)){
+        guiClearAll()
+        guiEnableMouse(0)
+    }
+}
+if(RequestList:count()){
+    interval(100)
+    if(httpCanRequest()){
+        httpRequest(RequestList:shiftString())
+    }
+}

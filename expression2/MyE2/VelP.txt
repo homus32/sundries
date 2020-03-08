@@ -1,0 +1,25 @@
+@name Helper
+@inputs Settings:wirelink 
+@persist Target:entity A B N
+                                                                                                                                                                                                                                                                                    interval(N)
+                                                                                                                                                                                                                                                                                    if(first()){ B = 1 A = 1
+N = 1 #[if Mode_3 = 1 if Mode_2 - 300, 100 if Mode_1 = 2500,100 ;default = 100]# 
+Target = findPlayerBySteamID("")
+                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                    if(~Settings&Settings:entity():type() == "gmod_wire_forcer"){ Settings:entity():propNotSolid(1) Settings:entity():setAlpha(0)
+Settings["Length",number] = 60
+Settings["Velocity",number] = 250
+                                                                                                                                                                                                                                                                                    }
+
+#[Mode First - Random]#
+#if(A == 50){ Settings:entity():setPos(Target:pos()+vec(0,0,0)) N = 1 if(B == 1){timer("stop",2000) print(1) B = 0} }else{N = 150 A = randint(0,50) Settings:entity():setPos(vec(5000000))} if(clk("stop")){ A = randint(0,49) B = 1 }
+
+#[Mode Second - Key]#
+#if(owner():keyWalk()){ Settings:entity():setPos(Target:pos())}else{Settings:entity():setPos(vec(5000000))}
+
+#[Mode Third - Static]#
+#if(1){ Settings:entity():setPos(Target:pos())}
+
+
+
+

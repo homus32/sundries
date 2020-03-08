@@ -1,0 +1,424 @@
+@name Box
+@persist [ FriendList Players CheckEnt ]:array [ Pos1 Pos2 InPos1 InPos2 Where TpPos]:vector Turn  Ow:entity
+
+interval(70) 
+
+if(first()){
+
+    Ow = owner()
+    
+    runOnChat(1)
+    runOnGUI(1)
+    runOnLast(1)
+    runOnHook("PlayerHurt",1)
+    
+    noDuplications()
+    
+    #############Conf##############
+    
+    Pos1 =  vec(-1695,-8159,446)
+    Pos2 = vec(30,-6433,3062) 
+    
+    InPos1 = vec(-1151.90,-7840,445)  # Red (-) Down, Y+
+    InPos2 = vec(-1024.10,-7679,575.90) #Blue (+) Up, Y-
+    
+    function friendList(){
+        FriendList = array(
+            owner(),
+            findPlayerBySteamID("STEAM_0:1:117263047"),
+            findPlayerBySteamID("STEAM_0:1:120984849"),
+            findPlayerBySteamID("STEAM_0:1:72431916"),
+            findPlayerBySteamID("STEAM_0:1:115403314"),
+            findPlayerBySteamID("STEAM_0:0:76215006"),
+            findPlayerBySteamID("STEAM_0:1:157637987"),
+            findPlayerBySteamID("STEAM_0:1:181819368"),
+            findPlayerBySteamID("STEAM_0:0:81395545"),
+            findPlayerBySteamID("STEAM_0:1:53773322"),
+            findPlayerBySteamID("STEAM_0:0:191777405"),
+            findPlayerBySteamID("STEAM_0:0:144905364"),
+            findPlayerBySteamID("STEAM_0:0:433128699"),
+            findPlayerBySteamID("STEAM_0:1:65264035"),
+            findPlayerBySteamID("STEAM_0:0:135878794"),
+            findPlayerBySteamID("STEAM_0:1:184457841"),
+            findPlayerBySteamID("STEAM_0:1:187186845"),
+            findPlayerBySteamID("STEAM_0:0:203120012"),
+            findPlayerBySteamID("STEAM_0:1:163712591"),
+            findPlayerBySteamID(""),
+            findPlayerBySteamID("STEAM_0:1:171218145")
+        )
+    }
+    friendList()
+    
+    function vecUpdate(){
+        Where = vec(-1639+(randint(-40,0)*10),12478+(randint(-20,20)*10), -11149)
+        TpPos = vec(-536+(randint(0,10)*10),-7858+(randint(0,20)*10),451)
+    }
+    
+    ##Endconf####################################
+    
+    findIncludeClass("player")
+    findIncludeClass("prop")
+    findExcludeClass("prop_door_")
+    findExcludeClass("func_")
+        
+    foreach(I,E:entity = FriendList){
+        findExcludePlayer(E)
+        findExcludePlayerProps(E)
+        E["FriendListBox",number] = 1
+    }
+    
+        
+    ScaleVec = Pos1 - Pos2,Scale = vec(abs(ScaleVec:x()),abs(ScaleVec:y()),abs(ScaleVec:z())),Pos = Pos2+((Pos1-Pos2)/2)
+    InScaleVec = InPos1 - InPos2,InScale = vec(abs(InScaleVec:x()),abs(InScaleVec:y()),abs(InScaleVec:z())),InPos = InPos2+((InPos1-InPos2)/2)
+    
+    holoCreate(0),holoCreate(1)
+    holoColor(0,vec4(255,150,0,150)),holoColor(1,vec4(255,0,255,10))
+    holoScaleUnits(0,Scale),holoScaleUnits(1,Scale-(Scale*2))
+    holoPos(0,Pos),holoPos(1,Pos) 
+    holoCreate(2),holoCreate(3)
+    holoColor(2,vec4(255,80,80,150)),holoColor(3,vec4(0,255,0,150))
+    holoScaleUnits(2,InScale),holoScaleUnits(3,InScale-(InScale*2))
+    holoPos(2,InPos),holoPos(3,InPos)
+    for(I=0,3){ holoDisableShading(I,1) }
+    
+    function guiOn(){
+        Players = players()
+        guiWindow(0,vec2(),vec2(420,300))
+        guiSetValue(0,"Box Settings")
+        guiResizeEnable(0,0)
+        guiMaximizeEnable(0,0)
+        guiList(1,vec2(150,50),vec2(260,210))
+        guiList(2,vec2(10,10),vec2(135,250))
+        guiParent(1,0)
+        guiParent(2,0)
+        
+        for(I=3,8){
+            guiButton(I,vec2(),vec2(1,37))
+            guiSetValue(I,I)
+            guiDockMargin(I,0,0,0,5)
+            guiParent(I,2)
+        }
+        
+        guiButton(9,vec2(150,10),vec2(260,35))
+        guiAvatar(10,vec2(),vec2(37,37))
+        guiSetValue(9,"void")
+        guiSetValue(10,"")
+        guiDockMargin(9,0,0,0,15)
+        guiParent(10,9)
+        guiParent(9,0)
+
+        foreach(I,E:entity = Players){
+        
+            I = I+10
+            IAva = I+players():count()
+            ICheckBox = IAva+players():count()
+            
+            guiButton(I,vec2(),vec2(35))
+            guiAvatar(IAva,vec2(),vec2(37,37))
+            guiCheckbox(ICheckBox,vec2(210,2))
+            guiSetValue(I,E:name()+(E["FriendListBox",number] == 1 ? " ☩" : "" )+"               ")
+            guiSetValue(IAva,E:steamID())
+            guiDockMargin(I,0,0,0,3)
+            guiParent(IAva,I)
+            guiParent(ICheckBox,I)
+            guiParent(I,1)
+        }
+        
+        guiSetValue(3,"Add")
+        guiSetValue(4,"Remove")
+        guiSetValue(5,"TP")
+        guiSetValue(6,"UnCheack All")
+        guiSetValue(7,"Cheack All")
+        guiSetValue(8,"Turn")
+        
+        SRC = egpScrSize(owner())
+        SRC = vec2(SRC:x()-530,0)
+        guiPos(0,SRC)
+    }
+    
+    function plyUpdate(){
+        Players = players()
+        
+        foreach(I,E:entity = Players){
+        
+            I = I+10
+            IAva = I+players():count()
+            ICheckBox = IAva+players():count()
+            
+            guiButton(I,vec2(),vec2(35))
+            guiAvatar(IAva,vec2(),vec2(37,37))
+            guiCheckbox(ICheckBox,vec2(210,2))
+            guiSetValue(I,E:name()+(E["FriendListBox",number] == 1 ? " ☩" : "" )+"               ")
+            guiSetValue(IAva,E:steamID())
+            guiDockMargin(I,0,0,0,3)
+            guiParent(IAva,I)
+            guiParent(ICheckBox,I)
+            guiParent(I,1)
+        }
+    }
+    
+    function selectedPly(){
+        guiButton(9,vec2(150,10),vec2(260,35))
+        guiAvatar(10,vec2(),vec2(37,37))
+        guiSetValue(9,"void")
+        guiSetValue(10,"")
+        guiDockMargin(9,0,0,0,15)
+        guiParent(10,9)
+        guiParent(9,0)
+    }
+    
+    function addWL(E:entity){
+        E:print("You'r added to the tower")
+        hint("You'r add: "+E:name(),5)
+        E["FriendListBox",number] = 1
+        findExcludePlayer(E)
+        findExcludePlayerProps(E)
+    }
+    
+    function removeWL(E:entity){
+        E:print("You'r removed to the tower")
+        hint("You'r remove: "+E:name(),5)
+        local Sort = (E["FriendListBox",number] == 1 ? 2 : 0)
+        if(E != Ow){
+            E["FriendListBox",number] = Sort
+            findAllowPlayer(E)
+            findAllowPlayerProps(E)
+        }
+    }
+    
+    function updateArmor(){
+        foreach(I,SaveArmor:entity = players()){
+            SaveArmor["ArmorBox",number] = SaveArmor:armor()
+        }
+    }
+}
+
+if(last()){ foreach(I,E:entity = players()){ E["FriendListBox",number] = 0 } }
+
+if(Turn & perf(15) ){ findInBox(Pos2,Pos1) }
+
+if(findToArray():count() >= 1){
+
+    foreach(I,E:entity = findToArray()){
+        Pos = E:pos()
+        E["Inrange",number] = inrange(Pos,InPos1,InPos2)
+        if(E["Inrange",number] == 0){
+            E:setPos(Where)
+        }
+        findToArray():propDelete()
+    }
+    
+}
+
+if(hookClk("PlayerHurt")){
+    local Ent = hookArgs():entity(1)
+    if(Ent["FriendListBox",number] == 1 & Turn){
+        local InRange = inrange(Ent:pos(),Pos1,Pos2)
+        if(InRange){
+            Ent:setHealth(Ent:maxHealth())
+            Ent:setArmor(Ent["ArmorBox",number])
+        }
+    }
+    updateArmor()
+}
+
+
+if(chatClk(owner())){
+    local LS = owner():lastSaid():lower():explode(" ")
+    if(LS:string(1):sub(1,1) == "#"){
+        LS = LS:concat(" ",1,LS:count()):replace("#",""):explode(" ")
+        switch(LS:string(1)){
+            case "guion",
+                hideChat(1)
+                guiOn()
+            break
+            
+            case "resetsettings",
+                hideChat(1)
+                findClearBlackList()
+                findClearWhiteList()
+                
+                findIncludeClass("player")
+                findIncludeClass("prop")
+                findExcludeClass("prop_door_")
+                findExcludeClass("func_")
+                    
+                foreach(I,E:entity = FriendList){
+                    findExcludePlayer(E)
+                    findExcludePlayerProps(E)
+                    E["FriendListBox",number] = 1
+                }
+                
+                Turn = 0
+                Players:clear()
+                CheckEnt:clear()
+                
+                for(I=0,150){ guiRemove(I) }
+                hint("You reset settings",1)
+            break
+            
+            case "add",
+                hideChat(1)
+                if(LS:string(1)){
+                    local EntAr = LS:concat(" ",2,LS:count()):explode(" ")
+                    foreach(I,S:string = EntAr){
+                        addWL(findPlayerByName(S))
+                    }
+                }
+            break
+            
+            case "remove",
+                hideChat(1)
+                if(LS:string(1)){
+                    local EntAr = LS:concat(" ",2,LS:count()):explode(" ")
+                    foreach(I,S:string = EntAr){
+                        removeWL(findPlayerByName(S))
+                    }
+                }
+            break
+            
+            case "tp",
+                hideChat(1)
+                if(LS:string(1)){
+                    local EntAr = LS:concat(" ",2,LS:count()):explode(" ")
+                    foreach(I,S:string = EntAr){
+                        E = findPlayerByName(S)
+                        E:print("You'r teleported to the tower")
+                        hint("You'r teleport: "+E:name(),5)
+                        E["FriendListBox",number] = 1
+                        findExcludePlayer(E)
+                        findExcludePlayerProps(E)
+                        vecUpdate()
+                        E:setPos(TpPos) 
+                    }
+                }
+            break
+            
+            case "turn",
+                hideChat(1)                
+                Turn=!Turn
+                print("You "+(Turn ? "" : "de" )+"activeted box")
+            break
+            
+            case "accesslist",
+                foreach(I,E:entity = players()){
+                    if(E["FriendListBox",number] == 1 | E["FriendListBox",number] == 2){
+                        print(E:name()," - ",E["FriendListBox",number])
+                    }
+                }
+            break
+        }
+    }
+}
+
+if(guiClk() & perf(6) ){
+    local ID = guiId()
+    local EntButt = Players[ID-10,entity]
+    local EntCheck = Players[ID-((Players:count()*2)+10),entity]
+    local Selected = Ow["Selected",entity]
+    
+    if(EntButt){
+        Ow["Selected",entity] = EntButt
+        guiSetValue(9,Ow["Selected",entity]:name())
+        guiSetValue(10,Ow["Selected",entity]:steamID())
+        hint("You select: "+Ow["Selected",entity]:name(),2)
+    }elseif(EntCheck){
+        if(guiGetString() == "true"){
+            CheckEnt:pushEntity(EntCheck)
+        }else{
+            foreach(I,E:entity = CheckEnt){
+                if(E == EntCheck){
+                    CheckEnt:removeEntity(I)
+                    break
+                }
+            }
+        }
+    }elseif(ID >= 3 & ID <= 8){
+        switch(ID){
+            case 3,
+                if(CheckEnt:count() > 0){
+                    foreach(I,E:entity = CheckEnt){
+                        addWL(E)
+                    }
+                    CheckEnt:clear()
+                    plyUpdate()
+                }elseif(Selected){
+                    addWL(Selected)
+                    plyUpdate()
+                }
+            break
+            
+            case 4,
+                if(CheckEnt:count() > 0){
+                    foreach(I,E:entity = CheckEnt){
+                        removeWL(E)
+                    }
+                    CheckEnt:clear()
+                    plyUpdate()
+                }elseif(Selected){
+                    removeWL(Selected)
+    
+                    plyUpdate()
+                }
+            break
+            
+            case 5,
+                if(CheckEnt:count() > 0){
+                    foreach(I,E:entity = CheckEnt){
+                        E:print("You'r teleported to the tower")
+                        hint("You'r teleport: "+E:name(),5)
+                        E["FriendListBox",number] = 1
+                        findExcludePlayer(E)
+                        findExcludePlayerProps(E)
+                        vecUpdate()
+                        E:setPos(TpPos)
+                    }
+                    CheckEnt:clear()
+                    plyUpdate()
+                }elseif(Selected){
+                    Selected:print("You'r teleported to the tower")
+                    hint("You'r teleport: "+E:name(),5)
+                    Selected["FriendListBox",number] = 1
+                    findExcludePlayer(Selected)
+                    findExcludePlayerProps(Selected)
+                    vecUpdate()
+                    Selected:setPos(TpPos)
+                    plyUpdate()
+                }
+            break
+            
+            case 6,
+                selectedPly()
+                plyUpdate()
+            break
+            
+            case 7,
+                selectedPly()
+                plyUpdate()
+                CheckEnt = Players
+                Count = (Players:count()*2)+10
+                for(I=Count,Count*2){ guiSetValue(I,"true") }
+            break
+            
+            case 8,
+                Turn=!Turn
+                print("You "+(Turn ? "" : "de" )+"activeted box") 
+            break
+        }
+    }
+}
+if(first() | clk("CPUOPS")){
+guiSetValue(0,"Box Settings | CPU: "+floor(entity():cpuUsage()*1000000)+" OPS: "+entity():ops())
+timer("CPUOPS",1000)
+}
+
+if(changed(players():count())){
+    friendList()
+    foreach(I,E:entity = FriendList){
+        if(E["FriendListBox",number] == 0){
+            addWL(E)
+        }
+    }
+}
+
+

@@ -1,0 +1,11 @@
+@name Wireman
+if(first()|duped()) {
+
+entity():soundPlay(0,0,"npc/zombie_poison/pz_breathe_loop2.wav")
+} 
+interval(500)
+#entity():isWeldedTo():setVel(vec(0,0,-1000)+findPlayerByName("jamu"):pos() - entity():pos()+vec(200,200,0))
+#entity():isWeldedTo():setAng((findPlayerByName("jamun"):pos() - entity():pos()):toAngle())
+
+entity():isWeldedTo():setVel(vec(0,0,-1000)+owner():aimPos() - entity():pos()+vec(0,0,0))
+entity():isWeldedTo():setAng((owner():aimPos()+vec(0,0,50) - entity():pos()):toAngle())

@@ -1,0 +1,60 @@
+@name Graber v2
+@persist [ Prop Ow ]:entity
+if(first()){
+    runOnHook("PhysgunPickup",1)
+    runOnHook("PhysgunDrop",1)
+    propSpawnUndo(0)
+    function entity prop(Model:string,Material:string,Pos:vector,Ang:angle,Color4:vector4,Delete:entity){
+        Prop = propSpawn(Model,0)
+        Prop:setMaterial(Material)
+        Prop:setPos(Pos)
+        Prop:setAng(Ang)
+        Prop:setColor(Color4)
+        Prop:removeOnDelete(Delete)
+        return Prop
+    }
+    
+    Ow = owner()
+}
+
+if(hookClk("PhysgunPickup")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+        if(Pl == owner()){
+            if(Ent:owner() != owner() & !Ent:isPlayer()){
+                Ow["Color4",vector4] = Ent:getColor4()
+                prop(Ent:model(),Ent:getMaterial(),Ent:pos(),Ent:angles(),Ow["Color4",vector4],Ent)
+                Prop["Ent",entity] = Ent
+                
+                timer("setPos",10)
+                Ent:propNotSolid(1)
+            }elseif(Ent["Ent",entity]){
+                Ent["Ent",entity]:setAlpha(0)
+                Ent:propNotSolid(1)
+            }elseif(Ent:isPlayer() & Ent != Prop){
+            }elseif(Ent["Ply",entity]:isPlayer()&Ent == Prop){
+            }
+        }
+}
+
+if(hookClk("PhysgunDrop")){
+    local Pl = hookArgs():entity(1)
+    local Ent = hookArgs():entity(2)
+        if(Pl == owner()){
+            local Parent = Ent["Ent",entity]
+                if(Parent){
+                    stoptimer("setPos")
+                    Parent:setPos(Ent:pos())
+                    Parent:setAng(Ent:angles())
+                    Parent:setColor(Ow["Color4",vector4])
+                    Parent:propFreeze(Prop:isFrozen())
+                    Parent:propNotSolid(0)
+                    propDeleteAll()
+                }
+        }
+}
+
+if(clk("setPos")){
+    Prop["Ent",entity]:setPos(Prop:pos())
+    Prop["Ent",entity]:setAng(Prop:angles())
+}

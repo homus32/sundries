@@ -1,0 +1,220 @@
+@name Remover 
+@persist T:table Huli Wep:string GuiC:array
+interval(60)
+if(first()){
+    runOnChat(1)
+    runOnKeys(owner(),1,array("mouse_right","mouse_left","lalt","r","h","n")) 
+    noDuplications()  
+    Wep = "weapon_stunstick" 
+    local Ow = owner()
+    runOnHook("PlayerHurt",Ow["PlyHurt",number])
+}
+
+if(first() | clk("huli")){
+Huli=!Huli
+if(Huli == 1){
+setName("Ху   ли \n Вылупился")
+}else{
+setName("Хули \n Вылупился")
+}
+timer("huli",1000)
+}
+
+if(chatClk(owner())){
+    local LS = owner():lastSaid():lower():explode(" ")
+    if(LS:string(1) == "#god"){
+        hideChat(1)
+        local Ow = owner()
+        Ow["PlyHurt",number] = !Ow["PlyHurt",number]
+        local PlayerHurt = Ow["PlyHurt",number]
+        print("GodMode "+(PlayerHurt ? "" : "de" )+"activeted")
+        runOnHook("PlayerHurt",PlayerHurt)
+    }
+    if(LS:string(1) == "#ungod" & LS:string(2)){
+        hideChat(1)
+        Ply = findPlayerByName(LS:concat(" ",2,LS:count()))
+            if(Ply){
+                for(I=0,1){
+                    if(I){
+                        Ply:playerUnFreeze()
+                    }else{
+                        Ply:playerFreeze()
+                    }
+                }
+            }
+        }
+    if(LS:string(1) == "#fr" & LS:string(2)){
+        hideChat(1)
+        local Ent = entity(LS:string(2):toNumber())
+        local Time = LS:string(3):toNumber()
+        if(Ent){
+            Ent["PlFreeze",number]=!Ent["PlFreeze",number]
+            if(LS:string(4)){ Ent:print("Причина Фриза: "+LS:concat(" ",4,LS:count())) Ent:print("Осталось "+Time+" seconds")}
+            if(Time != 0){ Ent["TimerR",number] = Time Ent["PlFreeze",number] = 1 }
+            hint((Ent["PlFreeze",number] ? "You Freeze: " : "You UnFreeze: ")+Ent:name()+(Time != 0 ? " for "+Time+" second(s)" : ""),3)
+            
+            if(Ent["PlFreeze",number] == 1){
+                Ent:playerFreeze()
+            }else{
+                Ent:playerUnFreeze()
+                Ent["TimerR",number] = 0
+            }
+        }else{
+            print("Not Found")
+        }
+    }
+    
+    if(LS:string(1) == "#resetmat" & LS:string(2)){
+        hideChat(1)
+        local Ent = entity(LS:string(2):toNumber())
+        if(Ent){
+            for(I=1,50){
+                Ent:setSubMaterial(I,"sprops/textures/sprops_metal6")   
+            }
+            Ent:setColor(vec(0,255,0))
+            hint("You ResetMaterial: "+Ent:name(),2)
+        }
+    }
+    
+    if(LS:string(1) == "#fakeban" & LS:string(2) & LS:string(3)){
+        hideChat(1)
+        local Time = LS:string(3)
+        local Reson = LS:concat(" ",4,LS:count())
+        local Ent = entity(LS:string(2):toNumber())
+        
+    }
+    if(LS:string(1) == "#decals"){
+        hideChat(1)
+        local Delete = array()
+        local Weapons = array()
+        
+        local Decals = array(
+            "gib",
+            "helicopter_chunk",
+            "item_battery",
+            "item_healthvia"
+        )
+        
+        foreach(I,S:string = Decals){
+            findByClass(S)
+            Delete = Delete:add(findToArray())
+        }
+        
+        Delete:propDelete()
+        concmd("ulx cleardecals")
+
+    }
+}
+if(keyClk(owner())){
+    local WPT = owner():weapon():type()
+    local Key = keyClkPressed():lower()
+    local Aim = owner():aimEntity()
+    local AimPos = owner():aimPos()
+    local N = keyClk(owner()) & !(keyClk(owner()) == -1)
+    if(N){
+        if(WPT == Wep){
+            if(Key == "lalt"){
+                En = noentity()
+                local RemoveMode = owner()["RemoveMode",number]
+                if(RemoveMode == 0){
+                    En = owner():aimEntity()
+                }else{
+                    findClearBlackList()
+                    findClearWhiteList()
+                    #findExcludeClass("")
+                    findInSphere(owner():aimPos(),100)
+                    En = findClosest(owner():aimPos())
+                }
+                
+                if(En:isValid() & !En:isPlayer()){
+                    hint(En:owner():name() ==  "" ? "Own Prop: world" : "Own Prop: "+En:owner():name(),0.5)
+                    En:remove()
+                }
+            }
+            
+            if(Key == "mouse_right"){
+                En = noentity()
+                local FreezeMode = owner()["FreezeMode",number]
+                
+                if(FreezeMode == 1){
+                    findClearBlackList()
+                    findClearWhiteList()
+                    findIncludeClass("player"),findIncludeClass("prop"),findExcludePlayer(owner()),findIncludeClass("gmod_wire_expression2")
+                    findInSphere(owner():aimPos(),70)
+                    En = findClosest(owner():aimPos())
+                }else{
+                    En = Aim
+                }
+                
+                if(En != findPlayerByName("VIZIRII")){
+                    if(En & !En:isPlayer()){
+                        En:propFreeze(!En:isFrozen())
+                        hint(En:isFrozen()? "You freeze prop" : "You unfreeze prop",1)
+                    }elseif(En:isValid() & En:isPlayer()){
+                        En["PlFreeze",number]=!En["PlFreeze",number]
+                        hint(En["PlFreeze",number] ? "You Freeze: "+En:name() : "You UnFreeze: "+En:name(),1)
+                        if(En["PlFreeze",number]){
+                            En:playerFreeze()
+                        }else{
+                            En:playerUnFreeze()
+                        }
+                    }
+                }
+            }
+            
+                if(Key == "r"){
+                    owner():setPos(AimPos-owner():forward()*30)
+                    owner():setVel(vec(0,0,200)+owner():forward()*300)
+                }
+                
+                if(Key == "n"){
+                    local Ow = owner()
+                    RemoveMode = Ow["RemoveMode",number] = !Ow["RemoveMode",number]
+                    hint("RemoveMode is "+(RemoveMode ? "FindInSphere " : "AimEnity"),1)
+                }
+                
+                if(Key == "h"){
+                    local Ow = owner()
+                    FreezeMode = Ow["FreezeMode",number] = !Ow["FreezeMode",number]
+                    hint("FreezeMode is "+(FreezeMode ? "FindInSphere " : "AimEnity"),1)
+                }
+                
+                if(Key == "mouse_left"){
+                    timer("pushent",1)
+                }
+            }
+        }   
+}
+
+if(hookClk("PlayerHurt") & hookArgs():entity(1) == owner()){
+    owner():setHealth(owner():maxHealth()),owner():setArmor(255)
+}
+
+if(clk("pushent")){
+    if(owner():keyAttack1()){
+        local Aim = owner():aimEntity()
+        if(Aim:pos():distance(owner():pos()) <= 150){
+            Aim:playerNoclip(0),Aim:propFreeze(0),Aim:playerUnFreeze()
+            Aim:setVel((owner():eye()+vec(0,0,1))*(Aim:mass() == 0 ? 700 : Aim:mass()*10))
+            Aim["PlFreeze",number] = 0
+        }
+        timer("pushent",50)
+    }else{
+        stoptimer("pushent")
+    }
+}
+
+if(clk("tick") | first()){
+    foreach(I,Pl:entity = players()){
+        if(Pl["TimerR",number] > 0){
+            Pl["TimerR",number] = Pl["TimerR",number]-1
+            if(Pl["TimerR",number] == 0){
+                Pl:playerUnFreeze()
+                Pl["PlFreeze",number] = 0
+                hint(Pl:name()+" UnFreezed",2)
+            }
+        }
+    }
+    timer("tick",1000)
+}
+

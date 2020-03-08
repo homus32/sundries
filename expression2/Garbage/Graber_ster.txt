@@ -1,0 +1,33 @@
+@name Graber_ster
+@persist [GrabT GrabP O]:entity Diff:vector
+if(first()){
+    O=owner()
+    propSpawnUndo(0)
+    runOnKeys(owner(),1)
+}
+
+if((O:weapon():type()=="weapon_physgun")&O:keyAttack1()){
+    if(GrabT){
+        if(GrabP){
+            GrabT:setPos(GrabP:pos()+Diff)
+            GrabT:setAng(GrabP:angles())
+        }else{
+            GrabP=propSpawn("models/hunter/blocks/cube025x025x025.mdl",O:aimPos()-O:eye():normalized()*15,GrabT:angles(),1)
+            GrabP:setAlpha(0)
+            Diff=GrabT:pos()-GrabP:pos()
+            noCollide(GrabT,GrabP)
+        }
+    }else{
+        if(O:aimEntity():isPlayer()|O:keyPressed("t")){
+            GrabT=O:aimEntity()
+            if(GrabT:isPlayer()){GrabT:playerFreeze()}
+        }
+    }
+}else{
+    if(GrabP){GrabP:propDelete()}
+    if(GrabT){
+        if(GrabT:isPlayer()){GrabT:playerUnFreeze()}
+        GrabT=noentity()
+    }
+}
+

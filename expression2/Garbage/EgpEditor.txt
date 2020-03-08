@@ -1,0 +1,385 @@
+@name EgpEditor
+@inputs  UpdateObj:table
+@outputs Object:table
+@persist I [Object Undo]:table Wirelink:wirelink
+@trigger 
+
+#gui
+#key move
+#Изменение размера и шрифта текста
+#сохранение сессии в файл
+#копирование элементов с экрана
+
+if(first()){
+#noDuplications()
+
+hint("by Artur200320081",1)
+hint("V 1.0",1)
+hint("EgpEditor",1)
+
+runOnChat(1)
+runOnKeys(owner(),1)
+
+function egpUpdate(){
+Wirelink:egpClear()
+foreach(K:number,A:array = Object){
+switch(A[1,string]){
+case "box", Wirelink:egpBox(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpMaterial(A[2,number],A[6,string]) Wirelink:egpAngle(A[2,number],A[7,number]) break
+case "rbox", Wirelink:egpRoundedBox(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpRadius(A[2,number],A[6,number]) Wirelink:egpMaterial(A[2,number],A[7,string]) break
+case "boxo", Wirelink:egpBoxOutline(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpSize(A[2,number],A[6,number]) Wirelink:egpMaterial(A[2,number],A[7,string]) break
+case "rboxo", Wirelink:egpRoundedBoxOutline(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpRadius(A[2,number],A[6,number]) Wirelink:egpSize(A[2,number],A[7,number]) Wirelink:egpMaterial(A[2,number],A[8,string]) break
+case "cir", Wirelink:egpCircle(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpMaterial(A[2,number],A[6,string]) break
+case "ciro", Wirelink:egpCircleOutline(A[2,number],A[3,vector2],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpSize(A[2,number],A[6,number]) Wirelink:egpMaterial(A[2,number],A[7,string]) break
+case "text", Wirelink:egpText(A[2,number],A[3,string],A[4,vector2]) Wirelink:egpColor(A[2,number],A[5,vector]) Wirelink:egpSize(A[2,number],A[6,number]) Wirelink:egpAlign(A[2,number],A[7,number]) break
+case "triangle", Wirelink:egpTriangle(A[2,number],A[3,vector2],A[4,vector2],A[5,vector2]) Wirelink:egpColor(A[2,number],A[6,vector]) break
+}
+
+}}
+
+##ifdef entity:wirelink()
+Wirelink = entity():isWeldedTo():wirelink()
+##else
+#print("connect Egp Plz")
+##endif
+Wirelink:egpClear()
+}
+
+if(chatClk(owner())){
+LS = owner():lastSaid():explode(" ")
+LS[1,string] = LS[1,string]:lower()
+
+if(LS[1,string] == "/egpobj"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+Undo:pushTable(table(TempIndex,Object[TempIndex,array]:clone()))
+DefCol = vec(255)
+DefPos = vec2(256)
+DefSize = vec2(50)
+DefSizeN = 14
+DefRad = 10
+DefTol = 3
+DefAlg = 1
+DefAng = 0
+DefText = "this is text"
+DefMat = ""
+Triangle1 = vec2(256,256)
+Triangle2 = vec2(236,226)
+Triangle3 = vec2(276,226)
+
+switch(LS[3,string]){
+case "box", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefMat,DefAng) break
+case "rbox", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefRad,DefMat) break
+case "boxo", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefTol,DefMat) break
+case "rboxo", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefRad,DefTol,DefMat) break
+case "cir", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefMat) break
+case "ciro", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefPos,DefSize,DefCol,DefTol,DefMat) break
+case "text", Object[TempIndex,array] = array(LS[3,string],TempIndex,DefText,DefPos,DefCol,DefSizeN,DefAlg) break
+case "triangle", Object[TempIndex,array] = array(LS[3,string],TempIndex,Triangle1,Triangle2,Triangle3,DefCol) break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"неверный обьект") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egppos"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "box",
+case "rbox",
+case "boxo",
+case "rboxo",
+case "cir",
+case "ciro", TempArray[3,vector2] = vec2(LS[3,string]:toNumber(),LS[4,string]:toNumber()) break
+case "text", TempArray[4,vector2] = vec2(LS[3,string]:toNumber(),LS[4,string]:toNumber()) break
+case "triangle",
+TempArray[3,vector2] = vec2(LS[3,string]:toNumber(),LS[4,string]:toNumber()) 
+TempArray[4,vector2] = vec2(LS[5,string]:toNumber(),LS[6,string]:toNumber())
+TempArray[5,vector2] = vec2(LS[7,string]:toNumber(),LS[8,string]:toNumber()) break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"тип обьекта не может обработатся!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpsize"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "box",
+case "rbox",
+case "boxo",
+case "rboxo",
+case "cir",
+case "ciro", TempArray[4,vector2] = vec2(LS[3,string]:toNumber(),LS[4,string]:toNumber()) break
+case "text", TempArray[6,number] = LS[3,string]:toNumber() break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"данному обьекта невозможно установить размер!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpcolor"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "box",
+case "rbox",
+case "boxo",
+case "rboxo",
+case "cir",
+case "ciro",
+case "text", TempArray[5,vector] = vec(LS[3,string]:toNumber(),LS[4,string]:toNumber(),LS[5,string]:toNumber()) break
+case "triangle", TempArray[6,vector] = vec(LS[3,string]:toNumber(),LS[4,string]:toNumber(),LS[5,string]:toNumber()) break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"тип обьекта не может обработатся!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egptol"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "ciro",
+case "boxo", TempArray[6,number] = LS[3,string]:toNumber() break
+case "rboxo", TempArray[7,number] = LS[3,string]:toNumber() break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"тип обьекта не может обработатся!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egprad"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "rbox",
+case "rboxo", TempArray[6,number] = LS[3,string]:toNumber() break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"тип обьекта не может обработатся!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egptext"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "text", TempArray[3,string] = LS:concat(" ",3) break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"этому обьекту не возможно задать текст!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpalg"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "text", TempArray[7,number] = LS[3,string]:toNumber() break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"этот обьект не возможно выравнить!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpmat"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "box", TempArray[6,string] = LS[3,string] break
+case "rbox",
+case "boxo", TempArray[7,string] = LS[3,string] break
+case "rboxo", TempArray[8,string] = LS[3,string] break
+case "cir", TempArray[6,string] = LS[3,string] break
+case "ciro", TempArray[7,string] = LS[3,string] break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"этот обьект не поддерживает материалы!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpang"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+TempArray = Object[TempIndex,array]
+Undo:pushTable(table(TempIndex,TempArray:clone()))
+
+switch(TempArray[1,string]){
+case "box", TempArray[7,number] = LS[3,string]:toNumber() break
+default, printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"Данный обьект не поддерживает углы!") Undo:pop() break }
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpdel"){
+hideChat(1)
+TempIndex = LS[2,string]:toNumber()
+Undo:pushTable(table(TempIndex,Object[TempIndex,array]:clone()))
+Object:unset(TempIndex)
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpundo"){
+hideChat(1)
+TempTable = Undo:popTable()
+TempIndex = TempTable[1,number]
+TempArray = TempTable[2,array]
+Object[TempIndex,array] = TempArray
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpdelundo"){
+hideChat(1)
+Undo = table()
+}
+
+if(LS[1,string] == "/egpload"){
+hideChat(1)
+Object = UpdateObj:clone()
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egpsave"){
+hideChat(1)
+#Object = UpdateObj:clone()
+#foreach()
+#egpUpdate()
+}
+
+if(LS[1,string] == "/egprerender"){
+hideChat(1)
+
+egpUpdate()
+}
+
+if(LS[1,string] == "/egphelp"){
+hideChat(1)
+print("/egpObj [Ind] [type]
+/egpPos [Ind] [Pos] {[Pos2] [Pos3]}
+/egpSize [Ind] [Size]
+/egpColor [Ind] [Color]
+/egpTol [Ind] [Height]
+/egpRad [Ind] [Radius]
+/egpText [Ind] [String]
+/egpAlg [Ind] [Number]
+/egpMat [Ind] [String]
+/egpDel [Ind]")
+
+print("
+/egpAng [Ind] [Number]
+/egpReRender
+/egpUndo
+/egpDelUndo
+/egpToFile [Var] [LinkVar] [String]
+/egpLoad")
+}
+
+if(LS[1,string] == "/egptofile"){
+hideChat(1)
+
+if(LS[2,string] == "" | LS[3,string] == "" | LS[4,string] == ""){
+printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"Не достаточно аргументов!")
+exit()}
+
+Name = LS:concat(4)
+Data = ""
+
+TEMP = LS[2,string]:explode("")
+TEMP[1,string] = TEMP[1,string]:upper()
+ConVar = TEMP:concat()
+
+TEMP = LS[3,string]:explode("")
+TEMP[1,string] = TEMP[1,string]:upper()
+WireVar = TEMP:concat()
+
+Data = ConVar+" = 1
+"+WireVar+" = entity():isWeldedTo():wirelink()
+
+"
+
+foreach(K:number,A:array = Object){
+switch(A[1,string]){
+case "box",
+Data = Data+WireVar+":egpBox("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[6,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpAngle("+ConVar+","+A[7,number]+")"
+break
+case "rbox",
+Data = Data+WireVar+":egpRoundedBox("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[6,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpRadius("+ConVar+","+A[6,number]+")"
+break
+case "boxo",
+Data = Data+WireVar+":egpBoxOutline("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[7,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpSize("+ConVar+","+A[6,number]+")"
+break
+case "rboxo",
+Data = Data+WireVar+":egpRoundedBoxOutline("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[8,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpRadius("+ConVar+","+A[6,number]+")
+"+WireVar+":egpSize("+ConVar+","+A[7,number]+")"
+break
+case "cir",
+Data = Data+WireVar+":egpCircle("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[6,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))"
+break
+case "ciro",
+Data = Data+WireVar+":egpCircleOutline("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpMaterial("+ConVar+",\""+A[7,string]+"\")
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpSize("+ConVar+","+A[6,number]+")"
+break
+case "text",
+Data = Data+WireVar+":egpText("+ConVar+",\""+A[3,string]+"\",vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"))
+"+WireVar+":egpColor("+ConVar+",vec("+A[5,vector]:x()+","+A[5,vector]:y()+","+A[5,vector]:z()+"))
+"+WireVar+":egpSize("+ConVar+","+A[6,number]+")
+"+WireVar+":egpAlign("+ConVar+","+A[7,number]+")"
+break
+case "triangle",
+Data = Data+WireVar+":egpTriangle("+ConVar+",vec2("+A[3,vector2]:x()+","+A[3,vector2]:y()+"),vec2("+A[4,vector2]:x()+","+A[4,vector2]:y()+"),vec2("+A[5,vector2]:x()+","+A[5,vector2]:y()+"))
+"+WireVar+":egpColor("+ConVar+",vec("+A[6,vector]:x()+","+A[6,vector]:y()+","+A[6,vector]:z()+"))"
+break
+default, Data = Data+"#--------------BreakType----------------#" break
+}
+Data = Data+"
+"+ConVar+"++
+"
+}
+
+if(fileCanWrite()){
+fileWrite(">e2shared/"+Name+".txt",Data)
+printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"Запись успешна!")}else{
+printColor(vec(30),"[",vec(255,0,0),"EgpEditor",vec(30),"] ",vec(255,255,0),"Невозможно записать в файл!")}
+}
+
+}
+
+if(keyClk(owner())){
+
+}

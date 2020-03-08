@@ -1,0 +1,15 @@
+@name Barier
+
+entity():isWeldedTo():setAlpha(0)
+noCollideAll(entity():isWeldedTo(),1)
+entity():isWeldedTo():propDraw(0)
+
+R = entity():isWeldedTo():getConstraints()
+
+foreach(I,E:entity = R){
+    E:setAlpha(0)
+    noCollideAll(E,1)
+    E:propDraw(0)
+}
+
+entity():remove()

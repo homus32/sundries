@@ -1,0 +1,52 @@
+@name COncertik 
+@persist [Prop1 Prop2 E]:entity InBox:array
+
+if(clkName()){
+    switch(clkName()){
+        case "holo", 
+            timer("holo",500)
+    
+            Vec = Prop1:pos() - Prop2:pos() 
+
+            holoScaleUnits(1,vec(abs(Vec:x()),abs(Vec:y()),abs(Vec:z()))) 
+            holoPos(1,Prop2:pos()+((Prop1:pos()-Prop2:pos())/2)) 
+            holoScaleUnits(2,-vec(abs(Vec:x()),abs(Vec:y()),abs(Vec:z()))) 
+            holoPos(2,Prop2:pos()+((Prop1:pos()-Prop2:pos())/2))                 
+        break
+        
+        case "players",
+            timer("players",1000)
+            
+            P1 = Prop1:pos()
+            P2 = Prop2:pos()
+
+            Min = vec(min(P1:x(),P2:x()),min(P1:y(),P2:y()),min(P1:z(),P2:z()))
+            Max = vec(max(P1:x(),P2:x()),max(P1:y(),P2:y()),max(P1:z(),P2:z() ) )
+            
+            foreach(I,Ply:entity = players()){ 
+                InRange = inrange(Ply:shootPos(),Min,Max)
+                #if( Ply == owner() ){ print( InRange ? "Y" : "N", Ply:shootPos(), Min, Max ) } 
+                
+                if(InRange & !Ply["InGod",number]){
+                    Ply["InGod",number] = 1 
+                    concmd("ulx god \"" + Ply:name() + "\"") 
+                }elseif(!InRange & Ply["InGod",number]){
+                    Ply["InGod",number] = 0 
+                    concmd("ulx ungod \"" + Ply:name() + "\"") 
+                }
+            }
+        break
+    }
+}elseif(first()){
+    E = entity() 
+
+    propSpawnUndo(0) 
+    Prop1 = propSpawn("models/hunter/plates/plate.mdl",E:toWorld(vec(0,10,0)),ang(0),1) 
+    Prop2 = propSpawn("models/hunter/plates/plate.mdl",E:toWorld(vec(0,-10,0)),ang(0),1) 
+    
+    holoCreate(1,vec(),vec(),ang(),vec4(0,150,150,80)) holoDisableShading(1,1) 
+    holoCreate(2,vec(),vec(),ang(),vec4(250,0,150,150)) holoDisableShading(2,1) 
+    
+    timer("holo",10)
+    timer("players",10)
+}

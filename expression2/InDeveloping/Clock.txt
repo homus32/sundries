@@ -1,0 +1,17 @@
+@name Clock
+@persist 
+if(first()){
+holoCreate(1,entity():toWorld(vec(0,0,50)),vec(1),ang(0,90,0),vec(255),"models/sprops/geometry/fdisc_60.mdl")
+holoMaterial(1,"models/props_c17/metalladder003")
+holoDisableShading(1,1)
+holoCreate(2,entity():toWorld(vec(0.2,0,50)),vec(1.01),ang(0,90,0),vec(255),"models/sprops/geometry/fdisc_60.mdl")
+holoMaterial(2,"models/gibs/metalgibs/metal_gibs")
+holoCreate(3,entity():toWorld(vec(-3,0,50)),vec(5.4,5.4,7),ang(0,90,90),vec(255),"models/holograms/hq_torus_thin.mdl")
+holoMaterial(3,"phoenix_storms/pack2/interior_sides")
+holoCreate(4,entity():toWorld(vec(-4,0,50)),vec(5),ang(0,90,90),vec(255),"models/holograms/cplane.mdl")
+holoMaterial(4,"phoenix_storms/glass")
+
+for(I=1,10){
+    holoParent(I,entity())
+}
+}

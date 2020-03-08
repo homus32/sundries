@@ -1,0 +1,19 @@
+@name AFK v2
+@persist I
+interval(100)
+if(first()){
+    holoCreate(1,vec(0,0,0),vec(1),ang(0),vec(255),"models/sprops/misc/alphanum/alphanum_f.mdl")
+    holoCreate(2,vec(-15,0,0),vec(1),ang(),vec(255),"models/sprops/misc/alphanum/alphanum_k.mdl")
+    holoCreate(3,vec(15,0,0) ,vec(1),ang(0),vec(255),"models/sprops/misc/alphanum/alphanum_a.mdl")
+    for(I=1,3){
+        holoVisible(I,players(),1)
+        holoVisible(I,owner(),0)
+        holoParent(I,1)
+    }
+}
+HSV = hsv2rgb(curtime() * 100 % 360, 1, 1)
+for(I=1,3){ holoColor(I,HSV) }
+I+= 6%360
+holoPos(1,owner():toWorld(vec(0,0,55)))
+holoAng(1,ang(0,I,0))
+

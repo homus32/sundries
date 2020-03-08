@@ -1,0 +1,39 @@
+@name Svinka teleporter
+@persist Spawn:entity Pos:vector A A1 Ect:entity
+@trigger 
+#noDuplications()
+runOnTick(1)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             if(first()){hint("by Oria",1)}                                                                                                                                                                                                                                                                                                                                                                                                             
+if(first()){
+    Spawn=seatSpawn("models/hunter/blocks/cube8x8x8.mdl",1)
+     Ect=propSpawn("models/kobilica/relay.mdl",1) noCollideAll(Ect,1)
+     Ect:setPos(entity():pos()+vec(0,0,20))
+     Spawn:setAlpha(0)
+     noCollideAll(Spawn,1)
+     Spawn:setPos(entity():pos()+vec(0,0,40))
+    }
+    
+if(changed(Spawn:driver()) && A==0){
+    A=1
+     Pos=Spawn:pos() 
+    Spawn:setPos(Ect:pos())
+     timer("BO",100)
+     timer("AO",200)
+     timer("CO",300)
+    }
+if(clk("BO")){
+    Spawn:ejectPod()
+    }
+if(clk("AO")){
+    Spawn:setPos(Pos)
+    }
+if(clk("CO")){
+    A=0
+    }
+if(owner():keyReload() && owner():weapon():type()=="weapon_physcannon" && A1==0){
+    A1=1
+    Pos=owner():aimPos()+vec(0,0,45) 
+    Spawn:setPos(owner():aimPos()+vec(0,0,40)) 
+    timer("AO1",1000)}
+if(clk("AO1")){
+    A1=0
+    }

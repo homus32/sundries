@@ -1,0 +1,46 @@
+@persist [ A B C D E F G ]:number R:array T:table S:string V:vector V2:vector2 V4:vector4
+
+if(first()){ # -- Каждый чип должен начинатся с этого
+    # first() - Оно выполняется при загрузке чипе и больше не повторяется
+    
+    for(I=1,20){ # Цикл For
+        A = I
+    }
+    B = 20
+    
+    while(B > C){ # Цикл While
+        C++
+    }
+    D = 2
+    
+    switch(D){ # Цикл Switch
+        case 0,
+            print("Ist Zero")
+        break
+        case 1,
+            print("Its One")
+        break
+        case 2,
+            print("Its Two and...")
+        case 3,
+            print("Three")
+        break
+        default,
+            print("Not Founded :(")
+        break
+    }
+    
+    R = array(owner(),entity(),findPlayerByName("Homunkuo"),findPlayerByName("artur"))
+    
+    foreach(I,E:entity = R){ # Цикл Foreach
+        if(E == owner()){
+            print("E == You")
+        }elseif(E == entity()){
+            print("E == Your Entity")
+        }elseif(E == findPlayerByName("Homunkulo")){
+            print("E == Your Friend")
+        }else{
+            print("E == Homunkulo Friend")
+        }
+    }
+}

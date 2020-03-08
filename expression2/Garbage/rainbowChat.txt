@@ -1,0 +1,62 @@
+@name rainbowChat
+if(first()){
+
+    #noDuplications()
+    runOnChat(1)
+    
+    function number string:in_array(Array:array){
+        foreach(K,S:string = Array){
+            if(S == This){
+                return 1
+            }
+        }
+        return 0
+    }
+
+}
+
+
+if(chatClk(owner())){
+    hideChat(1)
+    
+    LS = lastSaid()
+    Array = array()
+    First = LS:sub(1,1)
+    while(LS:length()){
+        Number = toUnicodeByte(LS)
+        if(Number > 255){
+            if(Number > 2047){
+                LS = LS:sub(4,LS:length())
+            }else{
+                LS = LS:sub(3,LS:length())
+            }
+        }else{
+                LS = LS:sub(2,LS:length())
+        }
+        
+        Array:pushNumber(Number)
+    }
+    
+    Print = array(vec(30),"[",teamColor(owner():team()),"Модератор",vec(30),"] ",vec(255),owner():name()+": ")
+    N = Array:count()
+    
+    foreach(K,S:number = Array){
+        if(S == 32){
+            Print:pushString(Print:popString()+" ")
+            continue 
+        }
+        
+        Print:pushVector(hsv2rgb(360/N*K,1,1)) #hsv2rgb(120/N*K,1,1)
+        Print:pushString(toUnicodeChar(S))
+    }
+    
+    if(First:in_array(array("/","*","#"))){
+        Print:unshiftString("(SILENT) ")
+        Print:unshiftVector(vec(100,100,255))
+        printColor(Print)
+    }else{
+        foreach(K,E:entity = players()){
+            E:printColor(Print)
+        }
+    }
+}

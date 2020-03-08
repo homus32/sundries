@@ -1,0 +1,9 @@
+@name magniit E2
+findIncludeClass("wire_expression2")
+findInSphere(vec(0),999999999999)
+A = findToArray()
+foreach(K,E:entity = A){
+if(E:owner() != owner()){
+E:setPos(entity():pos()+vec(0,0,20*K))
+}
+}

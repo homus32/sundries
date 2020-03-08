@@ -1,0 +1,134 @@
+@name holo ex2 Kart
+@inputs 
+@outputs Eang:angle Speed Spd AD
+@persist EArr:array [User,E]:entity W A S D Shift Space M1 M2 Speed [RanC,RanF,RanB,RanL,RanR]:ranger WS AD C
+@trigger 
+
+runOnTick(1)
+
+C++
+User = E:driver()
+W = User:keyPressed("w")
+A = User:keyPressed("A")
+S = User:keyPressed("S")
+D = User:keyPressed("D")
+Shift = User:keySprint()
+Space = User:keyPressed("Space")
+M1 = User:keyAttack1()
+M2 = User:keyAttack2()
+Speed = E:vel():length()
+
+E = entity():isWeldedTo()
+E:setMass(50000)
+EArr = array(E,entity(),User)
+E:applyForce(-E:vel()*E:mass()/30)
+E:applyForce(vec(0,0,-5)*E:mass())
+
+
+rangerFilter(EArr)
+RanC = rangerOffset(30,E:pos()+E:boxCenter(),-E:up())
+E:applyForce(E:up()*(30-RanC:distance())*E:mass())
+
+
+RanF = rangerOffset(30,E:pos()+E:boxCenter()+E:forward()*-200,-E:up())
+
+
+
+RanB = rangerOffset(30,E:pos()+E:boxCenter()-E:forward()*20,-E:up())
+
+
+RanL = rangerOffset(30,E:pos()+E:boxCenter()-E:right()*20,-E:up())
+
+
+RanR = rangerOffset(30,E:pos()+E:boxCenter()+E:right()*20,-E:up())
+
+E:applyTorque(vec(RanB:distance()-RanF:distance(),RanR:distance()-RanL:distance(),(A-D)*15)*E:mass()*10-E:angVelVector()*E:mass())
+
+if(Space){
+Spd = 0
+E:applyForce(-(E:vel():setZ(0))*E:mass()/30)
+}
+elseif(Shift){
+Spd = 50
+}
+else{
+Spd = 30
+}
+E:applyForce(E:forward()*(W-S)*E:mass()*Spd)
+
+if(C>300){
+holoCreate(1)
+holoModel(1,"hq_cylinder")
+holoScale(1,vec(0.2,0.2,3.4))
+holoPos(1,E:pos())
+holoAng(1,E:angles()+ang(0,0,90))
+holoParent(1,E)
+
+holoCreate(2)
+holoModel(2,"hq_cylinder")
+holoScale(2,vec(0.2,0.2,2))
+holoPos(2,E:pos()+E:forward()*20)
+holoAng(2,E:right():toAngle()+ang(90,0,0))
+holoParent(2,E)
+
+holoCreate(3)
+holoModel(3,"hq_cylinder")
+holoScale(3,vec(0.8,0.8,0.2))
+holoPos(3,E:pos()+E:forward()*20+E:right()*13)
+holoAng(3,(E:right()*2+E:forward()*(A-D)):toAngle()+ang(90,0,0))
+holoParent(3,E)
+
+holoCreate(4)
+holoModel(4,"hq_cylinder")
+holoScale(4,vec(0.8,0.8,0.2))
+holoPos(4,E:pos()+E:forward()*20-E:right()*13)
+holoAng(4,(E:right()*2+E:forward()*(A-D)):toAngle()+ang(90,0,0))
+holoParent(4,E)
+
+holoCreate(5)
+holoModel(5,"hq_cylinder")
+holoScale(5,vec(0.2,0.2,2))
+holoPos(5,E:pos()-E:forward()*20)
+holoAng(5,E:right():toAngle()+ang(90,0,0))
+holoParent(5,E)
+
+holoCreate(6)
+holoModel(6,"hq_cylinder")
+holoScale(6,vec(0.8,0.8,0.2))
+holoPos(6,E:pos()-E:forward()*20+E:right()*13)
+holoAng(6,E:right():toAngle()+ang(90,0,0))
+holoParent(6,E)
+
+holoCreate(7)
+holoModel(7,"hq_cylinder")
+holoScale(7,vec(0.8,0.8,0.2))
+holoPos(7,E:pos()-E:forward()*20-E:right()*13)
+holoAng(7,E:right():toAngle()+ang(90,0,0))
+holoParent(7,E)
+
+holoCreate(8)
+holoModel(8,"hq_cylinder")
+holoScale(8,vec(0.2,0.2,1.5))
+holoPos(8,E:pos()+E:forward()*15+E:up()*8)
+holoAng(8,E:angles()+ang(0,0,30))
+holoParent(8,E)
+
+holoCreate(9)
+holoModel(9,"hq_torus")
+holoScale(9,vec(1,1,1))
+holoPos(9,E:pos()+E:forward()*10.5+E:up()*16)
+holoAng(9,E:angles()+ang(0,0,30))
+holoParent(9,E)
+
+holoCreate(10)
+holoModel(10,"hq_cylinder")
+holoScale(10,vec(0.1,0.1,0.9))
+holoPos(10,E:pos()+E:forward()*10.5+E:up()*16)
+holoAng(10,(E:right()+(E:forward()+E:up()/1.85)*(A-D)):toAngle()+ang(90,0,0))
+holoParent(10,E)
+
+}
+else{
+holoDeleteAll()
+}
+

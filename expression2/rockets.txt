@@ -1,0 +1,42 @@
+@name Rockets
+@persist Target:entity Bombs:array K
+
+interval(500)
+
+if(first()){
+    propSpawnUndo(0)
+}
+
+K = (K+1)%(players():count())
+
+if(first() | clk("new_rocket")){
+    timer("new_rocket",300)
+    local Bomb = propSpawn("models/props_phx/ww2bomb.mdl",1)
+    Bomb:setPos(Bomb:pos()+vec(randint(-300,300),randint(-300,300),50))
+    Bomb:setTrails(1,30,7,"trails/smoke",vec(255),255)
+    Bomb:propNotSolid(1)
+    Bombs:pushEntity(Bomb)
+    Bomb["Target",entity] = entity(1)
+    Bomb["Vector",vector] = randvec(-100,150)
+}
+
+foreach(I,Bomb:entity = Bombs){
+    if(Bomb:pos()[3] <= -400 & !Bomb["Mode",number]){
+        Bomb:setVel(-Bomb:pos()+vec(randint(-300,300),randint(-300,300),randint(-100,300))+vec(Bomb["Target",entity]:pos():x(),Bomb["Target",entity]:pos():y(),0))
+        Bomb:setAng(Bomb:pos():toAngle()+ang(180,0,0))
+        Bomb:propFreeze(0)
+    }else{
+        if(!Bomb["Mode",number]){
+            Bomb["Mode",number] = 1
+        }
+        
+        Bomb:setAng((Bomb["Target",entity]:pos()-Bomb:pos()):toAngle()+ang(0,0,0))
+        Bomb:setVel((Bomb["Vector",vector]+Bomb["Target",entity]:pos()-Bomb:pos())*100)
+        
+        if(Bomb["Target",entity]:pos():distance(Bomb:pos()) <= 250){
+            Bomb:propBreak()
+            Bombs:removeEntity(I)
+        }
+    }
+}
+

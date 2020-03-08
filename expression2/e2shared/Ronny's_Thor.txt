@@ -1,0 +1,172 @@
+@name Ronny's Thor
+@persist [E O W H Q Re B]:entity [RH Weapon Model]:string [Props]:table Cl Act Can
+interval(10)
+if(first()){
+   # noDuplications()
+    E = entity() O = owner() W = world()
+    Color = vec(100,0,0)
+    Color1 = vec(100)
+    Color2 = vec(150)
+    Color3 = vec(150)
+    Color6 = vec(150,0,0)
+    Color7 = vec(50) So = 0 Act = 0
+    Material = "sprops/trans/lights/light_plastic"
+    Material1 = "models/props_pipes/GutterMetal01a"
+    Material2 = "models/shiny"
+    Material4 = "models/shiny"
+    Material5 = "models/shiny"
+    Material6 = "models/alyx/emptool_glow"
+    Material7 = "sprops/trans/lights/light_plastic"
+    Model = "models/props_phx/ww2bomb.mdl"
+RH = "anim_attachment_RH"
+Weapon = "weapon_crossbow"
+Can = 0
+        function entity q(ID:number,Parent:entity,Model:string,Material:string,Size:vector,Posa:vector, Anga:angle,Color:vector,Alph,HDS:number,Shadow:number){
+        holoCreate(ID)    holoEntity(ID)    holoParent(ID,Parent)    holoDisableShading(ID,HDS)    holoShadow(ID,Shadow)    holoPos(ID,Posa)    holoAng(ID,Anga)    holoModel(ID,Model)    holoMaterial(ID,Material)
+        holoColor(ID,Color)    holoAlpha(ID,Alph)     holoScaleUnits(ID,Size)    }
+        function shoot(){
+            if(Can){
+            Can=!Can
+            Props[1,entity]:propDelete()
+            local P = O:aimPos()
+            Props[1,entity] = propSpawn("models/props_phx/ww2bomb.mdl",Re:toWorld(vec(-30,0,5)),Re:toWorld(ang(180,0,0)),0)
+
+            local Pr = Props[1,entity]
+            q(104,Re,"","",vec(0.5),Re:toWorld(vec()),Q:toWorld(ang()),vec(0),0,0,0)
+            holoEntity(104):removeTrails()
+            holoPos(104,Pr:pos()) holoAng(104,Pr:angles())
+            holoParent(104,Pr)
+            Pr:propGravity(0) Pr:setMass(50000) Pr:propFreeze(0)
+            Pr:setAng((P-Pr:pos()):toAngle()) Pr:propPhysicalMaterial("ice")
+            timer("BOOM",10)
+        
+        }   
+            
+        }
+    q(0,E,"","",vec(5),E:toWorld(vec(0,0,50)),E:toWorld(ang()),vec(150),0,0,0) H=holoEntity(0)
+    holoPos(0,O:attachmentPos(RH)) holoAng(0,O:attachmentAng(RH))
+    holoParentAttachment(0,O,RH) 
+    q(100,E,"","",vec(5),E:toWorld(vec(0,0,55)),E:toWorld(ang(0,0,180)),vec(150),0,0,0) Q=holoEntity(100)
+    q(102,Q,"","",vec(65,0.5,0.5),Q:toWorld(vec(-20,0,0)),Q:toWorld(ang()),vec(0),0,0,0)
+    q(103,Q,"","",vec(0.5),Q:toWorld(vec(-75,0,0)),Q:toWorld(ang()),vec(0),0,0,0) Re = holoEntity(103)
+   
+###### MODEL ######
+    q(1,Q,"models/holograms/hq_cylinder.mdl",Material,vec(5.2,5.2,30),Q:toWorld(vec(-15,0,-3)),Q:toWorld(ang(90,0,0)),Color,255,0,0)
+    q(2,Q,"",Material,vec(50,3,1),Q:toWorld(vec(-35,0,-5)),Q:toWorld(ang(0,0,0)),Color,255,0,0)
+    q(3,Q,"",Material,vec(60,3,1),Q:toWorld(vec(-30,0,5)),Q:toWorld(ang(0,0,0)),Color,255,0,0)
+    q(4,Q,"",Material,vec(45,2.1,1),Q:toWorld(vec(-22.5,4,0)),Q:toWorld(ang(0,0,90)),Color,255,0,0)
+    q(5,Q,"",Material,vec(45,2.1,1),Q:toWorld(vec(-22.5,-4,0)),Q:toWorld(ang(0,0,90)),Color,255,0,0)
+    q(6,Q,"",Material,vec(60,5.35,1),Q:toWorld(vec(-30,2.6,3)),Q:toWorld(ang(0,0,-56)),Color,255,0,0)
+    q(7,Q,"",Material,vec(60,5.35,1),Q:toWorld(vec(-30,-2.6,3)),Q:toWorld(ang(0,0,56)),Color,255,0,0)
+    q(8,Q,"",Material,vec(50,5.35,1),Q:toWorld(vec(-35,-2.6,-3)),Q:toWorld(ang(0,0,-56)),Color,255,0,0)
+    q(9,Q,"",Material,vec(50,5.35,1),Q:toWorld(vec(-35,2.6,-3)),Q:toWorld(ang(0,0,56)),Color,255,0,0)
+    q(10,Q,"",Material,vec(25,5,1),Q:toWorld(vec(-3.6,0,6)),Q:toWorld(ang(-10,0,0)),vec(255),255,0,0)
+    q(11,Q,"",Material,vec(27,4,1),Q:toWorld(vec(-3.6,3.05,4.5)),Q:toWorld(ang(-10,0,120)),vec(255),255,0,0)
+    q(12,Q,"",Material,vec(27,4,1),Q:toWorld(vec(-3.6,-3.05,4.5)),Q:toWorld(ang(-10,0,-120)),vec(255),255,0,0)
+    q(13,Q,"",Material,vec(11,5,9),Q:toWorld(vec(3,0,3)),Q:toWorld(ang(0,0,0)),vec(255),255,0,0)
+    q(14,Q,"models/gibs/scanner_gib01.mdl",Material7,vec(65,14,15),Q:toWorld(vec(-10,0,0)),Q:toWorld(ang(-5,0,0)),Color7,255,0,0)
+    q(15,Q,"models/gibs/scanner_gib05.mdl",Material2,vec(10,15,15),Q:toWorld(vec(15,7,0)),Q:toWorld(ang(0,90,35)),Color2,255,0,0)
+    q(16,Q,"models/gibs/scanner_gib05.mdl",Material2,vec(10,15,15),Q:toWorld(vec(15,-7,0)),Q:toWorld(ang(0,-90,225)),Color2,255,0,0)
+    q(17,Q,"models/gibs/antlion_gib_large_2.mdl",Material2,vec(30,15,15),Q:toWorld(vec(0,0,5)),Q:toWorld(ang(0,180,0)),Color2,255,0,0)
+    q(18,Q,"models/gibs/helicopter_brokenpiece_04_cockpit.mdl",Material5,vec(70,20,20),Q:toWorld(vec(-15,0,-3)),Q:toWorld(ang(10,180,180)),Color3,255,0,0)
+    q(19,Q,"models/gibs/helicopter_brokenpiece_04_cockpit.mdl",Material5,vec(30,20,20),Q:toWorld(vec(3,0,-6)),Q:toWorld(ang(30,180,180)),Color3,255,0,0)
+    q(20,Q,"models/props_combine/combine_light002a.mdl",Material7,vec(20,16,50),Q:toWorld(vec(-48,0,-2)),Q:toWorld(ang(90,0,0)),Color7,255,0,0)
+    q(21,Q,"models/props_combine/combine_light001b.mdl",Material2,vec(30,20,50),Q:toWorld(vec(8,0,-3)),Q:toWorld(ang(90,0,180)),Color2,255,0,0)
+    q(22,Q,"models/gunship.mdl",Material2,vec(50,20,15),Q:toWorld(vec(-5,7,3)),Q:toWorld(ang(180,0,90)),Color2,255,0,0)
+    q(23,Q,"models/gunship.mdl",Material2,vec(50,20,15),Q:toWorld(vec(-5,-7,3)),Q:toWorld(ang(180,0,-90)),Color2,255,0,0)
+    q(24,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-25,-3,3)),Q:toWorld(ang(-30,-90,90)),Color1,255,0,0)
+    q(25,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-32,-3,3)),Q:toWorld(ang(-30,-90,90)),Color1,255,0,0)
+    q(26,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-39,-3,3)),Q:toWorld(ang(-30,-90,90)),Color1,255,0,0)
+    q(27,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-25,3,3)),Q:toWorld(ang(-120,-90,90)),Color1,255,0,0)
+    q(28,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-32,3,3)),Q:toWorld(ang(-120,-90,90)),Color1,255,0,0)
+    q(29,Q,"models/props_lab/tpplug.mdl",Material1,vec(6,7,5),Q:toWorld(vec(-39,3,3)),Q:toWorld(ang(-120,-90,90)),Color1,255,0,0)
+    q(30,Q,"models/gibs/helicopter_brokenpiece_04_cockpit.mdl",Material5,vec(30,20,20),Q:toWorld(vec(18,0,4)),Q:toWorld(ang(-40,0,180)),Color3,255,0,0)    
+    q(31,Q,"models/bull/various/gyroscope.mdl",Material2,vec(7,7,7),Q:toWorld(vec(22,-2,10)),Q:toWorld(ang(30,0,5)),Color2,255,0,0)    
+    q(32,Q,"models/maxofs2d/hover_propeller.mdl",Material2,vec(8,8,5),Q:toWorld(vec(22,-2,10)),Q:toWorld(ang(30,0,5)),Color2,255,0,0)    
+    q(33,Q,"models/xqm/afterburner1medium.mdl",Material7,vec(7,7,10),Q:toWorld(vec(-45,0,0)),Q:toWorld(ang(-90,0,0)),Color7,255,0,0)    
+    q(34,Q,"models/xqm/afterburner1medium.mdl",Material7,vec(7,7,10),Q:toWorld(vec(-50,0,0)),Q:toWorld(ang(-90,0,0)),Color7,255,0,0)    
+    q(35,Q,"models/zombie/classic_torso.mdl",Material2,vec(5,5,10),Q:toWorld(vec(14,0,10)),Q:toWorld(ang(0,180,0)),Color2,255,0,0)   holoScale(35,vec(0.3))  
+    q(36,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-25,-3,3)),Q:toWorld(ang(-30,-90,90)),Color6,255,0,0)
+    q(37,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-32,-3,3)),Q:toWorld(ang(-30,-90,90)),Color6,255,0,0)
+    q(38,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-39,-3,3)),Q:toWorld(ang(-30,-90,90)),Color6,255,0,0)
+    q(39,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-25,3,3)),Q:toWorld(ang(-120,-90,90)),Color6,255,0,0)
+    q(40,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-32,3,3)),Q:toWorld(ang(-120,-90,90)),Color6,255,0,0)
+    q(41,Q,"models/props_lab/tpplug.mdl",Material6,vec(7,8,6),Q:toWorld(vec(-39,3,3)),Q:toWorld(ang(-120,-90,90)),Color6,255,0,0)
+    q(42,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,8),holoEntity(36):toWorld(vec(12,0,0)),holoEntity(36):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(43,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,8),holoEntity(37):toWorld(vec(12,0,0)),holoEntity(37):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(44,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,8),holoEntity(38):toWorld(vec(12,0,0)),holoEntity(38):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(45,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,8),holoEntity(39):toWorld(vec(12,0,0)),holoEntity(39):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(46,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,8),holoEntity(40):toWorld(vec(12,0,0)),holoEntity(40):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(47,Q,"models/effects/vol_light128x512.mdl",Material6,vec(5,5,10),holoEntity(41):toWorld(vec(12,0,0)),holoEntity(41):toWorld(ang(90,0,0)),vec(255),0,0,0)
+    q(48,Q,"models/props_combine/combine_intmonitor001.mdl","",vec(7,8,6),Q:toWorld(vec(0,15,-5)),Q:toWorld(ang(30,0,90)),Color3,255,0,0)   holoScale(48,vec(0.15)) 
+    holoEntity(48):setSubMaterial(1,"models/shiny") holoEntity(48):setSubMaterial(2,"models/props_lab/printout_sheet")
+
+}
+if(O:weapon():type()==Weapon&&changed(O:weapon():type()==Weapon)){
+    O:weapon(Weapon):setAlpha(0)
+    holoPos(100,H:toWorld(vec(10,-7,10))) holoAng(100,H:toWorld(ang(180,0,-10)))
+    holoParent(100,H)
+    
+    
+}
+if(O:weapon():type()!=Weapon&&changed(O:weapon():type()!=Weapon)){
+    O:weapon(Weapon):setAlpha(255)
+    holoPos(100,E:toWorld(vec(0,0,55))) holoAng(100,E:toWorld(ang(0,0,180)))
+    holoParent(100,E)
+    
+    
+}
+V=O:keyPressed("R")
+if(V&&changed(V)&Act == 0){
+       for(I=42,47){holoAlpha(I,55)}
+        timer("Part",50)    
+        Q:soundPlay(1,1000,"NPC_Vortigaunt.ZapPowerup")
+        soundPitch(1,55)
+        Q:soundPlay(2,1000,"novaprospekt.electric_loop")
+        soundPitch(2,55)
+}
+if(V&Act==0 | V&Act==1){
+
+    if(clk("Part")){
+    Cl+=(Cl<15 ? 1 : 0)
+    if(Cl==15&&changed(Cl==15)){ Act = 1 }
+    soundPitch(1,55+Cl*2)    soundPitch(2,55+Cl*2)
+    #particleGravity(vec(0))
+    particle(1,Cl + random(10,16),random(0.05,0.25),"sprites/orangecore1",vec(255),Re:pos(),vec(0),1)     
+    timer("Part",100)
+    }
+
+    
+}
+if(!V&&changed(!V) & Act == 1){  
+    Cl = 0 for(I=42,47){holoAlpha(I,0)}
+    Can = 1
+    soundStop(1)    soundStop(2)
+    Q:soundPlay(3,1000,"NPC_Strider.Shoot") Q:soundPlay(4,1000,"explode_1")
+    soundPitch(3,150)  soundPitch(4,55)
+    soundPitch(3,20) soundVolume(3,1)
+    timer("Purge",6000)
+    shoot()
+}
+if(!V&&changed(!V) & Act == 0){      Cl = 0 for(I=42,47){holoAlpha(I,0)}  soundPurge()  }
+
+if(Act==2){
+    #Props[1,entity]:effectSpawn("ParticleEffect",Props[1,entity]:pos(),vec(0,0,0),0.1)
+ rangerFilter(Props[1,entity])
+ Ra = rangerOffset(1000,Props[1,entity]:pos(),Props[1,entity]:forward())
+ if(Ra:distance()<200){
+    holoParent(104,W)
+    #Props[1,entity]:effectSpawn("ParticleEffect",Props[1,entity]:pos(),vec(0,0,0),100)
+    #findIncludeClass("player")
+    #findInSphere(entity():pos(),200)
+    #findSortByDistance(entity():pos())
+    #explosion(5000,250,Props[1,entity]:pos(),findCount()>0 ? find() : owner(),owner():weapons()[1,entity])
+    timer("Finish",1500)
+    }
+}
+if(clk("Finish")){    Props[1,entity]:propBreak() 
+    Act = 0 Can = 1}
+if(clk("Purge")){ Act = 0 Can = 1 soundPurge()}
+if(clk("BOOM")){  Act = 2 Props[1,entity]:setVel(Props[1,entity]:forward()*100000) holoEntity(104):setTrails(100,70,10,"trails/tube",vec(250,0,0),255)    }
+
+    

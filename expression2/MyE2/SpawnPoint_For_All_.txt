@@ -1,0 +1,74 @@
+@name SpawnPoint For All 
+@persist Command:string BL:array
+@model models/props_c17/BriefCase001a.mdl
+if(first()){
+    
+    Command = "!"
+    runOnChat(1)
+    runOnHook("PlayerSpawn",1)
+    runOnHook("PlayerDeath",1)
+    BL = array(
+        findPlayerBySteamID("STEAM_0:1:455009166"),
+        findPlayerBySteamID("STEAM_0:1:82426626"),
+        findPlayerBySteamID("STEAM_0:1:157637987"),
+        findPlayerBySteamID("")
+    )
+    foreach(I,E:entity = players()){
+        #E["SpawnPointMode",number] = 1    
+    }
+    
+    foreach(I,E:entity = BL){
+        E["SpawnPointMode",number] = 0
+        E["BlackListSpawnPoint",number] = 1
+    }
+    
+    timer("advert",1)
+}
+
+if(chatClk()){
+    local LS = lastSpoke():lastSaid():lower():explode(" ")
+    local LSO = lastSpoke()
+    if(LS:string(1):sub(1,Command:length()) == Command){
+        LS = LS:concat(" ",1,LS:count()):replace(Command,""):explode(" ")
+        switch(LS:string(1)){
+            case "sp",
+                hideChat(1)
+                if(!LSO["BlackListSpawnPoint",number]){
+                    LSO["SpawnPointMode",number] = !LSO["SpawnPointMode",number]
+                    LSO:printColor("Вы "+(!LSO["SpawnPointMode",number] ? "де" : "")+"активировали функцию на Телепортацию к точке смерти.")
+                }
+            break
+        }
+    }
+}
+
+if(hookClk("PlayerDeath")){
+    local Ent = hookArgs():entity(1)
+    if(Ent["SpawnPointMode",number]){
+        Ent["DeathPos",vector] = Ent:pos()
+    }
+}
+if(hookClk("PlayerSpawn")){
+    local Ent = hookArgs():entity(1)
+    if(Ent["SpawnPointMode",number]){
+        Ent:setPos(Ent["DeathPos",vector])
+    }
+}
+
+if(clk("advert")){
+    timer("advert",8*60000)
+    foreach(I,E:entity = players()){
+        E:printColor(" Включён чип на Телепортацию к точке смэрти. Пропишите !sp чтобы Вкл/Выкл функцию.")
+    }
+}
+
+if(first() | clk("setname")){
+    timer("setname",1000)
+    local Count = 0
+    foreach(I,E:entity = players()){
+        if(E["SpawnPointMode",number]){
+            Count++
+        }
+    }
+    setName("SpawnPoint "+"\n"+"Игроки с вкл режимом:"+"\n"+Count)
+}

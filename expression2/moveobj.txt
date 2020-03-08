@@ -1,0 +1,25 @@
+@name MoveObj
+@persist X Y Z EndPoint:vector H:entity 
+
+if(first()){
+    Count = 100
+           
+    H = holoCreate(1)
+    holoScale(1,vec(3))
+    EndPoint = vec(0,0,200)
+    
+    X = EndPoint:x()/Count, print(X) 
+    Y = EndPoint:y()/Count, print(Y)
+    Z = EndPoint:z()/Count, print(Z)
+    
+    H["Pos",vector] = H:pos()
+}
+
+if(first() | clk("count")){
+
+    if(H:pos() != H["Pos",vector]+EndPoint){
+        timer("count",1)
+    }
+    
+    holoPos(1,H:pos()+vec(X,Y,Z))
+}

@@ -1,0 +1,92 @@
+@name cake
+@model models/props_c17/FurnitureTable003a.mdl
+@persist Color P:entity
+#if(first()){
+E=entity()
+noCollideAll(E, 0)
+P = propSpawn("models/props_phx/wheels/magnetic_med_base.mdl",E:toWorld(vec(0,0,13)), 1),
+P:setAlpha(0)
+ holoCreate(0 ,  entity():toWorld(vec(0,0,16)), vec(1.5,1.5,0.8), ang(0),vec(255) , "models/holograms/hq_rcylinder_thin.mdl") holoParent(0, P)
+holoMaterial(0,"phoenix_storms/potato")
+
+for(I=1, 8){
+ holoCreate(I,  E:toWorld(vec(    sin(180 * I / 4) * 18 / 2.5 , cos(180 * I / 4) * 18 / 2.5 ,21)), vec(0.2))   
+                holoModel(I,"models/holograms/hq_torus_thick.mdl")
+                #holoColor(I,hsv2rgb( 360 / 39 * I ,  1 , 1))
+                holoColor(I,vec(200))
+                
+
+}
+for(I=9, 16){
+ holoCreate(I,  E:toWorld(vec(    sin(180 * I / 4) * 18 / 2.5 , cos(180 * I / 4) * 18 / 2.5 ,22)), vec(0.18))   
+                holoModel(I,"hq_sphere")
+                #holoColor(I,hsv2rgb( 360 / 39 * I,1,1))
+                holoColor(I,vec(100,0,0))
+}
+for(I=1, 16){
+holoParent(I,0)
+}
+
+holoCreate(17)
+holoModel(17,"models/holograms/hq_cubinder.mdl")
+holoScale(17,vec(0.06,0.06,0.5))
+holoPos(17,E:toWorld(vec(0,0,21)))
+holoParent(17,P)
+holoMaterial(17,"models/props/de_inferno/tileroof01")
+holoColor(17,vec(104,76,0))
+
+holoCreate(19)
+holoModel(19,"models/holograms/hq_rcylinder_thin.mdl")
+holoScale(19,vec(1.6,1.6,0.7))
+holoAng(19,ang(0,0,0))
+holoPos(19,E:toWorld(vec(0,0,15.5)))
+holoParent(19,P)
+holoMaterial(19,"phoenix_storms/potato")
+holoColor(19,vec(200,200,200))
+
+holoCreate(20)
+holoModel(20,"hq_hdome_thin")
+holoScale(20,vec(2,2,0.18))
+holoAng(20,ang(0,0,180))
+holoPos(20,E:toWorld(vec(0,0,11.68)))
+holoParent(20,E)
+holoColor(20,vec(255))
+
+#holoCreate(22)
+holoModel(22,"models/props_junk/garbage_coffeemug001a.mdl")
+holoScale(22,vec(1.5,1.5,1))
+holoAng(22,ang(0,0,0))
+holoPos(22,E:toWorld(vec(5,20,14)))
+holoParent(22,E)
+holoColor(22,vec(255))
+
+#holoCreate(23)
+holoModel(23,"models/holograms/cylinder.mdl")
+holoMaterial(23,"models/shadertest/shader4")
+holoScale(23,vec(0.535,0.535,0.3))
+holoAng(23,ang(0,0,0))
+holoPos(23,E:toWorld(vec(5,18.65,14)))
+holoParent(23,P)
+holoColor(23,vec(255))
+
+holoCreate(18)
+holoModel(18,"models/holograms/hq_sphere.mdl")
+holoScale(18,vec(0.1,0.1,0.25))
+holoPos(18,E:toWorld(vec(-0.01,-0.03,24.8)))
+holoParent(18,P)
+holoMaterial(18,"models/cs_italy/light_orange")
+holoColor(18,vec(255,200,0))
+holoCreate(24,E:toWorld(vec(0,0,21)),vec(0.15,0.15,0.05),ang(0),vec(104,76,0),"models/holograms/hq_rcylinder_thick.mdl") holoMaterial(24,"models/props/de_inferno/tileroof01")
+holoParent(24,P)
+P:parentTo(E)
+lightCreate(1,holoEntity(18):toWorld(vec(0)),vec(2.55,2,0))
+lightParent(1,holoEntity(18))
+runOnUse(1)
+
+if(useEntClk() == E){
+propDeleteAll()
+}
+
+
+
+

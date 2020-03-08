@@ -1,0 +1,7 @@
+@name Bime
+@persist T:table
+if(first()){
+    runOnTick(1)
+    runOnGUI(1)
+    runOnChat(1)
+}

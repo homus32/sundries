@@ -1,0 +1,50 @@
+@name Box...
+@persist [ Models Props ]:array Model:string Count Max
+if(first()){
+
+    Max = 100
+    Model = "models/props_junk/wood_crate001a_damaged.mdl"
+    
+    runOnHook("PropBreak",1)
+    propSpawnUndo(0)
+    propSpawn(Model,entity():pos()+vec(0,0,100),ang(),0):propFreeze(0)
+    
+    function propS(Model:string,Pos:vector,Ang:angle,Freeze:number){
+        P = propSpawn(Model,Pos+vec(0,0,30),Ang,0)
+        P:propFreeze(Freeze)
+        Props:pushEntity(P)
+    }
+    
+    Models = array(
+    "models/props_junk/wood_crate001a_damaged.mdl",
+    "models/props_c17/FurnitureDresser001a.mdl",
+    "models/props_c17/FurnitureTable002a.mdl",
+    "models/props_c17/FurnitureChair001a.mdl",
+    "models/props_interiors/Furniture_Desk01a.mdl",
+    "models/props_junk/wood_pallet001a.mdl",
+    "models/props_c17/oildrum001_explosive.mdl",
+    "models/props_c17/FurnitureDrawer001a.mdl"
+    )
+    
+    #Models[randint(1,Models:count()),string]
+    #Ent:model() == Model
+
+    #noDuplications()
+}
+
+if(hookClk("PropBreak")){
+    local Ent = hookArgs():entity(2)
+        if(Ent:owner() == owner() & Count <= Max & Ent:model() == Model){
+            for(I=1,2){ propS(Ent:model(),Ent:pos(),Ent:angles(),0) }
+            Count++
+        }elseif(Count >= Max){
+            foreach(I,Prop:entity = Props){
+                Prop:propBreak()
+                if(I == Props:count()){ Props:clear() propDeleteAll() Count = 0}
+            }
+            timer("new_wave",2000)
+        }
+}
+if(clk("new_wave")){
+    propSpawn(Model,entity():pos()+vec(0,0,100),ang(),0):propFreeze(0)
+}

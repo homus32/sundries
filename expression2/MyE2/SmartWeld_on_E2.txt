@@ -1,0 +1,90 @@
+@name SmartWeld on E2
+@persist O:entity Entities:array PropToWeld Count Radius
+interval(100)
+if(first()){
+    O = owner()
+    Radius = 300
+}
+
+if(O:weapon():type() == "remotecontroller"){
+
+    if(changed(O:keyAttack1())&O:keyAttack1()&!O:aimEntity():isPlayer()){
+        local AimE = O:aimEntity()
+        AimE["Select",number]=!AimE["Select",number]
+        
+        if(AimE["Select",number]){
+            AimE["LastC",vector4] = AimE:getColor4()
+            AimE:setColor(vec4(0,255,0,100))
+            Entities:pushEntity(AimE)
+        }else{
+            AimE:setColor(AimE["LastC",vector4])
+            foreach(I,Prop:entity = Entities){
+                if(AimE == Prop){
+                    Entities:removeEntity(I)
+                    break
+                }
+            }
+        }
+    }
+    
+    if(changed(O:keyAttack2())&O:keyAttack2()&Entities:count() > 1){
+        timer("welding",5)
+    }
+    
+    if(changed(O:keyAttack1()&O:keySprint())&O:keyAttack1()&O:keySprint()){
+    
+        findIncludeClass("prop")
+        findByClass("prop")
+        findInSphere(O:aimPos(),Radius)
+        local FindResult = findToArray()
+        
+        foreach(I,Ent:entity = FindResult){
+            if(!Ent["Select",number]){
+                Count++
+                Ent["Select",number] = 1
+                Ent["LastC",vector4] = Ent:getColor4()
+                Ent:setColor(vec4(0,255,0,100))
+                Entities:pushEntity(Ent)
+                if(I == FindResult:count()){ print("Add "+(Count)+" props") Count = 0 FindResult:clear()}
+            }
+        }
+    }
+    
+    if(changed(O:keyReload())&O:keyReload()&Entities:count() >= 1){
+    
+        foreach(I,Remove:entity = Entities){
+            Remove:setColor(Remove["LastC",vector4])
+            Remove["Select",number] = 0
+            if(I == Entities:count()){ Entities:clear() }
+        }
+        
+    }
+    
+}
+
+if(clk("welding")){
+    PropToWeld++
+    foreach(I,Weld:entity = Entities){
+        if(Entities[PropToWeld,entity] != Weld){
+            weld(Entities:entity(PropToWeld),Weld)
+            #Entities:entity(PropToWeld):weldTo(Weld,0,0)
+            #Entities:entity(PropToWeld):noCollide(Weld)
+            noCollide(Entities:entity(PropToWeld),Weld)
+        }
+        
+        if(I == Entities:count()){
+            if(PropToWeld == Entities:count()){
+                Entities:entity(PropToWeld):setColor(Entities[PropToWeld,entity]["LastC",vector4])
+                Entities[PropToWeld,entity]["Select",number] = 0
+                PropToWeld = 0
+                print("Well done!")
+                stoptimer("welding")
+                Entities:clear()
+            }else{
+                timer("welding",200)
+                Entities:entity(PropToWeld):setColor(Entities[PropToWeld,entity]["LastC",vector4])
+                Entities[PropToWeld,entity]["Select",number] = 0
+            }
+        }
+    }
+}

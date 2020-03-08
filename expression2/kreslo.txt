@@ -1,0 +1,32 @@
+@name Kreslo
+@persist Aim:vector S:entity Dri:entity
+
+interval(100)
+
+if(first()){
+    propSpawnUndo(0)
+    runOnKeys(owner(),1,array("mouse_right","mouse_left"))
+    S = seatSpawn("models/props_interiors/Furniture_Couch01a.mdl",1)
+    S:setTrails(10, 1, 15, "trails/smoke", vec(255,100,0), 200)
+    S:propGravity(0)
+}
+
+Dri = S:driver()
+
+if(changed(Dri) & Dri:isPlayer() & Dri != owner()){
+    concmd("ulx psay \""+Dri:name()+"\" "+"\"Controle: LKM, PKM\"")
+}
+
+if(Dri:keyPressed("mouse_left") & Dri){
+    Aim = Dri:eye()
+    S:setVel(Aim*1500)
+    S:setAng(ang(0,S:angles():yaw(),0))
+}
+
+if(Dri:keyPressed("mouse_right") & Dri){
+    S:setAng(ang(0,S:angles():yaw(),0))
+    S:propFreeze(1)
+}else{
+    S:propFreeze(0)
+}
+

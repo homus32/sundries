@@ -1,0 +1,23 @@
+@name huyna
+@persist M I 
+
+interval(100)
+
+if(first()){
+    holoCreate(1,entity():pos()+vec(0,0,50),vec(1),ang(),vec(255),"models/mossman.mdl")
+    holoCreate(2,entity():pos()+vec(-1,0,46.2),vec(1),ang(),vec(255),"models/gman_high.mdl")
+    holoClipEnabled(1,1,1)
+    holoClip(1,1,vec(0,0,60),vec(0,0,-1),0)    
+    holoClipEnabled(2,1,1)
+    holoClip(2,1,vec(0,0,63),vec(0.2,0,1),0)
+}else{
+
+    I+=3%360
+    M+=10%100
+    
+    for(S=1,2){
+        #holoPos(S,holoEntity(S ):pos()+vec(0,0,sin(M)*4))    
+        #holoAng(S,ang(I,I,0))
+    }
+}
+

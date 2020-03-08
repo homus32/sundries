@@ -1,0 +1,44 @@
+@name PENIS
+@inputs 
+@outputs 
+@persist EE:entity
+@trigger 
+
+EE=entity()
+
+holoCreate(1)
+holoPos(1,EE:toWorld(vec(0,0,50)))
+holoModel(1,"models/hunter/tubes/tube1x1x4.mdl")
+holoAng(1,EE:toWorld(ang(0,0,0)))
+holoMaterial(1,"models/debug/debugwhite")
+holoColor(1,vec(255,223,127)) #WHITE 
+#holoColor(1,vec(127,95,0)) #BLACK
+
+    holoCreate(2)
+    holoPos(2,EE:toWorld(vec(0,-30,50)))
+    holoModel(2,"models/hunter/misc/sphere2x2.mdl")
+    holoColor(2,vec(255,223,127)) #WHITE
+    holoMaterial(2,"models/debug/debugwhite")
+    #holoColor(2,vec(127,95,0)) #BLACK
+    
+    holoCreate(3)
+    holoPos(3,EE:toWorld(vec(0,30,50)))
+    holoModel(3,"models/hunter/misc/sphere2x2.mdl")
+    holoColor(3,vec(255,223,127)) #WHITE
+    holoMaterial(3,"models/debug/debugwhite")
+    #holoColor(3,vec(127,95,0)) #BLACK
+    
+    holoCreate(4)
+    holoPos(4,EE:toWorld(vec(0,0,250)))
+    holoModel(4,"models/hunter/misc/sphere175x175.mdl")
+    holoScale(4,vec(1))
+    holoMaterial(4,"models/debug/debugwhite")
+    holoColor(4,vec(255,127,127)) #WHITE
+    #holoColor(4,vec(85,64,4)) #BLACK
+    
+        holoParent(1,EE)
+        holoParent(2,EE)
+        holoParent(3,EE)
+        holoParent(4,EE)
+        
+     #   EE:propNotSolid(1)

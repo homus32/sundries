@@ -1,0 +1,68 @@
+@name FFT MUSIC
+@persist [E O]:entity
+@persist [I Color]:number
+@persist [Radius Count]:number P:array T BSH
+
+interval(100)
+T++
+if(first()) {
+runOnChat( 1 )
+runOnHTTP( 1 ) 
+E = entity()
+O = owner()
+Count = 60
+#soundPlay(1,0,"garrysmod/save_load4.wav")
+Url = "https://storage.mp3cc.biz/download/87720648/UllnVVd5NUJuOUwrNytSa2JTcE9TeGpWQ0M5SmgvV1BleVZWWmdEQWxtc0h6ZkwzbnRqZ21lamYvQnN6Tk5HT1JLV0dVRDFFd0gxYlYyRUJqb3FMV3ovM21PUThkNGI3RUlXWTZUSjEyNFVZWUd3WWFnaTJBa1VySjROUE5RT0Y/prazdnik-k-nam-prihodit_(mp3CC.biz).mp3"
+
+soundURLload("FFT",Url,100,0,E)
+soundURLvolume("FFT",100)
+print(Url)
+}
+
+while(I < Count & perf(1))
+{ 
+BSS = 0.04
+BSH = 0.04
+H = 1
+S = 1
+
+I++
+holoCreate(I)
+holoColor(I,hsv2rgb(Color,1,1))
+holoScale(I,vec(H,S,S))
+holoParent(I,E)
+holoModel(I,"models/sprops/rectangles/size_1/rect_3x3x3.mdl")
+holoDisableShading(I, 1 )
+holoMaterial(I,"lights/white") 
+holoAng(I, ang(0, 0, 0))
+#holoScale(1,vec(S,S,T))
+
+holoCreate(-1,E:toWorld(vec()),vec(0,0,0),E:toWorld(ang(0,0,90)),vec(30,30,30),"models/sprops/rectangles/size_1/rect_3x3x3.mdl")
+holoMaterial(-1,"lights/white")
+holoDisableShading(-1,1)
+holoParent(-1,E)
+
+holoCreate(-2,E:toWorld(vec(0,0,0.05)),vec(0,0,0),E:toWorld(ang(0)),vec(143,228,255),"models/sprops/rectangles/size_1/rect_3x3x3.mdl")
+holoMaterial(-2,"expression 2/cog_prop")
+holoDisableShading(-2,1)
+holoParent(-2,E)
+Color=Color-360/60
+}
+for(ID = 0,60)
+{
+FFT = E:soundFFT("FFT")
+S = FFT:number(ID%100)
+N = S*0.1+1
+
+Radius = 80
+Sin = sin((16/16)*ID)*Radius
+Cos = cos((16/16)*ID)*Radius
+holoPos(ID,E:toWorld(vec(0,ID,N)))
+holoAng(-2,E:toWorld(ang(0,T%360,0)))
+}
+
+
+if(changed(O:keyPressed("9")) & O:keyPressed("9"))
+{soundURLpause("FFT")}
+if(changed(O:keyPressed("0")) & O:keyPressed("0"))
+{soundURLplay("FFT")}

@@ -1,0 +1,24 @@
+@name Vhod na bazu
+@persist [Vhod Vihod]:entity
+interval(1)
+if(first()){
+    propSpawnUndo(0)
+    O = owner()
+    Vihod = seatSpawn("models/props_trainstation/trashcan_indoor001b.mdl",1)
+    Vhod = seatSpawn("models/props_trainstation/trashcan_indoor001b.mdl",1)
+    Vihod:setPos(vec(-9575.993, -4215.987, -7295.968)+vec(0,0,35))
+    Vhod:setPos(vec(-9856.031, -4096.590, -10879.968)+vec(0,0,35))
+}
+if(Vihod:driver()){
+}
+if(clk("11")){
+}
+if(clk("21")){
+}
+
+if(Vihod:driver()){
+}
+if(clk("12")){
+}
+if(clk("22")){
+}

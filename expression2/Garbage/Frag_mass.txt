@@ -1,0 +1,12 @@
+@name Frag_mass
+@persist 
+runOnTick(1)
+findByClass("npc_grenade_frag")
+findIncludePlayerProps(owner())
+if(changed(findToArray():count())){
+    foreach(K,F:entity=findToArray()){
+        F:setMass(1000000000000000000000000000000000000)
+}}
+
+
+

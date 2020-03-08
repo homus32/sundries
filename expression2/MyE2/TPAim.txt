@@ -1,0 +1,55 @@
+@name TPAim
+@persist [O Seat Platform]:entity Pos:vector Sphere
+
+#[
+ _                                  
+|_) \/   |_| _ __    __  |     |  _ 
+|_) /    | |(_)||||_|| | |<|_| | (_)
+
+]#
+
+if(first()){
+    O = owner()
+    runOnKeys(O,1)
+    Seat = seatSpawn("",vec(),ang(),1)
+    Platform = propSpawn("models/hunter/plates/plate05x05.mdl",vec(),ang(),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+}
+
+Pos = round(O:aimPos())
+Sphere = findInSphere(Platform:pos(),2)
+
+if(changed(O:keyPressed("T")) & O:keyPressed("T")){
+    Seat:setPos(Pos)
+    Seat:use()
+    Platform:setAlpha(0)
+    Platform:propFreeze(1)
+    timer("1",70)
+    
+}
+
+if(O:keyPressed("T") & O:keyPressed("N")){
+    Seat:setPos(vec())
+    Seat:use()
+    Platform:setAlpha(0)
+    Platform:propFreeze(1)
+    timer("1",70)
+    
+}
+
+if(clk("1")){
+    Seat:propDelete()
+    Seat = seatSpawn("",vec(0,0,0),ang(),1)
+    Seat:propNotSolid(1)
+    Seat:setAlpha(0)
+    timer("2",100)
+}
+if(clk("2")){
+    Platform:setPos(O:pos()+vec(0,0,-30))
+    Platform:propMakePersistent(1)
+}
+
+if( Sphere <=2){
+Platform:setPos(vec())
+}

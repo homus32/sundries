@@ -1,0 +1,111 @@
+@name ImageViewerEditHomus
+@persist TempImage:array ShowImage TimeOut Scale OwnerOnly
+
+interval(1000)
+
+if(first()){
+    
+#############CONFIG############
+                                                 
+TimeOut = 10
+Scale = 1.3
+OwnerOnly =  0                           
+NoDuplications = 0
+
+#############ENDCONFIG#########
+
+hint("by Artur200320081",0.3) #dont toch
+hint("V 4.5",0.7)
+hint("ImageViewer Edit HOMUS32",1)
+
+
+function number validImage(IMAGE:string) {
+return IMAGE != "" & IMAGE:findRE("https?://.*%..+%..+") != 0}
+
+
+
+function void viewer(IMAGE:string){
+    
+    foreach(K,E:entity = players()){
+    
+    if(OwnerOnly && K != 1){
+break
+}
+    if(OwnerOnly){
+        
+        E = owner()}
+        Res = egpScrSize(E)
+        
+            guiPanel(E,1,vec2(0),((Res-vec2(360,50))/3)*Scale)
+            guiHTML(E,2,vec2(0),((Res-vec2(-300,-300))/3)*Scale)
+            guiTextbox(E,3,(((Res-vec2(-600,-600))/3)/4)*Scale,vec2(100,20))
+            guiSetValue(E,3," Loading...")
+            guiParent(E,3,1)
+            guiParent(E,2,1)
+            guiPos(E,1,vec2(10))
+            
+guiSetValue(E,2,"
+
+<div style=\"background-color: rgba(14,14,14,1)\">
+
+     <img src=\""+IMAGE+"\">
+
+</div>
+    -webkit-box-sizing: border-box;
+
+
+<style>
+
+div{
+    width: "+(((Res-vec2(385,0))/3):x())*Scale+"px;
+    height: "+(((Res-vec2(0,75))/3):y())*Scale+"px;
+    position: relative;
+}
+    
+   
+ 
+img{
+    max-height: 100%;
+    max-width: 100%; 
+    margin: auto;
+    display: flex; /* FLEX BOX */
+    align-items: center;
+    justify-content: center;
+}
+    
+    </style>
+    
+")
+timer("close",TimeOut*1000)
+timer("loadtext_close",1000)
+
+ShowImage = 1}}
+
+runOnChat(1)
+}
+
+if(chatClk()){
+if(validImage(lastSaid())){
+TempImage:pushString(lastSaid())
+}}
+
+if(clk() && !ShowImage){
+if(TempImage:count() != 0){
+viewer(TempImage:shiftString())}}
+
+if(clk("close")){
+foreach(K,E:entity = players()){
+guiRemove(E,1)}
+ShowImage = 0}
+
+if(clk("loadtext_close")){
+foreach(K,E:entity = players()){
+guiRemove(E,3)}
+}
+
+if(NoDuplications == 1){
+    noDuplications()
+}
+
+
+

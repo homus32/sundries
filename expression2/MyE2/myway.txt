@@ -1,0 +1,76 @@
+@name MyWay
+@persist But:array O:entity Mode
+
+if(first()){
+    O = owner()
+    runOnKeys(O,1,array("r"))
+    runOnChat(1)
+    
+}else{
+
+    switch(Mode){
+    
+        case 0,
+        
+            if(chatClk(O)){
+            
+                local LS = O:lastSaid():lower():explode(" ")
+                
+                if(LS:string(1) == "!addway"){
+                    print("Please, add Buttons. ( Key - R ). When you finish adding buttons write to the chat \"!start\"")
+                    Mode++
+                    
+                }elseif(LS:string(1) == "!loadsave" & LS:string(2)){
+                
+                    Array = vonDecode(LS:string(2))
+                    print("You Load Way")
+                    print("Start!")
+                    But = Array
+                    print("Your save - "+vonEncode(But))
+                    Mode = 2
+                }
+            }
+            
+        break
+        
+        case 1,
+        
+            if(chatClk(O)){
+            
+                local LS = O:lastSaid():lower():explode(" ")
+                
+                if(LS:string(1) == "!start"){
+                    print("Start!")
+                    print("Your save - "+vonEncode(But))
+                    Mode = 2
+                }
+                
+            }elseif(keyClk(O)){
+            
+                if(O:keyPressed("r") & keyClk(O) == 1){
+                
+                    local AimE = O:aimEntity()
+                    
+                    if(AimE:type() == "func_button"){
+                        print("You Add",AimE)
+                        But:pushEntity(AimE)
+                        
+                    }else{
+                        print("It is't button")
+                    }
+                }
+            }
+            
+        break
+        
+        case 2,
+            interval(1)
+            foreach(I,E:entity = But){
+            
+                if(E:pos():distance(O:pos()) <= 6500){
+                    E:use()
+                }
+            }
+        break
+    }
+}

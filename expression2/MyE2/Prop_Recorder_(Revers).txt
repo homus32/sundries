@@ -1,0 +1,313 @@
+@name Prop Recorder (Revers)
+@persist [ Pos Ang CPos CAng]:table Entity:array [ P1 P2 Ow ]:entity Play Record SelectMode AutoStop
+@outputs Entity:array
+
+if(first()){
+    Ow = owner()
+    propSpawnUndo(0)
+    runOnKeys(Ow,1,array("p","o","i","f5","f6","f7","f8","f9"))
+    #noDuplications()
+
+    findIncludeClass("prop")
+    findIncludePlayerProps(Ow)
+    
+    #Key P - Play / Pause
+    #Key O - Record / Stop Recording
+    #Key I - Select Ents / Stop selecting
+    #Key F5 - Remove all entitys from Entity list
+    #Key F6 - Stop playing record
+    #Key F7 - Repeat Record
+    #Key F8 - Return all props in the very first position
+    #Key F9 - Clone Record for repeat
+    
+    AutoStop = 20 # to sec
+
+}
+
+if(keyClk(Ow)){
+    local Key = keyClkPressed():lower()
+    local Changed = changed(Ow:keyPressed(Key))&Ow:keyPressed(Key)
+    if(Changed){
+        switch(Key){
+            case "p",
+                if(!Record & !SelectMode){
+                    if(Pos[Pos:count(),array]:count() >= 2 & Ang[Ang:count(),array]:count() >= 2){
+                        Play=!Play
+                        if(Play){
+                            timer("play",1)
+                            hint("Play",5)
+                        }else{
+                            stoptimer("play")
+                            hint("Pause",5)
+                        }
+                    }else{
+                        hint("Record props. (Key \"O\")",2)
+                    }
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }
+            break
+            
+            case "o",
+                if(!Play & !SelectMode){
+                    if(Entity:count() >= 1){
+                        Record=!Record
+                        if(Pos[Pos:count(),array]:count() >= 2 & Ang[Ang:count(),array]:count() >= 2 & Record){
+                            foreach(I,E:entity = Entity){
+                                E:setPos(E["RecStartPos",vector])
+                                E:setAng(E["RecStartAng",angle])
+                            }
+                            Ang:clear()
+                            Pos:clear()
+                        }
+                        if(Record){
+                        
+                            if(Pos:count() == 0 & Ang:count() == 0){
+                                foreach(I,E:entity = Entity){
+                                    Pos:pushArray(array(E:pos()))
+                                    Ang:pushArray(array(E:angles()))
+                                }
+                            }
+                            
+                            hint("Recording",2)
+                            timer("log",2)
+                            timer("stoprecording",AutoStop*1000)
+                            timer("record",1)
+                        }else{
+                            stoptimer("stoprecording")
+                            timer("stoprecording",1)
+                        }
+                    }else{
+                        hint("Select props. (Key \"I\")",1)
+                    }
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }elseif(Play){
+                    hint("Chip is playing",2)
+                }
+            break
+            
+            case "i",
+                if(!Play & !Record){
+                    if(Entity:count() <= 0){
+                        SelectMode=!SelectMode
+                        if(SelectMode){
+                            P1 = propSpawn("models/hunter/plates/plate.mdl",Ow:pos()+vec(5,5,50)+(owner():eye()*50),ang(),1)
+                            P2 = propSpawn("models/hunter/plates/plate.mdl",Ow:pos()+vec(-5,-5,50)+(owner():eye()*50),ang(),1)
+                            noCollideAll(P1,1)
+                            noCollideAll(P2,1)
+                            P1:setMass(600)
+                            P2:setMass(600)
+                            holoCreate(1,vec(),vec(),ang(),vec4(0,255,150,150))
+                            holoDisableShading(1,1)
+                            timer("selecting",1)
+                            hint("Choose objects for Entity lits",1)
+                        }else{
+                            stoptimer("selecting")
+                            findExcludeEntity(holoEntity(1))
+                            findExcludeEntity(P1)
+                            findExcludeEntity(P2)
+                            findExcludePlayer(Ow)
+                            Pos:clear()
+                            Ang:clear()
+                            
+                            findInBox(P1:pos(),P2:pos())
+                            Entity = findToArray()
+                            
+                            foreach(I,E:entity = Entity){
+                                Pos:pushArray(array(E:pos()))
+                                Ang:pushArray(array(E:angles()))
+                                E["StartVec",vector] = E:pos()
+                                E["StartAng",angle] = E:angles()
+                                E["PropFreezeRec",number] = E:isFrozen()
+                            }
+    
+                            hint("You select "+Entity:count()+" prop(s)",1)
+                            
+                            propDeleteAll()
+                            holoDeleteAll()
+                        }
+                    }else{
+                        hint("You cant select the props because youre filled Entity list. (Press key \"F5\" for reset)",8)
+                    }
+                }elseif(Play){
+                    hint("Chip is playing",2)
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }
+            break
+            
+            case "f5",
+                if(!Record & !Play & !SelectMode){
+                    if(Entity:count() >= 1){
+                        Entity:clear()
+                        Ang:clear()
+                        Pos:clear()
+                        hint("You clear Entity list",1)
+                    }else{
+                        hint("Entity list is empty",1)
+                    }
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }elseif(Play){
+                    hint("Chip is playing",2)
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }
+            break
+            
+            case "f6",
+                if(Play){
+                    Play=!Play
+                    foreach(I,E:entity = Entity){
+                        local CountVector = 1
+                        local CountAngle = 1
+                        E:setPos(Pos[I,array][CountVector,vector])
+                        E:setAng(Ang[I,array][CountAngle,angle])
+                    }
+                    Pos:clear()
+                    Ang:clear()
+                    stoptimer("play")
+                    hint("Playing is stopped",3)
+                }else{
+                    hint("Chip isnt playing",2)
+                }
+            break
+            
+            case "f7",
+                if(!Record & !SelectMode){
+                    if(Entity:count() >= 1 & CPos:count() >= 1){
+                        Play = 1
+                        Pos:clear()
+                        Ang:clear()
+                        for(I=1,Entity:count()){
+                            Pos:pushArray(CPos[I,array]:clone())
+                            Ang:pushArray(CAng[I,array]:clone())
+                        }
+                        hint("You repeat",2)
+                            
+                        timer("play",1)
+                    }elseif(Entity:count() < 1){
+                        hint("Entity < 1",1)
+                    }elseif(CPos:count() < 1){
+                        hint("Clone isnt crated. (Key \"FS9\")",2)
+                    }
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }
+            break
+            
+            case "f8",
+                if(!Record & !SelectMode & !Play){
+                    if(Entity:count() >= 1){
+                        hint("You return all props first posision",2)
+                        foreach(I,E:entity = Entity){
+                            E:setPos(E["StartVec",vector])
+                            E:setAng(E["StartAng",angle])
+                            E:propFreeze(E["PropFreezeRec",number])
+                        }
+                    }else{
+                        hint("Entity < 1",1)
+                    }
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }elseif(Play){
+                    hint("Chip is playing",2)
+                }
+            break
+            
+            case "f9",
+                if(!Record & !SelectMode & !Play){
+                    if(Pos:count() >= 1){
+                        local C = CPos[1,array]:count()
+                        if(!(CPos:count() == Pos:count() & CPos[1,array][C,vector] == Pos[1,array][C,vector])){
+                            hint("You clone record for repeat",2)
+                            CPos:clear()
+                            CAng:clear()
+                            for(I=1,Entity:count()){
+                                CPos:pushArray(Pos[I,array]:clone())
+                                CAng:pushArray(Ang[I,array]:clone())
+                            }
+                        }else{
+                            hint("CPos & CAng was cloned",1)
+                        }
+                    }else{
+                        hint("Record props. (Key \"O\")",2)
+                    }
+                }elseif(Record){
+                    hint("Chip is recording",2)
+                }elseif(SelectMode){
+                    hint("Chip in select mode",2)
+                }elseif(Play){
+                    hint("Chip is playing",2)
+                }
+            break
+        }
+    }
+}
+
+if(clk("selecting")){
+    timer("selecting",100)
+    local Vec = P1:pos() - P2:pos()
+    holoScaleUnits(1,vec(abs(Vec:x()),abs(Vec:y()),abs(Vec:z())))
+    holoPos(1,P2:pos()+((P1:pos()-P2:pos())/2))
+    if(!SelectMode){ stoptimer("selecting") }
+}
+
+if(clk("record")){
+    timer("record",1)
+    foreach(I,E:entity = Entity){
+        Pos[I,array]:pushVector(E:pos())
+        Ang[I,array]:pushAngle(E:angles())
+    }
+    if(!Record){ timer("stoprecording",1) }
+}
+
+if(clk("stoprecording")){
+    Record = 0
+    stopAllTimers()
+    if(Entity:count() < 101){
+        CPos:clear()
+        CAng:clear()
+        for(I=1,Entity:count()){
+            CPos:pushArray(Pos[I,array]:clone())
+            CAng:pushArray(Ang[I,array]:clone())
+        }        
+    }
+    hint("Recording is stopped",2)
+}
+
+
+if(clk("log")){
+    foreach(I,E:entity = Entity){
+        E["RecStartPos",vector] = E:pos()
+        E["RecStartAng",angle] = E:angles()
+    }
+}
+
+if(clk("play")){
+    timer("play",70)
+    foreach(I,E:entity = Entity){
+        E:propFreeze(1)
+        E:setPos(Pos[I,array][1,vector])
+        E:setAng(Ang[I,array][1,angle])
+        Pos[I,array]:removeVector(1)
+        Ang[I,array]:removeAngle(1)       
+    }
+    if(Pos[Pos:count(),array]:count() <= 0 & Ang[Ang:count(),array]:count() <= 0){
+        Play=!Play
+        Pos:clear()
+        Ang:clear()
+        stoptimer("play")
+        hint("Playing is stopped",3)
+    }
+    if(!Play){ stoptimer("play") }
+}
+
+ 

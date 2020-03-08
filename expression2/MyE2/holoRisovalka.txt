@@ -1,0 +1,16 @@
+@persist I
+interval(100)
+if(owner():keyAttack2()&owner():weapon():type() == "weapon_crowbar"){
+    I++
+    holoCreate(I)
+    holoPos(I,owner():aimPos())
+    holoColor(I,hsv2rgb(I*10%360,1,1))
+    holoModel(I,"models/hunter/misc/sphere075x075.mdl")
+    holoMaterial(I,"models/debug/debugwhite")
+    holoDisableShading(I,1)
+    holoScale(I,vec(0.3))
+}
+if(changed(owner():keyWalk())&owner():keyWalk()&owner():weapon():type() == "weapon_crowbar"){
+    holoDeleteAll()
+    I = 0
+}

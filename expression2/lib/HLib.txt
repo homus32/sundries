@@ -1,0 +1,118 @@
+@persist [ Print_Color_Fix_Array ]:array
+noDuplications()
+Print_Color_Fix_Array = array()
+function holoVecColor(Index:number,First:number,Last:number){
+    local X = mod(abs(holoEntity(Index):pos():x()),Last)
+    local Y = mod(abs(holoEntity(Index):pos():y()),Last)
+    local Z = mod(abs(holoEntity(Index):pos():z()),Last)
+    if(X <= First){ X = First }
+    if(Y <= First){ Y = First }
+    if(Z <= First){ Z = First }
+    if(Last > 255){ error("Last > 255") }
+    if(First < 0){ error("First < 0") }
+    holoColor(Index,vec(X,Y,Z))
+}
+
+function holoVecColor(Index:number,FirstX:number,LastX:number,FirstY:number,LastY:number,FirstZ:number,LastZ:number){
+    local X = mod(abs(holoEntity(Index):pos():x()),LastX)
+    local Y = mod(abs(holoEntity(Index):pos():y()),LastY)
+    local Z = mod(abs(holoEntity(Index):pos():z()),LastZ)
+    if(X <= FirstX){ X = FirstX }
+    if(Y <= FirstY){ Y = FirstY }
+    if(Z <= FirstZ){ Z = FirstZ }
+    
+    if(LastX > 255){ error("LastX > 255") }
+    if(FirstX < 0){ error("FirstX < 0") }
+    
+    if(LastY > 255){ error("LastY > 255") }
+    if(FirstY < 0){ error("FirstY < 0") }
+    
+    if(LastZ > 255){ error("LastX > 255") }
+    if(FirstZ < 0){ error("FirstX < 0") }
+    holoColor(Index,vec(X,Y,Z))
+}
+
+function entity hLibPropSpawn(Model:string,Material:string,Pos:vector,Ang:angle,Color4:vector4,Freeze:number){
+    local Prop = propSpawn(Model,Pos,Ang,Freeze)
+    Prop:setMaterial(Material)
+    Prop:setColor(Color4)
+    Prop:propFreeze(Freeze)
+    return Prop
+}
+
+function entity:printColorF(Ar:array){        
+    local Say = ""
+    local CurColor = vec(255)
+    local LAr = Print_Color_Fix_Array[1,string]
+    local ArS = vonEncode(Ar)
+    
+    if(ArS == LAr){
+        Say = Print_Color_Fix_Array[2,string]
+        This:print(Say)
+    }else{
+    
+        for(I=1,Ar:count()){
+            if(Ar:vector(I)){
+                CurColor=Ar:vector(I)     
+            }
+            
+            if(Ar:string(I)){
+                Say+="[c "+CurColor:x()+","+CurColor:y()+","+CurColor:z()+"]"+Ar:string(I)#:replace("[","【"):replace("]","】 ")
+                if(I == Ar:count()){ Print_Color_Fix_Array[1,string] = ArS Print_Color_Fix_Array[2,string] = Say This:print(Say) }
+            }
+        }
+        
+    }
+}
+
+
+function printColorF(Ar:array){        
+    local Say = ""
+    local CurColor = vec(255)
+    
+        for(I=1,Ar:count()){
+            if(Ar:vector(I)){
+                CurColor=Ar:vector(I)     
+            }
+            
+            if(Ar:string(I)){
+                Say+="[c "+CurColor:x()+","+CurColor:y()+","+CurColor:z()+"]"+Ar:string(I)#:replace("[","【"):replace("]","】 ")
+            }
+        }
+        
+        foreach(I,E:entity = players()){
+            E:print(Say)
+        }
+}
+
+function number toInt(Int:number){
+    return (Int+""):matchFirst("%d*%.[^0]-(.*)"):toNumber()
+}
+
+function void entity:setHealthC(Health){
+    if(isinf(Health)){ Health = 1e+10 }
+    
+    local Armor = This:armor()
+    local GT = gTable("setHealt",0)
+    
+    This:setArmor(0)
+    This:setHealth(This:maxHealth())
+    GT["TempEntity",entity] = This
+    
+    runCode("
+    runOnHook(\"PlayerHurt\",1)
+    
+    This = gTable(\"setHealt\",0)[\"TempEntity\",entity]
+    
+    if(hookClk(\"PlayerHurt\")){
+    if(hookArgs()[1,entity] != This | hookArgs()[2,entity] != owner()){ exit() }
+    if(hookArgs()[3,number] >= This:maxHealth()){ runOnHook(\"PlayerHurt\",0) exit() }
+    This:takeDamage(1000)}")
+    
+    This:takeDamage(inf())
+    This:takeDamage(This:health()-Health-10000)
+    This:takeDamage(This:health()-Health)
+    This:setArmor(Armor)
+    This:setVel(-This:vel())
+    runOnHook("PlayerHurt",0)
+}

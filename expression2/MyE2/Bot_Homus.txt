@@ -1,0 +1,618 @@
+@name Bot 
+@inputs P:entity T:wirelink Thr:entity
+@outputs A
+@persist Mode [Target Sh Sh2 Lighting FoundAR2]:entity Light [Friends NotWeps Comma DBtns]:table Rockets:array On Sided Dm Stop Kill Shield HID Derma UseRockets MenuMode ColorHSV:vector
+interval(100) 
+
+if(dupefinished()) {
+    entity():constraintBreak()
+    Thr:propFreeze(0)
+    
+    reset()
+    exit()
+}
+
+if(clk("pp")) {
+    Sh:parentTo(owner():weapon())
+    exit()
+}
+
+if(clk("reload")) {
+    holoAlpha(19, 255)
+    holoEntity(19):soundPlay(6, 1, "weapons/smg1/switch_burst.wav")
+    
+    exit()
+}
+
+switch(Mode) {
+    case 0,
+        if(Thr & T & P) {
+            Mode++
+            
+            #[ Active ]#           On = 0
+            #[ Rockets useage ]#   UseRockets = 1
+            #[ RDM mode ]#         Dm = 0
+            #[ Front-Sided moe]#   Sided = 0
+            
+            #[ Default friends ]#
+            local DefPlayers = array(
+                findPlayerByName("sas"),
+                findPlayerByName("Homus")
+            )
+            
+            foreach(I, E:entity = DefPlayers) {
+                if(E:isPlayer()) {
+                    Friends[E:steamID(), string] = E:name()
+                }
+            }
+            
+            
+            runOnChat(1)
+            entity():setAlpha(255)
+            
+            Thr:setAlpha(1)
+            T:entity():setAlpha(0)
+            
+            P:propGravity(0)
+            P:setMass(1000)
+            P:propShadow(0)
+            P:setAlpha(0)
+            
+            propSpawnUndo(0)
+            
+            
+            #[ Shield hologram model ]#
+            holoCreate(32, P:pos(), vec(0.07, 0.07, 0.1)):setAlpha(0)
+            holoColor(32, vec(120, 76, 58))
+            holoModel(32, "models/effects/vol_light256x512.mdl")
+            holoParent(32, P)
+            
+            
+            noCollide(P, world())
+            noCollide(Thr, world())
+            
+            
+            #[ Bot hologram model ]#
+            holoCreate(1, P:toWorld(vec(0, 0, 2)), vec(0.7), P:toWorld(ang(180, -145, 0)))
+            holoModel(1, "models/props_combine/combine_mine01.mdl")
+            holoColor(1, vec(170))
+            
+            holoCreate(2, P:toWorld(vec(-11, 0, -2)), vec(0.15), P:toWorld(ang(0, 180, 0)))
+            holoModel(2, "models/props_combine/masterinterface.mdl")
+            holoColor(2, vec(127))
+            
+            holoCreate(3, P:toWorld(vec(4, 0, 19)), vec(0.2), P:toWorld(ang()))
+            holoModel(3, "models/props_combine/breenpod.mdl")
+            holoColor(3,vec( 140, 140, 150)) 
+             
+            holoCreate(4, P:toWorld(vec(4, 0.5, 28)), vec(0.8), P:toWorld(ang()))
+            holoModel(4, "models/props_combine/combinebutton.mdl")
+            holoClipEnabled(4, 1)
+            holoClip(4, vec(0, 2, 0), vec(0, -1, 0), 0)
+            
+            holoCreate(5, P:toWorld(vec(4, 0, 4)), vec(0.04, 0.08, 0.08), P:toWorld(ang()))
+            holoModel(5, "models/props_combine/introomarea.mdl")
+            holoClipEnabled(5, 1)
+            holoClip(5, vec(0, -4, 0), vec(0, 1, 0), 0)
+            holoColor(5, vec(130))
+            
+            holoCreate(6, P:toWorld(vec(-6, 0, 22)), vec(0.5, 0.3, 0.4), P:toWorld(ang(36, 180, 0)))
+            holoModel(6, "models/props_combine/combine_emitter01.mdl")
+            holoColor(6, vec(170))
+            
+            holoCreate(7, P:toWorld(vec(2.5, 0, 12)), vec(0.24, 0.24, 1.5), P:toWorld(ang()))
+            holoModel(7, "hq_cylinder")
+            holoColor(7, vec(33, 255, 0))
+            holoDisableShading(7, 1)
+            
+            holoCreate(8, P:toWorld(vec(5, -5, 3)), vec(0.4, 0.5, 0.3), P:toWorld(ang()))
+            holoModel(8, "models/props_combine/combine_barricade_bracket01a.mdl")
+            holoColor(8, vec(140))
+            
+            holoCreate(9, P:toWorld(vec(5, 5, 3)), vec(0.4, 0.5, 0.3), P:toWorld(ang()))
+            holoModel(9, "models/props_combine/combine_barricade_bracket01b.mdl")
+            holoColor(9, vec(140))
+            
+            holoCreate(10, P:toWorld(vec(0, 0, 0.4)), vec(1.5), P:toWorld(ang()))
+            holoModel(10, "hq_torus_thin")
+            holoColor(10, vec(33, 255, 0))
+            holoDisableShading(10, 1)
+            
+            holoCreate(11, P:toWorld(vec(5, -5, 10)), vec(0.06, 0.1, 0.02), P:toWorld(ang(90, 120, 0)))
+            holoModel(11, "models/props_combine/combinebuttress.mdl")
+            holoColor(11, vec(150)) 
+            
+            holoCreate(12, P:toWorld(vec(5, 5, 10)), vec(0.06, 0.1, 0.02), P:toWorld(ang(90, -120, 0)))
+            holoModel(12, "models/props_combine/combinebuttress.mdl")
+            holoColor(12, vec(150)) 
+            
+            holoCreate(13, P:toWorld(vec(1, 0, 24)), vec(0.6), P:toWorld(ang(0, 0, 90)))
+            holoModel(13, "models/props_combine/bunker_gun01.mdl")
+            
+            holoCreate(14, P:toWorld(vec(7.2, 0, 30)), vec(0.18, 0.18, 0.08), P:toWorld(ang(90, 0, 0)))
+            holoModel(14, "hq_cylinder")
+            holoMaterial(7,"phoenix_storms/middle") 
+            holoColor(14, vec(33, 255, 0))
+            holoDisableShading(14, 1)
+            
+            holoCreate(15, P:toWorld(vec(7.3, 0, 30)), vec(0.08, 0.08, 0.08), P:toWorld(ang(90, 0, 0)))
+            holoModel(15, "hq_cylinder")
+            holoColor(15, vec())
+            holoDisableShading(15, 1)
+            
+            holoCreate(16, P:toWorld(vec(1, -2, 24)), vec(0.1), P:toWorld(ang())):setAlpha(0)
+            
+            holoCreate(17, P:toWorld(vec(-8, 4, 24)), vec(0.9), P:toWorld(ang(0, 0, -90)))
+            holoModel(17, "models/weapons/w_rocket_launcher.mdl")
+            holoColor(17, vec(230))
+            
+            holoCreate(18, P:toWorld(vec(1, 2, 24)), vec(0.1), P:toWorld(ang())):setAlpha(0)
+            
+            holoCreate(19, P:toWorld(vec(28, 9, 25)), vec(0.5, 1, 1), P:toWorld(ang()))
+            holoModel(19, "models/weapons/w_missile_launch.mdl")
+            holoColor(19, vec(180))
+
+            
+            for(I = 1, 19) {
+                holoShadow(I, 1)
+                holoParent(I, P)
+            if(I != 1| 1| 1| 1| 1| 1| 1| 1| 1| 1| 1| 1| 1){} 
+            }
+            
+            NotWeps = table(    
+                "gmod_tool" = 1, 
+                "weapon_physcannon" = 1, 
+                "weapon_physgun" = 1, 
+                "gmod_camera" = 1, 
+                "weapon_medkit" = 1, 
+                "laserpointer" = 0, 
+                "remotecontroller" = 0
+            )
+            
+            Comma = table(
+                "bot" = 1,
+                "mode" = 1, 
+                "dm" = 1, 
+                "stop" = 1, 
+                "left" = 1, 
+                "kill" = 1, 
+                "shield" = 1
+            )
+            
+            DBtns = table(
+                "Toggle active" = "bot", 
+                "Toggle shield" = "shield", 
+                "Toggle front mode" = "mode", 
+                "Toggle rdm" = "dm", 
+                "Toggle zone-defend mode" = "stop", 
+                "Reset and return" = "left", 
+                "Add to friends" = "fr_add", 
+                "Remove from friends" = "fr_rem", 
+                "Instant kill" = "kill"
+            )
+            
+            
+            #[ Functions ]#
+            function bot(S:string) {
+                On = !On
+                
+                Target = noentity()
+                Kill = 0
+                
+                holoEntity(2):soundPlay(3, 0.53, "buttons/weapon_confirm.wav")
+                print("[b]Bot " + (On ? "" : "de") + "activated![/b]")
+            }
+            
+            function mode(S:string) {
+                Sided = !Sided
+                
+                holoEntity(2):soundPlay(3, 0.53, "buttons/weapon_confirm.wav")
+                print("[b]Bot will now follow you " + (Sided ? "in front" : "behind") + "![/b]")
+            }
+            
+            function dm(S:string) {
+                Dm = !Dm
+                
+                Target = noentity()
+                
+                holoEntity(2):soundPlay(3, 0.53, "buttons/weapon_confirm.wav")
+                print("[b]Bot dm mode " + (Dm ? "on" : "off") + "![/b]")
+            }
+            
+            function stop(S:string) {
+                Stop = !Stop
+                
+                Target = noentity()
+                
+                holoEntity(2):soundPlay(3, 0.53, "buttons/weapon_confirm.wav")
+                print("[b]Bot " + (Stop ? "" : "un") + "stopped!")
+            }
+            
+            function kill(S:string) {
+                local P = findPlayerByName(S ?: dSval("Players"))
+                
+                if(!P:isPlayer() | !P:isAlive()) {
+                    print("[b]" + (P:isPlayer() ? "Player already dead" : "Player not found") + "![/b]")
+                    return
+                }
+                
+                holoEntity(2):soundPlay(3, 0.53, "buttons/weapon_confirm.wav")
+                print("[b]" + P:name() + " targeted![/b]")
+                
+                Target = P
+                Kill = 1
+                Stop = 0
+            }
+            
+            function left(S:string) {
+                Target = noentity()
+                
+                print("[b]Bot returned![/b]")
+                
+                Kill = 0
+                Stop = 0
+            }
+            
+            function shield(S:string) {
+                Shield = !Shield
+                
+                print("[b]Shield " + (Shield ? "" : "de") + "activated![/b]")
+                
+                holoAlpha(31, Shield * 255)
+                holoAlpha(32, Shield * 255)
+            }
+            
+            function menu_update() {
+                dShow("Bot", MenuMode)
+                enableMouse(MenuMode)
+                
+                if(MenuMode) {
+                    dSetNval("Use rockets", UseRockets)
+                    
+                    local Friend = array()
+                    local Player = array()
+                    local NFPlayer = array()
+                    
+                    foreach(I, E:entity = players()) {
+                        Player:pushString(E:name())
+                        
+                        if(Friends[E:steamID(), string]) {
+                            Friend:pushString(E:name())
+                            
+                        } else {
+                            NFPlayer:pushString(E:name())
+                        }
+                    }
+                    
+                    dArray("Player list", NFPlayer:count() ? NFPlayer : array(""))
+                    dArray("Friend list", Friend:count() ? Friend : array(""))
+                    dArray("Players", Player:count() ? Player : array(""))
+                }
+            }
+            
+            function fr_add(S:string) {
+                local Pla = dSval("Player list")
+                local E = findPlayerByName(Pla ?: "theres no selected user")
+                if(!E:isPlayer()) { return }
+                
+                print("[b]" + E:name() + " added to friends![/b]")
+                
+                Friends[E:steamID(), string] = E:name()
+                menu_update()
+            }
+            
+            function fr_rem(S:string) {
+                local Pla = dSval("Friend list")
+                local E = findPlayerByName(Pla ?: "theres no selected user")
+                if(!E:isPlayer()) { return }
+                
+                print("[b]" + E:name() + " removed from friends![/b]")
+                
+                Friends:remove(E:steamID())
+                menu_update()
+            }
+            
+            
+            rangerPersist(1)
+            rangerFilter(array(P, Thr, T:entity()))
+            
+            holoParent(13, 16)
+            holoParent(17, 18)
+            holoParent(19, 17)
+            
+            A = 1
+            
+            findIncludeClass("prop_combine_ball")
+            exit()
+        }
+    break
+    
+    case 1,
+        if(!Derma) {
+            Derma = 1
+            
+            #[ Derma panel ]#
+            dPanel("Bot", vec2(50, scrH() / 2 - 200), vec2(250, 335))
+            dTabHolder("Tabs", "Bot", vec2(5, 28), vec2(240, 302))
+            
+            dTab("Settings", "Tabs")
+            dTab("Friends", "Tabs")
+            dTab("Kill", "Tabs")
+            
+            
+            #[ SETTING TAB ]#
+                dButton("Toggle active", "Settings", vec2(5, 6), vec2(214, 24))
+                dButton("Toggle shield", "Settings", vec2(5, 30), vec2(214, 24))
+                
+                dCheckBox("Use rockets", "Settings", vec2(5, 100))
+                
+                dButton("Toggle front mode", "Settings", vec2(5, 120), vec2(214, 24))
+                dButton("Toggle rdm", "Settings", vec2(5, 144), vec2(214, 24))
+                dButton("Toggle zone-defend mode", "Settings", vec2(5, 168), vec2(214, 24))
+                
+                dButton("Reset and return", "Settings", vec2(5, 236), vec2(214, 24))
+                
+                
+            #[ FRIENDS TAB ]#
+                dListBox("Player list", "Friends", vec2(5, 6), vec2(214, 100))
+                dButton("Add to friends", "Friends", vec2(5, 106), vec2(214, 24))
+                
+                dListBox("Friend list", "Friends", vec2(5, 136), vec2(214, 100))
+                dButton("Remove from friends", "Friends", vec2(5, 236), vec2(214, 24))
+            
+            
+            #[ INSTANT KILL TAB ]#
+                dListBox("Players", "Kill", vec2(5, 6), vec2(214, 230))
+                dButton("Instant kill", "Kill", vec2(5, 236), vec2(214, 24))
+            
+                
+            dShowCloseButton("Bot", 0)
+            dShow("Bot", 0)
+        }
+        
+        if(chatClk(owner())) {
+            local LS = lastSaid():lower()
+            local Coma = LS:sub(2, LS:length()):explode(" "):string(1)
+            
+            if(Comma[Coma, number]) {
+                Coma(LS:sub(Coma:length() + 3, LS:length()))
+                hideChat(1)
+            }
+            
+            exit()
+        }
+        
+        #[ Panel actions ]#
+        if(MenuMode) {
+            if(dClk() & DBtns[dClk(), string]) {
+                DBtns[dClk(), string]("")
+                exit()
+            }
+            
+            if(changed(dNval("Use rockets"))) {
+                UseRockets = dNval("Use rockets")
+                print("[b]Rockets will " + (UseRockets ? "" : "not") + " be used![/b]")
+            }
+        }
+        
+        
+        #[ Shield spawn ]#
+        if(!Sh & propCanCreate() & holoCanCreate() & owner():isAlive()) {
+            Sh = propSpawn("models/hunter/blocks/cube4x4x4.mdl", owner():weapon():pos(), 1)
+            Sh:propShadow(0)
+            Sh:propNotSolid(1)
+            Sh:setAlpha(0)
+            
+            noCollideAll(Sh, 1)
+            rangerFilter(Sh)
+            
+            holoCreate(31, Sh:toWorld(vec()), vec(12)):setAlpha(Shield * 255)
+            holoMaterial(31, "effects/bluelaser1")
+            holoModel(31, "hqsphere")
+            holoParent(31, Sh)
+            
+            timer("pp", 0)
+        }
+        
+        if(!Sh2 & propCanCreate()) {
+            Sh2 = propSpawn("models/hunter/plates/plate2x2.mdl", owner():weapon():pos(), 1)
+            Sh2:propShadow(0)
+            Sh2:propNotSolid(1)
+            Sh2:setAlpha(0)
+            
+            noCollide(Sh2, owner())
+            rangerFilter(Sh2)
+        }
+        
+        local WP = owner():shootPos() - P:pos()
+        holoAng(32, WP:toAngle() - ang(90, 0, 0))
+        
+        
+        #[ Detection ]#
+        if(On & !Kill) {
+            rangerFilter(players())
+            local M = 0
+            
+            for(K = 1, players():count()) {
+                M++
+                local Es = players():entity(M)
+                
+                if(Es:inVehicle() | !Es:isAlive() | (NotWeps[Es:weapon():type(), number] & !Dm) | Es == owner() | Friends[Es:steamID(), string]) {
+                    continue
+                }
+                
+                if(!Dm) {
+                    local R = rangerOffset(Es:shootPos():distance(owner():attachmentPos("chest")), Es:shootPos(), Es:eye())
+                    
+                    if(R:pos():distance(owner():attachmentPos("chest")) > 100) {
+                        continue
+                    }
+                }
+                
+                local R = rangerOffset(T:entity():pos(), Es:attachmentPos("chest"))
+                if(R:hit()) { continue }
+                
+                Target = Es
+                break
+            }
+        }
+        
+        local KillFire = 0
+        
+        if(Target) {
+            if(!Target:isAlive()) {
+                Target = noentity()
+                
+                if(Kill) {
+                    print("[b]Target killed![/b]")
+                    Kill = 0
+                }
+            }
+            
+            local R = rangerOffset(T:entity():pos(), Target:attachmentPos("chest"))
+            
+            if(R:hit()) {
+                if(!Kill) {
+                    Target = noentity() 
+                }
+                
+            } elseif(Kill) {
+                KillFire = 1
+            }
+        }
+        
+        if(changed(Target)) {
+            holoEntity(1):soundPlay(2, 0.3, "buttons/blip2.wav")
+        }
+        
+        
+        #[ Positioning system ]#
+        local Goto = Kill ? Target : owner()
+        local Dist = Goto:attachmentPos("chest"):distance(P:pos())
+        local R = rangerOffset(100, P:pos(), vec(0, 0, -1))
+        
+        LocPos = Sided ? owner():pos() + owner():forward() * 130 + vec(0, 0, 30) : (Dist > 100 ? Goto:attachmentPos("chest") + (P:pos() - Goto:attachmentPos("chest")) * clamp(100 / (Dist - 100), 0, 1) : P:pos())
+        
+        P:applyForce((R:pos() + R:hit() * vec(0, 0, 40 + 3 * sin(curtime() * 100)) + (Stop ? P:pos() : LocPos) - P:pos() * 2) * (100 * Dist / 10) - P:mass() * P:vel())
+        P:applyTorque((P:toLocal(rotationVector(quat(ang(0, ((Target ? Target:pos() : (Stop ? P:toWorld(vec(40, -2, 0)) : (Sided ? owner():aimPos() : owner():attachmentPos("chest")))) - P:pos()):toAngle():yaw(), 0)) / quat(P)) + P:pos()) * 200 - P:angVelVector() * 20) * P:inertia())
+        
+        noCollideAll(P, 1)
+        noCollideAll(Thr, 1)
+        
+        holoAng(16, (Target & On) ? (Target:attachmentPos("chest") - holoEntity(16):pos()):toAngle() : (Sided ? (owner():aimPos() - holoEntity(16):pos()):toAngle() : P:angles()))
+        holoAng(17, ((Target & On) ? (Target:attachmentPos("chest") - holoEntity(17):pos()):toAngle() : (Sided ? (owner():aimPos() - holoEntity(17):pos()):toAngle() : P:angles())) - ang(0, 0, 90))
+        
+        T:entity():setPos(holoEntity(16):pos() + holoEntity(16):right() * 6)
+        T:entity():setAng(((Target ? Target:attachmentPos("chest") : owner():aimPos()) - T:entity():pos()):toAngle())
+        
+        #[ Rockets ]#
+        local G = 0
+        for(I = 1, Rockets:count()) {
+            
+            G++
+            local Rckt = Rockets:entity(G)
+            
+            local Ranger = rangerOffset(300, Rckt:pos(), Rckt:forward())
+            local Ranger2 = rangerOffsetHull(Rckt:toWorld(vec(-12, 0, 0)), Rckt:toWorld(vec(300, 0, 0)), vec(0, 32, 32))
+            
+            Rckt:setPos(Ranger:pos())
+            
+            if((Ranger:hit() | Ranger2:hit()) & propCanCreate()) {
+                local RBoom = propSpawn("models/props_phx/amraam.mdl", Rckt:pos(), 1)
+                
+                RBoom:setAlpha(0)
+                RBoom:propShadow(0)
+                
+                RBoom:propBreak()
+                
+                Rckt:remove()
+                Rockets:remove(G)
+            }
+        }
+        
+        #[ Attacking system ]#
+        local Attacking = (!Kill) * On * Target:isAlive() + owner():keyPressed("T") * Sided + KillFire * Kill
+        local Attacking2 = UseRockets * holoCanCreate() * holoEntity(19):getAlpha() * (On * Target:isAlive() + owner():keyPressed("G") * Sided + KillFire * Kill)
+        
+        Sh:propNotSolid((!Shield) + owner():keyAttack1())
+        
+        if(Attacking) {
+            holoEntity(randint(1, 10)):soundPlay(randint(6, 40000), 0.6, "weapons/ar2/fire1.wav")
+            T:entity():propFreeze(1)
+        }
+        
+        if(Attacking2) {
+            holoAlpha(19, 0)
+            holoEntity(19):soundPlay(5, 1, "weapons/rpg/rocketfire1.wav")
+            
+            HID++
+            Rockets:pushEntity(holoCreate(100 + HID, holoEntity(19):pos(), vec(1), ((Target ? Target:pos() : owner():aimPos()) - holoEntity(19):pos()):toAngle()))
+            holoModel(100 + HID, "models/weapons/w_missile_launch.mdl")
+            holoColor(100 + HID, vec(180))
+            holoShadow(100 + HID, 1)
+            
+            local Trail = 1
+            #ifdef entity:dAccess() 
+                Trail = owner():dAccess()
+            #endif
+            
+            if(Trail) {
+                holoEntity(100 + HID):setTrails(10, 0, 0.8, "trails/smoke", vec(150), 255)
+            }
+            
+            timer("reload", 1500)
+        }
+        
+        T["Fire", number] = Attacking
+        
+        if(!Light & dLightCanSet()) {
+            Lighting = P:setdLight(vec(), 2, 80)
+            Light = 1
+        }
+        
+        
+        #[ Panel open ]#
+        local MenuButton = owner():keyPressed("N")
+        
+        if(changed(MenuButton) & MenuButton) {
+            MenuMode = !MenuMode
+            menu_update()
+        }
+        
+        
+        #[ Colors ]#
+        ColorHSV = hsv2rgb(curtime() * 10 % 360, 1, 1)
+        Lighting = P:setdLight(ColorHSV,2,80)
+
+        Sh:setColor(ColorHSV)
+        Lighting:dLightColor(ColorHSV)
+        
+        #[ AR2 Shield ]#
+        if(Shield) {
+            if(!owner():isAlive()) {
+                Sh:propDelete()
+                exit()
+            }
+            
+            if(findCanQuery()) {
+                findInSphere(owner():pos(), 1000)
+                FoundAR2 = findClosest(owner():pos()) ?: noentity()
+            }
+            
+            if(FoundAR2 != noentity()) {
+                if(FoundAR2:pos():distance(owner():attachmentPos("chest")) < (FoundAR2:pos() + FoundAR2:vel() / 10):distance(owner():attachmentPos("chest"))) {
+                    FoundAR2 = noentity()
+                    
+                    Sh2:propNotSolid(1)
+                    Sh2:setPos(vec())
+                    
+                } else {
+                    Sh2:propNotSolid(0)
+                    
+                    Sh2:setPos(owner():attachmentPos("chest") + (FoundAR2:pos() - owner():attachmentPos("chest")):normalized() * 40)
+                    Sh2:setAng((FoundAR2:pos() - owner():attachmentPos("chest")):toAngle() + ang(90, 0, 0))
+                }
+            }
+        }
+    break
+}

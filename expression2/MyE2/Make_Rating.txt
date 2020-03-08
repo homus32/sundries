@@ -1,0 +1,60 @@
+@name Make Rating
+@persist [Price]:string [Rate]:array [Target]:entity [R]:number
+
+if(first()){
+    #include "lib/Hlib"
+    ###Config###
+    
+    R = 1
+    Price = "800"
+    Target = owner()
+    
+    ###EndCon###
+    
+    runOnRating(Target,1)
+    runOnPlayerConnect(1)
+    Rate = array("положительно",1,vec(140,255,90),"отрицательно",0,vec(255,140,90))
+    if(R == 0){ Rate:removeString(1),Rate:removeNumber(1) Rate:removeVector(1) }
+    noDuplications()
+}
+if(first() | clk("advert")){
+    foreach(K,Pl:entity = players()){ Pl:printColorF(array(vec(255),"Оцени ",teamColor(Target:team()),Target:name()+" ",Rate[3,vector],Rate[1,string]+" ",vec(255),"и получи ",vec(255,255,0),Price,vec(255)," поинтов")) }
+    timer("advert",10*60000)
+}
+
+if(ratingClk()){
+    if(ratingStatus() == Rate[2,number]){
+        foreach(K,Pl:entity = players()){ Pl:printColorF(array(teamColor(ratingWho():team()),ratingWho():name(),vec(255)," получил ",vec(140,255,90),Price,vec(255)," поинтов")) }
+        ratingWho():psGive(Price:toNumber())
+        #ratingWho():psGive(0)
+        RatWho = ratingWho()
+        RatWho["Timer",number] = 600
+        
+    }else{
+        if(ratingStatus() == 1){
+            foreach(K,Pl:entity = players()){ Pl:printColorF(array(teamColor(ratingWho():team()),ratingWho():name(),vec(255)," оценил",vec(255,140,90)," положительно",vec(255)," и получил ",vec(255,0,0),"[b]"+"пизды")) }
+        }else{
+            foreach(K,Pl:entity = players()){ Pl:printColorF(array(teamColor(ratingWho():team()),ratingWho():name(),vec(255)," оценил",vec(255,140,90)," отрицательно",vec(255)," и получил ",vec(255,0,0),"[b]"+"пизды")) }
+        }
+        ratingWho():takeDamage(90000)
+        ratingWho():playerNoclip(0)
+        ratingWho():setVel(vec(0,0,99999))
+        ratingWho():setPos(vec(99999))
+        concmd("ulx jail \""+ratingWho():name()+"\" 30")
+    }
+}
+
+if(clk("tick") | first()){
+    foreach(I,Pl:entity = players()){
+        if(Pl["Timer",number] > 0){
+            Pl["Timer",number] = Pl["Timer",number]-1
+            if(Pl["Timer",number] == 1){ print(1) Pl:printColorF(array(teamColor(ratingWho():team()),ratingWho():name(),vec(255)," оценил",vec(255,140,90)," отрицательно",vec(255)," и получил ",vec(255,0,0),"пизды")) }
+        }
+    }
+    timer("tick",1000)
+}
+
+if(lastConnectedPlayer()){
+    Pl = lastConnectedPlayer()
+    Pl["Timer",number] = 13*60
+}

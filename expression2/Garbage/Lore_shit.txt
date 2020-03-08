@@ -1,0 +1,29 @@
+@name Lore shit
+@model models/hunter/blocks/cube2x2x2.mdl
+@persist [O Prop]:entity
+interval(10)
+if(first()){
+ Prop=entity()
+    O=owner()
+    Prop:setMass(9999999)
+    Prop:setMaterial("models/props_combine/metal_combinebridge001")
+    Prop:setMaterial("models/wireframe")
+
+
+
+}
+Vector=O:pos()+vec(0,0,50)
+
+M2=O:keyAttack2()
+
+if(first()){
+
+    Prop:applyForce((O:aimPos()-Prop:pos())*Prop:mass()*9999999999999) 
+}
+
+else
+{
+    Prop:applyForce(((Vector-Prop:pos())-Prop:vel()/10)*Prop:mass()*5)
+}
+
+

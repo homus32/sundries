@@ -1,0 +1,170 @@
+@name lib/effect_turbineFlames_v01
+
+@persist [ETF]:table [ETF_list]:array
+@persist [ETF_holoIndex]:number
+@persist [ETF_interval ETF_sleepInterval ETF_perf ETF_allSleep]:number
+
+
+#- protection from idiot
+if(!changed(0) & changed(0)) {
+    local E2_name = entity():getName()
+    if(E2_name == "effect_turbineFlames_v01") {
+        printColor(vec(255),"[",vec(255,50,0),E2_name,vec(255),"] Это библиотека, а не код для чипа. Используй ",vec(160,240,240),"#inlude")
+        selfDestruct()
+        exit()
+    }
+    else {
+        printColor(vec(255),"[",vec(255,50,0),E2_name:explode("\n")[1, string],vec(255),"] Повторный вызов библиотеки"," \"",vec(160,240,240),"effect_turbineFlames_v01",vec(255),"\"")
+    }
+}
+
+#- 
+ETF_allSleep = 0
+ETF_interval = 50
+ETF_sleepInterval = 500
+ETF_perf = 90
+
+#- 
+timer("effect_turbineFlames", 1)
+
+#- 
+function number entity:effect_turbineFlames(Effect_n:string, LocalPos:vector, LocalAng:angle, [Radius Lenght]:number, Color:vector, Parts_need:number) {
+    if(!Effect_n) {
+        printColor(vec(255),"[",vec(255,50,0),entity():getName():explode("\n")[1, string],vec(255),"] ","Эффекту \"",vec(),"turbineFlames",vec(255),"\" следует указать имя")
+        return 0
+    }
+    if(ETF:exists(Effect_n)) {
+        printColor(vec(255),"[",vec(255,50,0),entity():getName():explode("\n")[1, string],vec(255),"] ","Повторная попытка создать эффект \"",vec(),Effect_n,vec(255),"\"")
+        return 0
+    }
+    
+    ETF_list:pushString(Effect_n)
+    ETF[Effect_n, table] = table(
+         "LocalTO"     = This
+        ,"LocalPos"   = LocalPos
+        ,"LocalAng"   = LocalAng
+        ,"Parts_need" = Parts_need
+        
+        ,"Radius" = Radius
+        ,"Lenght" = Lenght
+        ,"Color"  = Color
+        ,"Shake"  = 0.3
+        
+        ,"Multiplier"  = 1
+        
+        ,"calls" = invert(table("build","shake"))
+        
+        ,"Parts_list"  = array()
+    )
+    return 1
+}
+
+function effect_turbineFlames(Effect_name:string, Multiplier:number, Color:vector) {
+    local Table = ETF[Effect_name, table]
+    Table["Multiplier", number] = clamp(round(Multiplier,2),0,1)
+    Table["Color"     , vector] = clamp(Color,0,255)
+    Table["calls", table] = Table["calls", table]:merge(table("scale"=0,"color"=0))
+}
+function effect_turbineFlames(Effect_name:string, Multiplier:number) {
+    local Table = ETF[Effect_name, table]
+    Table["Multiplier", number] = clamp(round(Multiplier,2),0,1)
+    Table["calls", table] = Table["calls", table]:merge(table("scale"=0,"color"=0))
+}
+function effect_turbineFlames(Effect_name:string, Color:vector) {
+    local Table = ETF[Effect_name, table]
+    Table["Color", vector] = clamp(Color,0,255)
+    Table["calls", table] = Table["calls", table]:merge(table("color"=0))
+}
+function effect_turbineFlames_shake(Effect_name:string, Shake:number) {
+    local Table = ETF[Effect_name, table]
+    Table["Shake", number] = clamp(Shake,0,1)
+    Table["calls", table] = Table["calls", table]:merge(table("shake"=0))
+}
+
+
+function effect_turbineFlames() {
+    if(clk("effect_turbineFlames")) {
+            timer("effect_turbineFlames", ETF_allSleep ? ETF_sleepInterval : ETF_interval)
+        
+        local Perf = 100 while(perf(Perf)) {Perf--} Perf = min(Perf+ETF_perf,95)
+        
+        ETF_allSleep = 1
+        local Count = ETF_list:count()
+        local C = 0
+        while(perf(Perf) & C < Count) {
+            C++
+            local Name = ETF_list[C, string]
+            local Table = ETF[Name, table]
+            local Calls = Table["calls", table]
+            
+            if(!Calls:count()) {continue}
+            local Parts_list = Table["Parts_list", array]
+            local Parts_count = Parts_list:count()
+            
+            local Multiplier = Table["Multiplier", number]
+            
+            
+            if(Calls:exists("build")) {
+                local Parts_need = Table["Parts_need", number]
+                local Radius = Table["Radius", number]
+                local Lenght = Table["Lenght", number]
+                local Scale = vec(Radius,Radius,-Lenght * Multiplier)/6
+                local Color = Table["Color", vector] * Multiplier^0.6
+                local RT_e = Table["RT_e", entity]
+                
+                while(Parts_count != Parts_need & perf(Perf) & holoCanCreate()) {
+                    while(!!holoEntity(ETF_holoIndex)) {ETF_holoIndex++}
+                    
+                    if(!RT_e) {
+                        local LocalTO = Table:removeEntity("LocalTO")
+                        local Pos = LocalTO:toWorld(Table:removeVector("LocalPos"))
+                        local Ang = LocalTO:toWorld(Table:removeAngle("LocalAng"))
+                        RT_e = Table["RT_e", entity] = holoCreate(ETF_holoIndex,Pos,vec(),Ang,vec(),"tetra")
+                        holoParent(ETF_holoIndex,LocalTO)
+                        continue
+                    }
+                    Parts_count++
+                    Parts_list:pushNumber(ETF_holoIndex)
+                    holoCreate(ETF_holoIndex, RT_e:pos(),Scale,RT_e:toWorld(ang(0,360/Parts_need*(Parts_count - 1),0)),Parts_count == 0 ? vec(0,255,0) : Color,"hq_sphere")
+                    holoAlpha(ETF_holoIndex, 254)
+                    holoMaterial(ETF_holoIndex, "models/roller/rollermine_glow")
+                    holoClipEnabled(ETF_holoIndex, 1, 1)
+                    holoClip(ETF_holoIndex,1,vec(),vec(0,0,1),0)
+                    holoRenderFX(ETF_holoIndex, 11)
+                    holoShadow(ETF_holoIndex, 0)
+                    holoParent(ETF_holoIndex, RT_e)
+                }
+                if(Parts_count == Parts_need) {Calls:remove("build")}
+            }
+            
+            if(Calls:exists("scale")) {
+                local Lenght = Table["Lenght", number]
+                local Radius = Table["Radius", number]
+                local Scale = vec(Radius,Radius,-Lenght * Multiplier)/6
+                foreach(C, ID:number = Parts_list) {holoScale(ID, Scale)}
+                Calls:remove("scale")
+                ETF_allSleep = 0
+            }
+            
+            if(Calls:exists("color")) {
+                local Color = Table["Color", vector] * Multiplier^0.6
+                foreach(C, ID:number = Parts_list) {holoColor(ID, Color)}
+                Calls:remove("color")
+                ETF_allSleep = 0
+            }
+            
+            if(Calls:exists("shake")) {
+                local RT_e = Table["RT_e", entity]
+                local Shake = Table["Shake", number]
+                local Radius = Table["Radius", number]
+                local Random = Radius*Shake * Multiplier^0.6
+                foreach(Part, ID:number = Parts_list) {
+                    local A = 360/Parts_count*(Part - 1)
+                    holoPos(ID, RT_e:toWorld(vec(-random(0,Random),0,0):rotate(0,A,0)))
+                }
+                ETF_allSleep = 0
+                if(!Shake) {Calls:remove("shake")}
+            }
+        }
+    }
+}

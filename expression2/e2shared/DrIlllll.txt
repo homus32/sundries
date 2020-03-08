@@ -1,0 +1,45 @@
+@name DrIlllll
+@persist I360
+@model models/props_junk/propane_tank001a.mdl
+interval(100)
+I360=(I360+124)
+if(first()){
+E=entity()
+holoCreate(1)
+holoCreate(2)
+HOLO=holoCreate(3)
+holoCreate(4)
+holoModel(1,"models/props_c17/oildrum001.mdl")
+holoModel(2,"models/props_c17/signpole001.mdl")
+holoModel(3,"models/sprops/cylinders/size_3/cylinder_6x24.mdl")
+holoModel(4,"models/sprops/misc/domes/size_1/dome_12x12.mdl")
+holoPos(1,E:toWorld(vec(0,0,-18)))
+holoPos(3,HOLO:toWorld(vec(0,0,45)))
+holoPos(4,HOLO:toWorld(vec(0,0,10)))
+holoScale(1,vec(0.50,0.50,0.80))
+holoScale(2,vec(1,1,0.49))
+holoScale(3,vec(0.90,0.90,1))
+holoScale(4,vec(0.60))
+holoParent(1,E)
+holoParent(2,E)
+holoParent(3,E)
+holoParent(4,HOLO)
+holoColor(1,vec(68))
+holoColor(2,vec(68))
+holoColor(3,vec(255,223,157))
+holoColor(4,vec(255,179,236))
+
+holoMaterial(1,"models/debug/debugwhite")
+holoMaterial(2,"models/debug/debugwhite")
+holoMaterial(3,"models/debug/debugwhite")
+holoMaterial(4,"models/debug/debugwhite")
+#[holoAng(1,ang(0,0,90))
+holoAng(2,ang(0,0,90))
+holoAng(3,ang(0,0,90))
+holoAng(4,ang(0,0,90))]#
+noDuplications()
+}
+
+
+
+holoPos(3,holoEntity(3):toWorld(vec(0,0,sin(I360+5)*20)+vec(0,0,0)))

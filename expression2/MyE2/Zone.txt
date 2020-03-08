@@ -1,0 +1,29 @@
+@persist P:array
+interval(100)
+if(first()){
+    propSpawnUndo(0)
+    P:setEntity(1,propSpawn("models/hunter/plates/plate.mdl",entity():pos()+vec(5,5,10),1))
+    P:setEntity(2,propSpawn("models/hunter/plates/plate.mdl",entity():pos()+vec(-5,-5,10),1))
+    
+    P:entity(1):setColor(vec(0,0,255))
+    P:entity(2):setColor(vec(255,0,0))
+    P:entity(1):setMaterial("models/debug/debugwhite")
+    P:entity(2):setMaterial("models/debug/debugwhite")
+    
+    holoCreate(1) holoColor(1,vec4(255,150,0,150))
+    holoDisableShading(1,1)
+    holoCreate(2) holoColor(2,vec4(255,0,255,150))
+    holoDisableShading(2,1)
+}
+
+local Vec = P:entity(1):pos() - P:entity(2):pos()
+
+holoScaleUnits(1,vec(  abs(Vec:x()),    abs(Vec:y()),  abs(Vec:z())))
+holoPos(1,P:entity(2):pos()+((P:entity(1):pos()-P:entity(2):pos())/2))
+holoScaleUnits(2,-vec(  abs(Vec:x()),    abs(Vec:y()),  abs(Vec:z())))
+holoPos(2,P:entity(2):pos()+((P:entity(1):pos()-P:entity(2):pos())/2))
+
+if(changed(owner():keyWalk())&owner():keyWalk()){
+    print("Blue - ",P:entity(1):pos())
+    print("Red - ",P:entity(2):pos())
+}

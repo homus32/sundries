@@ -1,0 +1,72 @@
+@name TPChat & BringChat For E2P Upd
+@persist Ow:entity [ Goto Bring Tp Return ]:string RReturn:array
+
+if(first()){
+    runOnChat(1)
+    Ow = owner()
+
+    Goto = "#"
+    Bring = "!#"
+    Tp = "tp#"
+    Return = "return#"
+    
+    function string matchF(String:string){
+        local R = array(
+            Goto,
+            Bring,
+            Tp,
+            Return
+        )
+        foreach(I,S:string = R){
+            if(String:match(S):string(1)){
+                Result = S
+            } 
+        }
+        return Result 
+    }
+    
+    function tpMessage(Ent1:entity,Ply:entity){
+    }
+    
+    function errorMessage(Arg1:string,Arg2:entity,Mode:string){
+    }
+}
+
+if(chatClk(Ow)){
+    local LS = Ow:lastSaid():lower():explode(" ")
+    local LSC = Ow:lastSaid():replace(Goto,""):replace(Tp,""):replace(Bring,""):replace(Return,"")
+    local LSCmd = matchF(LS:string(1))
+    local LSEnt = findPlayerByName(LSC:right(LSC:length()-LSCmd:length()))
+    if(LSCmd){
+        if(LS:string(1):sub(1,LSCmd:length()) == LSCmd){
+            hideChat(1)
+            switch(LSCmd){
+                case Goto,
+                    if(LS:string(1):length() >= 2 & LSEnt & LSEnt != owner()){
+                        owner():setPos(LSEnt:pos()-LSEnt:forward()*40)
+                    }else{ errorMessage(LS:string(1),LSEnt,Goto) }
+                break
+                
+                case Bring,
+                    if(LS:string(1):length() >= 2 & LSEnt & LSEnt != owner()){
+                    }elseif(LS:string(1):length() < 2){
+                    }elseif(!!!LSEnt){
+                    }elseif(LSEnt == owner()){
+                    }
+                break
+                
+                case Tp,
+                    if(!!!LSEnt){
+                    }else{
+                    }
+                break
+                
+                case Return,
+                    if(!!!LSEnt){
+                    }else{
+                    }
+                break
+            }
+        }
+    }
+}

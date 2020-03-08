@@ -1,0 +1,83 @@
+@name Shield Sergun
+@persist [Sh Sh2 FoundAR2]:entity
+interval(1)
+if(first()){
+            runOnKeys(owner(),1)
+            propSpawnUndo(0)
+            Sh = propSpawn("models/sprops/geometry/sphere_144.mdl", owner():weapon():pos()-vec(0,0,5), 1)
+            Sh:propShadow(0)
+            Sh:propNotSolid(0)
+            Sh:setAlpha(0)
+            
+            noCollideAll(Sh, 1)
+            
+            holoCreate(31, Sh:toWorld(vec()), vec(12)):setAlpha(1 * 255)
+            holoMaterial(31, "effects/bluelaser1")
+            holoModel(31, "hqsphere")
+            holoParent(31, Sh)
+
+        
+        
+            Sh2 = propSpawn("models/hunter/plates/plate2x2.mdl", owner():weapon():pos(), 1)
+            Sh2:propShadow(0)
+            Sh2:propNotSolid(1)
+            Sh2:setAlpha(0)
+            
+            noCollide(Sh2, owner())
+  
+
+    Sh:parentTo(owner():weapon())
+    findIncludeClass("prop_combine_ball")
+    findExcludePlayerProps(owner())
+
+}
+if(!Sh & propCanCreate() & holoCanCreate() & owner():isAlive()) {
+Sh = propSpawn("models/hunter/blocks/cube4x4x4.mdl", owner():weapon():pos(), 1)
+            Sh:propShadow(0)
+            Sh:propNotSolid(0)
+            Sh:setAlpha(0)
+            
+            noCollideAll(Sh, 1)
+            
+            holoCreate(31, Sh:toWorld(vec()), vec(12)):setAlpha(1 * 255)
+            holoMaterial(31, "effects/bluelaser1")
+            holoModel(31, "hqsphere")
+            holoParent(31, Sh)
+             Sh:parentTo(owner():weapon())
+}
+
+if(!Sh2 & propCanCreate()) {       
+            Sh2 = propSpawn("models/hunter/plates/plate2x2.mdl", owner():weapon():pos(), 1)
+            Sh2:propShadow(0)
+            Sh2:propNotSolid(1)
+            Sh2:setAlpha(0)
+            
+            noCollide(Sh2, owner())
+
+        }
+
+if(!owner():isAlive()) {
+    Sh:propDelete()
+    exit()
+}
+    if(findCanQuery()) {
+                findInSphere(owner():pos(), 150)
+                FoundAR2 = findClosest(owner():pos()) ?: noentity()
+            }
+            
+            if(FoundAR2 != noentity()) {
+                if(FoundAR2:pos():distance(owner():attachmentPos("chest")) < (FoundAR2:pos() + FoundAR2:vel() / 10):distance(owner():attachmentPos("chest"))) {
+                    FoundAR2 = noentity()
+                    
+                    Sh2:propNotSolid(1)
+                    Sh2:setPos(vec())
+                    
+                } else {
+                    Sh2:propNotSolid(0)
+                    
+                    Sh2:setPos(owner():attachmentPos("chest") + (FoundAR2:pos() - owner():attachmentPos("chest")):normalized() * 40)
+                    Sh2:setAng((FoundAR2:pos() - owner():attachmentPos("chest")):toAngle() + ang(90, 0, 0))
+                }
+            }
+owner():keyAttack2() & owner():weapon():type() == "weapon_crowbar"
+
