@@ -1,39 +1,39 @@
-events = {}
-event_act = {}
+#ver: 1. Пожалуйста, не трогайте переменные с __. Мне лень переделывать в ооп.
 
-def Event(eventName, defaultFunc=None,*func_args,**func_kwargs):
-    events[eventName] = {}
+__events = {}
+__event_act = {}
 
-    def act(*args, **kwargs):
-        return _call(events[eventName],*args,**kwargs)
+WITHOUT_ARGS, DYNAMIC_ARGS, STRICT_ARGS = lambda: None, lambda: None, lambda: None
+FIX_ARGS = lambda *args, **kwargs: (args, kwargs)
 
-    event_act[eventName] = act
+def Event(eventName, defaultFunc=None, mode=WITHOUT_ARGS):
+    __events[eventName] = {}
+    act = lambda *args, **kwargs: _call(__events[eventName], *args, **kwargs)
+    __event_act[eventName] = act
 
     if callable(defaultFunc):
-        Add(eventName,"defFunc",defaultFunc,*func_args,**func_kwargs)
+        Add(eventName,"defFunc",defaultFunc,mode)
 
     return act
 
-        
 def GetEvent(eventName):
-    return event_act[eventName]
+    return __event_act[eventName]
 
-def Add(eventName, hookName, func, *args, **kwargs):
-    if get_index(args, 0) is None and len(kwargs) == 0 and len(args) == 1:
-        events[eventName][hookName] = (func, None)
-    elif len(args) != 0 or len(kwargs) != 0:
-        events[eventName][hookName] = (func, args, kwargs)
-    elif len(args) == 0 and len(kwargs) == 0:
-        events[eventName][hookName] = (func, True)
+def Add(eventName, hookName, func, mode=WITHOUT_ARGS):
+
+    if mode in (WITHOUT_ARGS,DYNAMIC_ARGS,STRICT_ARGS):
+        __events[eventName][hookName] = (func, mode)
+    else:
+        __events[eventName][hookName] = (func, mode[0], mode[1])
 
 def GetTable():
-    return events
+    return __events
 
 def Remove(eventName, hookName):
-    del events[eventName][hookName]
+    del __events[eventName][hookName]
 
 def Run(eventName, *args, **kwargs):
-    return _call(events[eventName],*args,**kwargs)
+    return _call(__events[eventName], *args, **kwargs)
 
 def _call(dictionary,*args,**kwargs):
     returnable = {}
@@ -42,16 +42,16 @@ def _call(dictionary,*args,**kwargs):
         function = hook[0]
         params = hook[1:]
 
-        if params[0] is None:
+        if params[0] is WITHOUT_ARGS:
             returnable[key] = function()
-        elif params[0] is True:
+        elif params[0] is DYNAMIC_ARGS:
             returnable[key] = function(*args,**kwargs)
+        elif params[0] is STRICT_ARGS:
+            try:
+                returnable[key] = function(*args, **kwargs)
+            except TypeError:
+                continue
         else:
             returnable[key] = function(*params[0],**params[1])
 
     return returnable
-
-def get_index(arr,index):
-    try: return arr[index]
-    except: return None
-
