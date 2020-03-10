@@ -5,7 +5,7 @@
 import hook
 
 def without(): # Функция без аргументов
-    print("hello, im function which args. Im return None")
+    print("hello, im function which without args. Im return None")
 
 def dynamic(*args,**kwargs): # сюды можно что угодно пихать
     print("hello, im dynamic function i.e мне похуй что ты в меня суешь. Возвращаю все, что ты в меня сунул")
